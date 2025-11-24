@@ -1,4 +1,5 @@
 .gradle
+.gradle-home
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -41,3 +42,6 @@ bin/
 
 ### AI Agents ###
 AGENTS.md
+
+### Examples ###
+examples/*.class
