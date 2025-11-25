@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'c71n93'
@@ -21,6 +22,12 @@ dependencies {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+spotless {
+    java {
+        eclipse().configFile('config/spotless/eclipse-java-formatter.xml')
     }
 }
 

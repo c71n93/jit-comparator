@@ -12,7 +12,7 @@ public class Main {
             System.exit(1);
         }
         new WarmupRun(
-            new TargetMethod(Path.of(args[0]), args[1], args[2])
+                new TargetMethod(Path.of(args[0]), args[1], args[2])
         ).run().print();
     }
 }

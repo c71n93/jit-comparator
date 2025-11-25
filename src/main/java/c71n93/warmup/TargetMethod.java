@@ -49,7 +49,6 @@ public final class TargetMethod {
     }
 
     private static String requiredProperty(final String name) {
-        final String value = Objects.requireNonNull(System.getProperty(name), "Missing property: " + name);
-        return value;
+        return Objects.requireNonNull(System.getProperty(name), "Missing property: " + name);
     }
 }

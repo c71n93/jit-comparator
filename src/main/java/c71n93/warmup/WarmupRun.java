@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Launcher that spawns a separate JVM with JIT logging enabled and asks
- * a tiny JMH benchmark to warm up the target method. The fork is needed
- * because {@code -XX:+LogCompilation} can only be provided on JVM startup.
+ * Launcher that spawns a separate JVM with JIT logging enabled and asks a tiny
+ * JMH benchmark to warm up the target method. The fork is needed because
+ * {@code -XX:+LogCompilation} can only be provided on JVM startup.
  */
 public class WarmupRun {
     private final WarmupCommand command;
