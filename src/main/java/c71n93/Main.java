@@ -5,7 +5,8 @@ import c71n93.warmup.WarmupRun;
 import java.nio.file.Path;
 
 public class Main {
-    public static void main(String[] args) {
+    @SuppressWarnings({"PMD.AvoidLiteralsInIfCondition", "PMD.SystemPrintln"})
+    public static void main(final String[] args) {
         // TODO: use some conventional library to parse arguments
         if (args.length != 3) {
             System.err.println("Usage: java c71n93.Main <classpath-entry> <class-name> <method-name>");

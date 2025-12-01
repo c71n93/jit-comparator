@@ -19,16 +19,17 @@ public final class RunResult {
         this.stderr = stderr;
     }
 
+    @SuppressWarnings("PMD.SystemPrintln")
     public void print() {
-        System.out.println("Warmup JVM exited with code " + exitCode);
-        System.out.println("JIT log stored at " + logPath);
-        if (!stdout.isBlank()) {
+        System.out.println("Warmup JVM exited with code " + this.exitCode);
+        System.out.println("JIT log stored at " + this.logPath);
+        if (!this.stdout.isBlank()) {
             System.out.println("--- child stdout ---");
-            System.out.println(stdout);
+            System.out.println(this.stdout);
         }
-        if (!stderr.isBlank()) {
+        if (!this.stderr.isBlank()) {
             System.err.println("--- child stderr ---");
-            System.err.println(stderr);
+            System.err.println(this.stderr);
         }
     }
 }

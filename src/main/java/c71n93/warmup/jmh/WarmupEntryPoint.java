@@ -12,8 +12,8 @@ public final class WarmupEntryPoint {
     private WarmupEntryPoint() {
     }
 
-    public static void main(String[] args) throws Exception {
-        Options options = new OptionsBuilder()
+    public static void main(final String[] args) throws Exception {
+        final Options options = new OptionsBuilder()
                 .include(WarmupBenchmark.class.getName())
                 .warmupIterations(5) // TODO: figure out how to determine number of required warmup iterations
                 .measurementIterations(1)

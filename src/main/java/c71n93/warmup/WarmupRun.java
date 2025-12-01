@@ -21,11 +21,11 @@ public class WarmupRun {
 
     public RunResult run() {
         try {
-            final Process process = new ProcessBuilder(command.asList()).start();
+            final Process process = new ProcessBuilder(this.command.asList()).start();
             final String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
             final int exitCode = process.waitFor();
-            return new RunResult(command.logFile(), exitCode, stdout, stderr);
+            return new RunResult(this.command.logFile(), exitCode, stdout, stderr);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Warmup run interrupted", e);

@@ -25,7 +25,7 @@ public final class TargetMethod {
     }
 
     public Path classpath() {
-        return classpath;
+        return this.classpath;
     }
 
     public String classProperty() {
@@ -36,6 +36,7 @@ public final class TargetMethod {
         return "-D" + TargetMethod.TARGET_METHOD + "=" + this.methodName;
     }
 
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     public static Method runnableFromProperties() throws Exception { // TODO: implement exception handling
         final String className = requiredProperty(TargetMethod.TARGET_CLASS);
         final String methodName = requiredProperty(TargetMethod.TARGET_METHOD);

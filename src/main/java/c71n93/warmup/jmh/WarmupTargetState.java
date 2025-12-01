@@ -21,6 +21,6 @@ public class WarmupTargetState {
     }
 
     public Object invoke() throws Exception {
-        return targetMethod.invoke(null);
+        return this.targetMethod.invoke(null);
     }
 }
