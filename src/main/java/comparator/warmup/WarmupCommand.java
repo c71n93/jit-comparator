@@ -1,6 +1,7 @@
-package c71n93.warmup;
+package comparator.warmup;
 
-import c71n93.warmup.jmh.WarmupEntryPoint;
+import comparator.method.TargetMethod;
+import comparator.warmup.jmh.WarmupEntryPoint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +27,7 @@ public final class WarmupCommand {
     public List<String> asList() {
         final List<String> cmd = new ArrayList<>();
         cmd.add(this.javaExecutable.toString());
+        // cmd.add("-XX:CompileCommand=print," + this.targetMethod.classMethodName());
         cmd.add("-XX:+UnlockDiagnosticVMOptions");
         cmd.add("-XX:+LogCompilation");
         cmd.add("-XX:LogFile=" + this.logFile.toAbsolutePath());

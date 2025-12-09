@@ -1,6 +1,6 @@
-package c71n93.warmup.jmh;
+package comparator.warmup.jmh;
 
-import c71n93.warmup.TargetMethod;
+import comparator.method.TargetMethod;
 import java.lang.reflect.Method;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;

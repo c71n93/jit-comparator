@@ -1,4 +1,4 @@
-package c71n93.warmup.jmh;
+package comparator.warmup.jmh;
 
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;

@@ -1,5 +1,6 @@
-package c71n93.warmup;
+package comparator.warmup;
 
+import comparator.method.TargetMethod;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 

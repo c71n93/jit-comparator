@@ -1,4 +1,4 @@
-package c71n93.warmup.jmh;
+package comparator.warmup.jmh;
 
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
