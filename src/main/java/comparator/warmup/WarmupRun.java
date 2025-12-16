@@ -26,7 +26,8 @@ public class WarmupRun {
             final String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
             final int exitCode = process.waitFor();
-            return new RunResult(this.command.logFile(), exitCode, stdout, stderr);
+            return new RunResult(this.command.logFile(), exitCode, stdout, stderr); // TODO: put benchmark scores
+                                                                                    // (execution time) into result.
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Warmup run interrupted", e);

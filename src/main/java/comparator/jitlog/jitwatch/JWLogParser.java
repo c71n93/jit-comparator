@@ -3,6 +3,7 @@ package comparator.jitlog.jitwatch;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import org.adoptopenjdk.jitwatch.core.IJITListener;
 import org.adoptopenjdk.jitwatch.core.JITWatchConfig;
 import org.adoptopenjdk.jitwatch.model.JITDataModel;
 import org.adoptopenjdk.jitwatch.model.ParsedClasspath;
@@ -15,16 +16,11 @@ import org.adoptopenjdk.jitwatch.parser.ParserType;
 public final class JWLogParser implements ILogParser {
     private final ILogParser origin;
 
-    public JWLogParser(final ParserType type, final JITWatchConfig config, final File jitlog) {
-        this(type, new SilentListener(), config, jitlog);
+    public JWLogParser(final ParserType type, final IJITListener listener, final JITWatchConfig config) {
+        this(init(type, listener, config));
     }
 
-    public JWLogParser(final ParserType type, final JITLogParseErrorListener listener, final JITWatchConfig config,
-            final File jitlog) {
-        this(init(type, listener, config, jitlog));
-    }
-
-    private JWLogParser(final ILogParser origin) {
+    public JWLogParser(final ILogParser origin) {
         this.origin = origin;
     }
 
@@ -88,20 +84,10 @@ public final class JWLogParser implements ILogParser {
         this.origin.discardParsedLogs();
     }
 
-    // TODO: prohibit calling methods that were called here (e.g. setConfig,
-    // processLogFile)
-    private static ILogParser init(final ParserType type, final JITLogParseErrorListener listener,
-            final JITWatchConfig config, final File jitlog) {
+    private static ILogParser init(final ParserType type, final IJITListener listener,
+            final JITWatchConfig config) {
         final ILogParser parser = ParserFactory.getParser(type, listener);
         parser.setConfig(config);
-        try {
-            parser.processLogFile(jitlog, listener);
-        } catch (final IOException e) {
-            throw new IllegalStateException("Unable to parse JIT log", e);
-        }
-        if (parser.hasParseError()) {
-            throw new IllegalStateException("JITWatch reported parse errors");
-        }
         return parser;
     }
 }

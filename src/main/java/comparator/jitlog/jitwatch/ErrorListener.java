@@ -2,7 +2,10 @@ package comparator.jitlog.jitwatch;
 
 import org.adoptopenjdk.jitwatch.model.JITEvent;
 
-public class SilentListener implements JITLogParseErrorListener {
+/**
+ * Listener, that handles only errors.
+ */
+class ErrorListener implements UniversalJITListener {
     @Override
     public void handleJITEvent(final JITEvent event) {
     }
@@ -19,9 +22,6 @@ public class SilentListener implements JITLogParseErrorListener {
     public void handleLogEntry(final String entry) {
     }
 
-    // TODO: figure out what is the differences between handleErrorEntry and
-    // handleError.
-    // As I understand it, failure is OK for the handleErrorEntry.
     @Override
     public void handleErrorEntry(final String entry) {
         // TODO: Implement not silent listener, that will log errors somewhere.
@@ -29,10 +29,6 @@ public class SilentListener implements JITLogParseErrorListener {
 
     @Override
     public void handleError(final String title, final String body) {
-        // TODO: Should be silent. Find way to separate IJITListener and
-        // ILogParseErrorListener interfaces to be able
-        // to make one silent, but another not. The main problem is to pass all this
-        // mess to JWLogParser ctor.
         throw new IllegalStateException(String.format("%s: %s", title, body));
     }
 }

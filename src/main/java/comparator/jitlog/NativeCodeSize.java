@@ -1,7 +1,7 @@
 package comparator.jitlog;
 
 import comparator.jitlog.jitwatch.JWConfig;
-import comparator.jitlog.jitwatch.JWLogParser;
+import comparator.jitlog.jitwatch.JWParsedLog;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,7 +10,6 @@ import org.adoptopenjdk.jitwatch.model.IMetaMember;
 import org.adoptopenjdk.jitwatch.model.IReadOnlyJITDataModel;
 import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
 import org.adoptopenjdk.jitwatch.model.MetaClass;
-import org.adoptopenjdk.jitwatch.parser.ILogParser;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
 
 public final class NativeCodeSize {
@@ -24,11 +23,9 @@ public final class NativeCodeSize {
     }
 
     public int value() {
-        final ILogParser parser = new JWLogParser(
-                ParserType.HOTSPOT, new JWConfig(this.targetMethod),
-                this.jitlog.toFile()
-        );
-        final IReadOnlyJITDataModel model = parser.getModel();
+        final IReadOnlyJITDataModel model = new JWParsedLog(
+                ParserType.HOTSPOT, new JWConfig(this.targetMethod), this.jitlog.toFile()
+        ).model();
         final IMetaMember member = this.locateMember(model);
         final Compilation compilation = this.latestTierFour(member);
         return compilation.getNativeSize();
