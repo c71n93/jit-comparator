@@ -1,7 +1,7 @@
 package comparator.jitlog;
 
 import comparator.method.TargetMethod;
-import comparator.jitlog.test.LogTargetMain;
+import comparator.jitlog.test.LogTargetWarmup;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,7 +55,7 @@ class NativeCodeSizeTest {
         cmd.addAll(extraFlags);
         cmd.add("-cp");
         cmd.add(System.getProperty("java.class.path"));
-        cmd.add(LogTargetMain.class.getName());
+        cmd.add(LogTargetWarmup.class.getName());
         final Process process = new ProcessBuilder(cmd).start();
         final int exit = process.waitFor();
         if (exit != 0) {

@@ -1,7 +1,7 @@
 package comparator;
 
 import comparator.jitlog.NativeCodeSize;
-import comparator.warmup.RunResult;
+import comparator.warmup.WarmupResult;
 import comparator.method.TargetMethod;
 import comparator.warmup.WarmupRun;
 import java.nio.file.Path;
@@ -14,11 +14,13 @@ public class Main {
         final TargetMethod targetPlain = new TargetMethod(classpath, "PlainForExample", "runFor");
         final TargetMethod targetStream = new TargetMethod(classpath, "StreamBoxedExample", "runStreamBoxed");
 
-        final RunResult resultPlain = new WarmupRun(targetPlain).run();
+        final WarmupResult resultPlain = new WarmupRun(targetPlain).run();
+        resultPlain.print(System.out);
         final int nativeSizePlain = new NativeCodeSize(targetPlain, resultPlain.log()).value();
         System.out.println("Plain tier 4 native code size: " + nativeSizePlain + " bytes");
 
-        final RunResult resultStream = new WarmupRun(targetStream).run();
+        final WarmupResult resultStream = new WarmupRun(targetStream).run();
+        resultStream.print(System.out);
         final int nativeSizeStream = new NativeCodeSize(targetStream, resultStream.log()).value();
         System.out.println("Stream tier 4 native code size: " + nativeSizeStream + " bytes");
     }

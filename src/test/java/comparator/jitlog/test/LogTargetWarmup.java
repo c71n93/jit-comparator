@@ -1,7 +1,7 @@
 package comparator.jitlog.test;
 
-public final class LogTargetMain {
-    private LogTargetMain() {
+public final class LogTargetWarmup {
+    private LogTargetWarmup() {
     }
 
     @SuppressWarnings("PMD.SystemPrintln")

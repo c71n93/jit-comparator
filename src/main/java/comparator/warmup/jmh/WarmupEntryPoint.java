@@ -1,8 +1,11 @@
 package comparator.warmup.jmh;
 
+import comparator.warmup.WarmupConfig;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.results.format.ResultFormatType;
 
 /**
  * Small wrapper with a main method. The outer Java process launches this class
@@ -13,12 +16,17 @@ public final class WarmupEntryPoint {
     }
 
     public static void main(final String[] args) throws Exception {
+        final boolean quick = WarmupConfig.fromProperty().quick();
         final Options options = new OptionsBuilder()
                 .include(WarmupBenchmark.class.getName())
-                .warmupIterations(5) // TODO: figure out how to determine number of required warmup iterations
+                .warmupIterations(quick ? 1 : 5)
+                .warmupTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(10))
                 .measurementIterations(1)
+                .measurementTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(1))
                 .forks(0) // Running inside the already forked JVM.
                 .shouldFailOnError(true)
+                .result(JMHResultFile.resultFileFromProperty())
+                .resultFormat(ResultFormatType.JSON)
                 .build();
         new Runner(options).run();
     }

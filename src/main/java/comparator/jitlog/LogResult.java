@@ -7,10 +7,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
-public class LogResults implements Result {
+public class LogResult implements Result {
     private final int nativeSize;
 
-    public LogResults(final TargetMethod targetMethod, final Path jitlog) {
+    public LogResult(final TargetMethod targetMethod, final Path jitlog) {
         this(new NativeCodeSize(targetMethod, jitlog).value());
     }
 
@@ -19,7 +19,7 @@ public class LogResults implements Result {
      * 
      * @param nativeCodeSize
      */
-    private LogResults(final int nativeCodeSize) {
+    private LogResult(final int nativeCodeSize) {
         this.nativeSize = nativeCodeSize;
     }
 
