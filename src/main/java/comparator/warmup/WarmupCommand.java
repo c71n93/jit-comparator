@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class WarmupCommand {
@@ -25,18 +24,18 @@ public final class WarmupCommand {
     }
 
     public List<String> asList() {
-        final List<String> cmd = new ArrayList<>();
-        cmd.add(this.javaExecutable.toString());
-        // cmd.add("-XX:CompileCommand=print," + this.targetMethod.classMethodName());
-        cmd.add("-XX:+UnlockDiagnosticVMOptions");
-        cmd.add("-XX:+LogCompilation");
-        cmd.add("-XX:LogFile=" + this.logFile.toAbsolutePath());
-        cmd.add("-cp");
-        cmd.add(this.classpath());
-        cmd.add(this.targetMethod.classProperty());
-        cmd.add(this.targetMethod.methodProperty());
-        cmd.add(WarmupEntryPoint.class.getName()); // TODO: make Entry class configurable
-        return cmd;
+        return List.of(
+                this.javaExecutable.toString(),
+                "-XX:CompileCommand=print," + this.targetMethod.classMethodName(),
+                "-XX:+UnlockDiagnosticVMOptions",
+                "-XX:+LogCompilation",
+                "-XX:LogFile=" + this.logFile.toAbsolutePath(),
+                "-cp",
+                this.classpath(),
+                this.targetMethod.classProperty(),
+                this.targetMethod.methodProperty(),
+                WarmupEntryPoint.class.getName() // TODO: make Entry class configurable
+        );
     }
 
     public Path logFile() {
@@ -44,10 +43,13 @@ public final class WarmupCommand {
     }
 
     private String classpath() {
-        final List<String> entries = new ArrayList<>();
-        entries.add(this.targetMethod.classpath().toString());
-        entries.add(System.getProperty("java.class.path"));
-        return String.join(File.pathSeparator, entries);
+        return String.join(
+                File.pathSeparator,
+                List.of(
+                        this.targetMethod.classpath().toString(),
+                        System.getProperty("java.class.path")
+                )
+        );
     }
 
     private static Path tmpLogFile() {

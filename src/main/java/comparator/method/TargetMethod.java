@@ -11,9 +11,7 @@ import java.util.Objects;
 import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
 
 /**
- * Simple descriptor of the method we want to warm up. To keep the example small
- * we only support parameterless static methods and require the caller to pass a
- * single classpath entry that contains the target bytecode.
+ * Descriptor of the target method we want to investigate.
  */
 public final class TargetMethod {
     private static final String TARGET_CLASS = "comparator.warmup.targetClass";
@@ -27,8 +25,8 @@ public final class TargetMethod {
     }
 
     public TargetMethod(final Path classpath, final Method method) {
-        this.classpath = Objects.requireNonNull(classpath, "Classpath is required");
-        this.method = Objects.requireNonNull(method, "Method is required");
+        this.classpath = classpath;
+        this.method = method;
     }
 
     public Path classpath() {
@@ -57,15 +55,6 @@ public final class TargetMethod {
 
     public Method method() {
         return this.method;
-    }
-
-    public MemberSignatureParts signatureParts() {
-        return MemberSignatureParts.fromParts(
-                this.className(),
-                this.methodName(),
-                this.method.getReturnType().getName(),
-                this.parameterTypeNames()
-        );
     }
 
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
@@ -97,13 +86,5 @@ public final class TargetMethod {
         } catch (final Exception e) {
             throw new IllegalStateException("Unable to load target method", e);
         }
-    }
-
-    private List<String> parameterTypeNames() {
-        final List<String> names = new ArrayList<>();
-        for (final Class<?> param : this.method.getParameterTypes()) {
-            names.add(param.getName());
-        }
-        return names;
     }
 }

@@ -7,7 +7,7 @@ import org.adoptopenjdk.jitwatch.model.IReadOnlyJITDataModel;
 import org.adoptopenjdk.jitwatch.parser.ILogParser;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
 
-public class JWParsedLog {
+public final class JWParsedLog {
     private final ILogParser parser;
 
     public JWParsedLog(final ParserType type, final JITWatchConfig config, final File jitlog) {

@@ -5,7 +5,7 @@ import org.adoptopenjdk.jitwatch.model.JITEvent;
 /**
  * Listener, that handles only errors.
  */
-class ErrorListener implements UniversalJITListener {
+final class ErrorListener implements UniversalJITListener {
     @Override
     public void handleJITEvent(final JITEvent event) {
     }
