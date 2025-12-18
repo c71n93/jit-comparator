@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'pmd'
+    id 'application'
     id 'com.diffplug.spotless' version '6.25.0'
 }
 
@@ -49,4 +50,8 @@ pmd {
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = 'comparator.Main'
 }

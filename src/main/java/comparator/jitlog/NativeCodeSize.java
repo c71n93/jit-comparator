@@ -1,5 +1,6 @@
 package comparator.jitlog;
 
+import comparator.Artifact;
 import comparator.jitlog.jitwatch.JWConfig;
 import comparator.jitlog.jitwatch.model.JWJITDataModelWrapper;
 import comparator.jitlog.jitwatch.JWParsedLog;
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 import org.adoptopenjdk.jitwatch.model.Compilation;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
 
-public final class NativeCodeSize {
+public final class NativeCodeSize implements Artifact {
     private final TargetMethod targetMethod;
     private final Path jitlog;
     private static final int TIER_LEVEL_4 = 4;
@@ -30,5 +31,10 @@ public final class NativeCodeSize {
         );
         final Compilation compilation = member.getLastCompilationOfTier(NativeCodeSize.TIER_LEVEL_4);
         return compilation.getNativeSize();
+    }
+
+    @Override
+    public String toString() {
+        return this.targetMethod.classMethodName() + ": " + this.value() + " bytes";
     }
 }

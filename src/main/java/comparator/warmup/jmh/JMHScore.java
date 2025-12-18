@@ -1,8 +1,9 @@
 package comparator.warmup.jmh;
 
+import comparator.Artifact;
 import java.util.Objects;
 
-public final class JMHScore {
+public final class JMHScore implements Artifact {
     private final String benchmark;
     private final double score;
     private final String unit;

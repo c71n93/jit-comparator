@@ -14,12 +14,12 @@ final class WarmupRunTest {
         final TargetMethod target = new TargetMethod(
                 classpath, WarmupTarget.class.getName(), "succeed"
         );
-        final WarmupResult result = new WarmupRun(new WarmupCommand(target, true)).run();
-        Assertions.assertTrue(Files.exists(result.log()), "Warmup should produce JIT log file");
-        Assertions.assertFalse(result.scores().isEmpty(), "Warmup should produce at least one benchmark score");
+        final WarmupResults results = new WarmupRun(new WarmupCommand(target, true)).run();
+        Assertions.assertTrue(Files.exists(results.log()), "Warmup should produce JIT log file");
+        Assertions.assertFalse(results.scores().isEmpty(), "Warmup should produce at least one benchmark score");
         Assertions.assertEquals(
                 "comparator.warmup.jmh.WarmupBenchmark.callTarget",
-                result.scores().getFirst().benchmark(),
+                results.scores().getFirst().benchmark(),
                 "Benchmark name should match JMH output"
         );
     }

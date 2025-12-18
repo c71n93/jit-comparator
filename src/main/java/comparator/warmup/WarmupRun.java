@@ -22,7 +22,7 @@ public class WarmupRun {
         this.command = command;
     }
 
-    public WarmupResult run() {
+    public WarmupResults run() {
         try {
             final Process process = new ProcessBuilder(this.command.asList()).start();
             final String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -34,7 +34,7 @@ public class WarmupRun {
                 );
             }
             final List<JMHScore> scores = this.command.resultFile().parsedResult();
-            return new WarmupResult(this.command.logFile(), scores);
+            return new WarmupResults(this.command.logFile(), scores);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Warmup run interrupted", e);
