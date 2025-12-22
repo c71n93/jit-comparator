@@ -5,12 +5,12 @@ import java.nio.file.Path;
 
 public class Main {
     public static void main(final String[] args) {
-        // TODO: this main is temporary, just for test.
-        final Path classpath = Path.of("/Users/c71n93/Programming/Diploma/comparator/examples"); // TODO: fix absolute path
-        final TargetMethod targetPlain = new TargetMethod(classpath, "PlainForExample", "runFor");
-        final TargetMethod targetStream = new TargetMethod(classpath, "StreamBoxedExample", "runStreamBoxed");
+        final Path forVsStreamClasspath = Path.of("examples", "for-vs-stream");
+        new Analysis(new TargetMethod(forVsStreamClasspath, "PlainForExample", "runFor")).results().print(System.out);
+        new Analysis(new TargetMethod(forVsStreamClasspath, "StreamBoxedExample", "runStreamBoxed")).results().print(System.out);
 
-        new Analysis(targetPlain).results().print(System.out);
-        new Analysis(targetStream).results().print(System.out);
+        final Path arrayVsListClasspath = Path.of("examples", "array-vs-list");
+        new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayExample", "runArray")).results().print(System.out);
+        new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayListExample", "runArrayList")).results().print(System.out);
     }
 }
