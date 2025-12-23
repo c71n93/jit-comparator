@@ -2,21 +2,23 @@ package comparator.warmup.jmh;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import comparator.warmup.WarmupResults;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
  * Represents a JMH result file produced by the warmup JVM. It builds the JVM
  * property string used to pass the file path to the forked process and parses
- * the result files into {@link JMHScore} entries.
+ * the result file into {@link WarmupResults}.
  */
 public class JMHResultFile {
     private static final String WARMUP_RESULT = "warmup.result.file";
+    private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
+    private static final String SCORE_FIELD = "score";
+    private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
 
     public JMHResultFile(final Path result) {
@@ -42,35 +44,44 @@ public class JMHResultFile {
     }
 
     /**
-     * Parses the JSON result file into a list of primary metric scores.
+     * Parses the JSON result file into warmup results.
      *
-     * @return scores from the JMH result file
+     * @return results from the JMH result file
      */
-    public List<JMHScore> parsedResult() {
-        final List<JMHScore> scores = new ArrayList<>();
+    // TODO: We need to pass logPath here only to construct WarmupResults. This
+    // should be fixed somehow.
+    public WarmupResults parsedResult(final Path logPath) {
         if (!Files.exists(this.result)) {
-            return scores;
+            throw new IllegalStateException("Warmup result file is missing: " + this.result);
         }
         try {
             final ObjectMapper mapper = new ObjectMapper();
             final JsonNode root = mapper.readTree(Files.readString(this.result, StandardCharsets.UTF_8));
-            if (root.isArray()) {
-                for (final JsonNode node : root) {
-                    final JsonNode primary = node.get("primaryMetric");
-                    if (primary != null && node.hasNonNull("benchmark")) {
-                        scores.add(
-                                new JMHScore(
-                                        node.get("benchmark").asText(),
-                                        primary.get("score").asDouble(),
-                                        primary.get("scoreUnit").asText()
-                                )
-                        );
-                    }
-                }
+            if (!root.isArray() || root.isEmpty()) {
+                throw new IllegalStateException("Warmup result file is empty: " + this.result);
             }
-            return scores;
+            final JsonNode node = root.get(0);
+            final JMHPrimaryScore score = this.scoreFrom(node.path("primaryMetric"));
+            final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(
+                    node.path("secondaryMetrics").path(GC_ALLOC_RATE_NORM)
+            );
+            return new WarmupResults(logPath, score, allocRateNorm);
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read warmup result file", e);
         }
+    }
+
+    private JMHPrimaryScore scoreFrom(final JsonNode node) {
+        if (node.isMissingNode() || !node.hasNonNull(SCORE_FIELD) || !node.hasNonNull(SCORE_UNIT_FIELD)) {
+            throw new IllegalStateException("Missing primary metric in warmup result file: " + this.result);
+        }
+        return new JMHPrimaryScore(node.get(SCORE_FIELD).asDouble(), node.get(SCORE_UNIT_FIELD).asText());
+    }
+
+    private JMHAllocRateNorm allocRateNormFrom(final JsonNode node) {
+        if (node.isMissingNode() || !node.hasNonNull(SCORE_FIELD) || !node.hasNonNull(SCORE_UNIT_FIELD)) {
+            throw new IllegalStateException("Missing gc.alloc.rate.norm in warmup result file: " + this.result);
+        }
+        return new JMHAllocRateNorm(node.get(SCORE_FIELD).asDouble(), node.get(SCORE_UNIT_FIELD).asText());
     }
 }

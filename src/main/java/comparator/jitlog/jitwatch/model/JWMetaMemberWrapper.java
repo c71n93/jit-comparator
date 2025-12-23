@@ -159,7 +159,9 @@ public final class JWMetaMemberWrapper implements IMetaMember {
     }
 
     // TODO: implement enum for compilation tiers.
-    // TODO: Last compilation can be OSR. This means, that result code will definitely be different. We should not include OSR compilation into our analysis.
+    // TODO: Last compilation can be OSR. This means, that result code will
+    // definitely be different. We should not include OSR compilation into our
+    // analysis.
     public Compilation getLastCompilationOfTier(final int tier) {
         final List<Compilation> compilations = this.getCompilations();
         for (int i = compilations.size() - 1; i >= 0; i--) {

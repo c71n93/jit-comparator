@@ -16,12 +16,11 @@ final class WarmupRunTest {
         );
         final WarmupResults results = new WarmupRun(new WarmupCommand(target, true)).run();
         Assertions.assertTrue(Files.exists(results.log()), "Warmup should produce JIT log file");
-        Assertions.assertFalse(results.scores().isEmpty(), "Warmup should produce at least one benchmark score");
-        Assertions.assertEquals(
-                "comparator.warmup.jmh.WarmupBenchmark.callTarget",
-                results.scores().getFirst().benchmark(),
-                "Benchmark name should match JMH output"
-        );
+        Assertions.assertTrue(Double.isFinite(results.score().score()), "Warmup should produce primary score");
+        Assertions
+                .assertTrue(Double.isFinite(results.allocRateNorm().score()), "Warmup should produce alloc rate norm");
+        Assertions.assertFalse(results.score().unit().isEmpty(), "Primary score unit should be present");
+        Assertions.assertFalse(results.allocRateNorm().unit().isEmpty(), "Alloc rate norm unit should be present");
     }
 
     @Test

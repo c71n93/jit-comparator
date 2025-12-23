@@ -2,6 +2,7 @@ package comparator.warmup.jmh;
 
 import comparator.warmup.WarmupConfig;
 import java.util.concurrent.TimeUnit;
+import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
@@ -27,6 +28,7 @@ public final class WarmupEntryPoint {
                 .measurementIterations(1)
                 .measurementTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(1))
                 .forks(0) // Running inside the already forked JVM.
+                .addProfiler(GCProfiler.class)
                 .shouldFailOnError(true)
                 .result(JMHResultFile.resultFileFromProperty())
                 .resultFormat(ResultFormatType.JSON)

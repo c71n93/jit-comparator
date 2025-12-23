@@ -1,25 +1,28 @@
 package comparator.warmup;
 
 import comparator.Results;
-import comparator.warmup.jmh.JMHScore;
+import comparator.warmup.jmh.JMHAllocRateNorm;
+import comparator.warmup.jmh.JMHPrimaryScore;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Stores the results of the forked warmup JVM run: JIT log location and
- * benchmark scores.
+ * benchmark metrics.
  */
 public final class WarmupResults implements Results {
     private final Path logPath;
-    private final List<JMHScore> scores;
+    private final JMHPrimaryScore score;
+    private final JMHAllocRateNorm allocRateNorm;
 
-    public WarmupResults(final Path logPath, final List<JMHScore> scores) {
-        this.logPath = logPath;
-        this.scores = List.copyOf(scores);
+    public WarmupResults(final Path logPath, final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm) {
+        this.logPath = Objects.requireNonNull(logPath);
+        this.score = Objects.requireNonNull(score);
+        this.allocRateNorm = Objects.requireNonNull(allocRateNorm);
     }
 
     @Override
@@ -27,12 +30,9 @@ public final class WarmupResults implements Results {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
         writer.println("Warmup results:");
         writer.println("JIT log stored at " + this.logPath);
-        if (!this.scores.isEmpty()) {
-            writer.println("Benchmark scores:");
-            for (final JMHScore score : this.scores) {
-                writer.println("- " + score.toString());
-            }
-        }
+        writer.println("Benchmark metrics:");
+        writer.println("- " + this.score.toString());
+        writer.println("- " + this.allocRateNorm.toString());
         writer.flush();
     }
 
@@ -40,7 +40,11 @@ public final class WarmupResults implements Results {
         return this.logPath;
     }
 
-    public List<JMHScore> scores() {
-        return this.scores;
+    public JMHPrimaryScore score() {
+        return this.score;
+    }
+
+    public JMHAllocRateNorm allocRateNorm() {
+        return this.allocRateNorm;
     }
 }

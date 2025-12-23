@@ -1,10 +1,8 @@
 package comparator.warmup;
 
 import comparator.method.TargetMethod;
-import comparator.warmup.jmh.JMHScore;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Launcher that spawns a separate JVM with JIT logging enabled and asks a tiny
@@ -33,8 +31,7 @@ public class WarmupRun {
                         "Warmup run failed with exit code " + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr
                 );
             }
-            final List<JMHScore> scores = this.command.resultFile().parsedResult();
-            return new WarmupResults(this.command.logFile(), scores);
+            return this.command.resultFile().parsedResult(this.command.logFile());
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Warmup run interrupted", e);
