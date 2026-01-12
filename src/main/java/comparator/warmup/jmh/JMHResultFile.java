@@ -2,7 +2,7 @@ package comparator.warmup.jmh;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comparator.warmup.WarmupResults;
+import comparator.warmup.JMHResults;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,10 +12,10 @@ import java.util.Objects;
 /**
  * Represents a JMH result file produced by the warmup JVM. It builds the JVM
  * property string used to pass the file path to the forked process and parses
- * the result file into {@link WarmupResults}.
+ * the result file into {@link JMHResults}.
  */
 public class JMHResultFile {
-    private static final String WARMUP_RESULT = "warmup.result.file";
+    private static final String WARMUP_RESULT_PROP = "warmup.result.file";
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
@@ -31,7 +31,7 @@ public class JMHResultFile {
      * @return JVM property in {@code -Dname=value} form
      */
     public String property() {
-        return "-D" + WARMUP_RESULT + "=" + this.result.toAbsolutePath();
+        return "-D" + WARMUP_RESULT_PROP + "=" + this.result.toAbsolutePath();
     }
 
     /**
@@ -40,7 +40,8 @@ public class JMHResultFile {
      * @return value of the warmup result file property
      */
     public static String resultFileFromProperty() {
-        return Objects.requireNonNull(System.getProperty(WARMUP_RESULT), "Missing property: " + WARMUP_RESULT);
+        return Objects
+                .requireNonNull(System.getProperty(WARMUP_RESULT_PROP), "Missing property: " + WARMUP_RESULT_PROP);
     }
 
     /**
@@ -48,9 +49,7 @@ public class JMHResultFile {
      *
      * @return results from the JMH result file
      */
-    // TODO: We need to pass logPath here only to construct WarmupResults. This
-    // should be fixed somehow.
-    public WarmupResults parsedResult(final Path logPath) {
+    public JMHResults parsedResult() {
         if (!Files.exists(this.result)) {
             throw new IllegalStateException("Warmup result file is missing: " + this.result);
         }
@@ -65,7 +64,7 @@ public class JMHResultFile {
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(
                     node.path("secondaryMetrics").path(GC_ALLOC_RATE_NORM)
             );
-            return new WarmupResults(logPath, score, allocRateNorm);
+            return new JMHResults(score, allocRateNorm);
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read warmup result file", e);
         }

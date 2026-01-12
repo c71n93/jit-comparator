@@ -2,8 +2,8 @@ package comparator;
 
 import comparator.jitlog.LogResults;
 import comparator.method.TargetMethod;
-import comparator.warmup.WarmupResults;
-import comparator.warmup.WarmupRun;
+import comparator.warmup.WarmupCommand;
+import comparator.warmup.WarmupOutput;
 
 public class Analysis {
     private final TargetMethod targetMethod;
@@ -13,7 +13,7 @@ public class Analysis {
     }
 
     public JITResults results() {
-        final WarmupResults warmup = new WarmupRun(this.targetMethod).run();
-        return new JITResults(warmup, new LogResults(this.targetMethod, warmup.log()));
+        final WarmupOutput output = new WarmupCommand(this.targetMethod).run();
+        return new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()));
     }
 }

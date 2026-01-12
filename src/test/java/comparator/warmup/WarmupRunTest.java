@@ -14,8 +14,9 @@ final class WarmupRunTest {
         final TargetMethod target = new TargetMethod(
                 classpath, WarmupTarget.class.getName(), "succeed"
         );
-        final WarmupResults results = new WarmupRun(new WarmupCommand(target, true)).run();
-        Assertions.assertTrue(Files.exists(results.log()), "Warmup should produce JIT log file");
+        final WarmupOutput output = new WarmupCommand(target, new WarmupConfig(true)).run();
+        Assertions.assertTrue(Files.exists(output.jitlog()), "Warmup should produce JIT log file");
+        final JMHResults results = output.results();
         Assertions.assertTrue(Double.isFinite(results.score().score()), "Warmup should produce primary score");
         Assertions
                 .assertTrue(Double.isFinite(results.allocRateNorm().score()), "Warmup should produce alloc rate norm");
@@ -32,7 +33,7 @@ final class WarmupRunTest {
         Assertions
                 .assertThrows(
                         IllegalStateException.class,
-                        () -> new WarmupRun(new WarmupCommand(target, true)).run(),
+                        () -> new WarmupCommand(target, new WarmupConfig(true)).run(),
                         "Warmup run should fail on target exception"
                 );
     }

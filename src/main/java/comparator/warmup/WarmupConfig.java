@@ -2,6 +2,7 @@ package comparator.warmup;
 
 import java.util.Objects;
 
+// TODO: implement Property interface, that will consist of two methods:
 public final class WarmupConfig {
     // TODO: Current configuration is temporary and for testing. Implement more
     // useful configuration.
