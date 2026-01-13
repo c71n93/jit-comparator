@@ -1,4 +1,4 @@
-package comparator.warmup.jmh;
+package comparator.jmh.launch.benchmark;
 
 import comparator.method.TargetMethod;
 import java.lang.reflect.Method;
@@ -12,7 +12,7 @@ import org.openjdk.jmh.annotations.State;
  * the reflection in setup method keeps the benchmark itself straightforward.
  */
 @State(Scope.Thread)
-public class WarmupTargetState {
+public class JMHTargetState {
     private Method targetMethod;
 
     @Setup(Level.Trial)

@@ -14,8 +14,8 @@ import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
  * Descriptor of the target method we want to investigate.
  */
 public final class TargetMethod {
-    private static final String TARGET_CLASS = "comparator.warmup.targetClass";
-    private static final String TARGET_METHOD = "comparator.warmup.targetMethod";
+    private static final String TARGET_CLASS = "comparator.jmh.targetClass";
+    private static final String TARGET_METHOD = "comparator.jmh.targetMethod";
 
     private final Path classpath;
     private final Method method;
@@ -64,7 +64,7 @@ public final class TargetMethod {
         final Class<?> clazz = Class.forName(className);
         final Method method = clazz.getDeclaredMethod(methodName);
         if (!Modifier.isStatic(method.getModifiers())) { // TODO: add possibility to run not only static methods
-            throw new IllegalArgumentException("Minimal warmup supports only static methods");
+            throw new IllegalArgumentException("Minimal JMH run supports only static methods");
         }
         method.setAccessible(true);
         return method;

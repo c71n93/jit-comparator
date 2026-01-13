@@ -1,4 +1,4 @@
-package comparator.warmup.jmh;
+package comparator.jmh.launch.benchmark;
 
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -8,14 +8,14 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 
 /**
  * The benchmark simply calls the reflection helper. JMH takes care of warmup
- * loops, measurement and throttling for us.
+ * iterations, measurement and throttling for us.
  */
 @BenchmarkMode(Mode.AverageTime) // TODO: To decide which mode is best suited for our purposes.
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-public class WarmupBenchmark {
+public class JMHBenchmark {
 
     @Benchmark
-    public Object callTarget(final WarmupTargetState state) throws Exception {
+    public Object callTarget(final JMHTargetState state) throws Exception {
         return state.invoke();
     }
 }

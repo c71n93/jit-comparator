@@ -1,7 +1,7 @@
-package comparator.warmup.fixtures;
+package comparator.jmh.fixtures;
 
-public final class WarmupTarget {
-    private WarmupTarget() {
+public final class JMHTarget {
+    private JMHTarget() {
     }
 
     public static Object succeed() {

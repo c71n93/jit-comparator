@@ -1,8 +1,6 @@
-package comparator.warmup;
+package comparator.jmh;
 
 import comparator.Results;
-import comparator.warmup.jmh.JMHAllocRateNorm;
-import comparator.warmup.jmh.JMHPrimaryScore;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -10,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * Stores the results of the forked warmup JVM run: benchmark metrics.
+ * Stores the results of the forked JMH run: benchmark metrics.
  */
 public final class JMHResults implements Results {
     private final JMHPrimaryScore score;

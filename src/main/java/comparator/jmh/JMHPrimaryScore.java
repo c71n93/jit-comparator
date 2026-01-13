@@ -1,4 +1,4 @@
-package comparator.warmup.jmh;
+package comparator.jmh;
 
 import comparator.Artifact;
 

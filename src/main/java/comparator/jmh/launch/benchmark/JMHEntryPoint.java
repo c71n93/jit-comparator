@@ -1,6 +1,7 @@
-package comparator.warmup.jmh;
+package comparator.jmh.launch.benchmark;
 
-import comparator.warmup.WarmupConfig;
+import comparator.jmh.launch.JMHConfig;
+import comparator.jmh.launch.JMHResultFile;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -13,16 +14,16 @@ import org.openjdk.jmh.results.format.ResultFormatType;
  * Small wrapper with a main method. The outer Java process launches this class
  * to execute the benchmarks inside a clean JVM that has JIT logging enabled.
  */
-public final class WarmupEntryPoint {
+public final class JMHEntryPoint {
     private static final long LOG_FLUSH_DELAY_MS = 500L;
 
-    private WarmupEntryPoint() {
+    private JMHEntryPoint() {
     }
 
     public static void main(final String[] args) throws Exception {
-        final boolean quick = WarmupConfig.fromProperty().quick();
+        final boolean quick = JMHConfig.fromProperty().quick();
         final Options options = new OptionsBuilder()
-                .include(WarmupBenchmark.class.getName())
+                .include(JMHBenchmark.class.getName())
                 .warmupIterations(quick ? 1 : 5)
                 .warmupTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(3))
                 .measurementIterations(1)
@@ -35,6 +36,6 @@ public final class WarmupEntryPoint {
                 .build();
         new Runner(options).run();
         // TODO: This delay is needed to flush jit log. Find more elegant solution.
-        TimeUnit.MILLISECONDS.sleep(WarmupEntryPoint.LOG_FLUSH_DELAY_MS);
+        TimeUnit.MILLISECONDS.sleep(JMHEntryPoint.LOG_FLUSH_DELAY_MS);
     }
 }

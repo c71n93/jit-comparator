@@ -1,8 +1,7 @@
-package comparator.warmup;
+package comparator.jmh.launch;
 
+import comparator.jmh.launch.benchmark.JMHEntryPoint;
 import comparator.method.TargetMethod;
-import comparator.warmup.jmh.JMHResultFile;
-import comparator.warmup.jmh.WarmupEntryPoint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,44 +10,44 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Launcher that spawns a separate JVM with JIT logging enabled and asks a tiny
- * JMH benchmark to warm up the target method. The fork is needed because
+ * Launcher that spawns a separate JVM with JIT logging enabled and executes a
+ * JMH benchmark for the target method. The fork is needed because
  * {@code -XX:+LogCompilation} can only be provided on JVM startup.
  */
-public final class WarmupCommand {
+public final class JMHCommand {
     private final TargetMethod targetMethod;
     private final Path javaExecutable;
     private final Path jitlog;
     private final JMHResultFile result;
-    private final WarmupConfig config;
+    private final JMHConfig config;
 
-    public WarmupCommand(final TargetMethod targetMethod) {
+    public JMHCommand(final TargetMethod targetMethod) {
         this(
                 targetMethod,
                 Path.of(System.getProperty("java.home"), "bin", "java"),
-                WarmupCommand.tmpLogFile(),
-                new JMHResultFile(WarmupCommand.tmpResultFile()),
-                new WarmupConfig(false)
+                JMHCommand.tmpLogFile(),
+                new JMHResultFile(JMHCommand.tmpResultFile()),
+                new JMHConfig(false)
         );
     }
 
-    public WarmupCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
+    public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
             final JMHResultFile resultFile) {
-        this(targetMethod, javaExecutable, jitlog, resultFile, new WarmupConfig(false));
+        this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig(false));
     }
 
-    public WarmupCommand(final TargetMethod targetMethod, final WarmupConfig config) {
+    public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
         this(
                 targetMethod,
                 Path.of(System.getProperty("java.home"), "bin", "java"),
-                WarmupCommand.tmpLogFile(),
-                new JMHResultFile(WarmupCommand.tmpResultFile()),
+                JMHCommand.tmpLogFile(),
+                new JMHResultFile(JMHCommand.tmpResultFile()),
                 config
         );
     }
 
-    public WarmupCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
-            final JMHResultFile resultFile, final WarmupConfig config) {
+    public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
+            final JMHResultFile resultFile, final JMHConfig config) {
         this.targetMethod = targetMethod;
         this.javaExecutable = javaExecutable;
         this.jitlog = jitlog;
@@ -56,7 +55,7 @@ public final class WarmupCommand {
         this.config = config;
     }
 
-    public WarmupOutput run() {
+    public JMHOutput run() {
         try {
             final Process process = new ProcessBuilder(this.asList()).start();
             final String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -64,15 +63,15 @@ public final class WarmupCommand {
             final int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new IllegalStateException(
-                        "Warmup run failed with exit code " + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr
+                        "JMH run failed with exit code " + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr
                 );
             }
-            return new WarmupOutput(this.jitlog, this.result);
+            return new JMHOutput(this.jitlog, this.result);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Warmup run interrupted", e);
+            throw new IllegalStateException("JMH run interrupted", e);
         } catch (final IOException e) {
-            throw new IllegalStateException("Warmup run failed", e);
+            throw new IllegalStateException("JMH run failed", e);
         }
     }
 
@@ -89,7 +88,7 @@ public final class WarmupCommand {
                 this.classpath(),
                 this.targetMethod.classProperty(),
                 this.targetMethod.methodProperty(),
-                WarmupEntryPoint.class.getName() // TODO: make Entry class configurable
+                JMHEntryPoint.class.getName() // TODO: make Entry class configurable
         );
     }
 
@@ -113,9 +112,9 @@ public final class WarmupCommand {
 
     private static Path tmpResultFile() {
         try {
-            return Files.createTempFile("warmup-result-", ".json");
+            return Files.createTempFile("jmh-result-", ".json");
         } catch (final IOException e) {
-            throw new IllegalStateException("Unable to create warmup result file", e);
+            throw new IllegalStateException("Unable to create JMH result file", e);
         }
     }
 }

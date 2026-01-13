@@ -1,7 +1,7 @@
 package comparator.jitlog.test;
 
-public final class LogTargetWarmup {
-    private LogTargetWarmup() {
+public final class LogTargetDriver {
+    private LogTargetDriver() {
     }
 
     @SuppressWarnings("PMD.SystemPrintln")
