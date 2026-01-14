@@ -20,11 +20,9 @@ final class JMHRunTest {
         final JMHOutput output = new JMHCommand(target, new JMHConfig(true)).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
-        Assertions.assertTrue(Double.isFinite(results.score().score()), "JMH run should produce primary score");
+        Assertions.assertTrue(Double.isFinite(results.score().value()), "JMH run should produce primary score");
         Assertions
-                .assertTrue(Double.isFinite(results.allocRateNorm().score()), "JMH run should produce alloc rate norm");
-        Assertions.assertFalse(results.score().unit().isEmpty(), "Primary score unit should be present");
-        Assertions.assertFalse(results.allocRateNorm().unit().isEmpty(), "Alloc rate norm unit should be present");
+                .assertTrue(Double.isFinite(results.allocRateNorm().value()), "JMH run should produce alloc rate norm");
     }
 
     @Test

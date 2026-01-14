@@ -1,8 +1,8 @@
 package comparator;
 
 /**
- * An artifact produced by the JIT compiler for a specific target method.
- * A single artifact corresponds to a single scalar value.
+ * An artifact produced by the JIT compiler for a specific target method. A
+ * single artifact corresponds to a single scalar value.
  */
 public interface Artifact<T extends Number> {
     /**

@@ -56,8 +56,7 @@ public class JMHResultFile {
             throw new IllegalStateException("JMH result file is missing: " + this.result);
         }
         try {
-            final ObjectMapper mapper = new ObjectMapper();
-            final JsonNode root = mapper.readTree(Files.readString(this.result, StandardCharsets.UTF_8));
+            final JsonNode root = new ObjectMapper().readTree(Files.readString(this.result, StandardCharsets.UTF_8));
             if (!root.isArray() || root.isEmpty()) {
                 throw new IllegalStateException("JMH result file is empty: " + this.result);
             }

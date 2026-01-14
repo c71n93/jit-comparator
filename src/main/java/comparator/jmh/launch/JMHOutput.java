@@ -1,16 +1,15 @@
 package comparator.jmh.launch;
 
-import comparator.jmh.JMHResults;
 import java.nio.file.Path;
-import java.util.Objects;
+import comparator.jmh.JMHResults;
 
 public final class JMHOutput {
     private final Path jitlog;
     private final JMHResultFile result;
 
     public JMHOutput(final Path jitlog, final JMHResultFile result) {
-        this.jitlog = Objects.requireNonNull(jitlog);
-        this.result = Objects.requireNonNull(result);
+        this.jitlog = jitlog;
+        this.result = result;
     }
 
     public JMHResults results() {

@@ -1,24 +1,20 @@
 package comparator.jmh;
 
-import comparator.Artifact;
-
-public class JMHAllocRateNorm implements Artifact<Double> {
+/**
+ * Normalized allocation rate metric reported by the GC profiler.
+ */
+public final class JMHAllocRateNorm extends JMHMetric {
     private static final String METRIC_NAME = "gc.alloc.rate.norm";
-    private final double score;
-    private final String unit;
 
+    /**
+     * Ctor.
+     *
+     * @param score
+     *            numeric value
+     * @param unit
+     *            measurement unit string
+     */
     public JMHAllocRateNorm(final double score, final String unit) {
-        this.score = score;
-        this.unit = unit;
-    }
-
-    @Override
-    public Double value() {
-        return this.score;
-    }
-
-    @Override
-    public String toString() {
-        return JMHAllocRateNorm.METRIC_NAME + ": " + this.score + " " + this.unit;
+        super(JMHAllocRateNorm.METRIC_NAME, score, unit);
     }
 }
