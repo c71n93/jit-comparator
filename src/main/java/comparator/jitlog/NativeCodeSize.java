@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import org.adoptopenjdk.jitwatch.model.Compilation;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
 
-public final class NativeCodeSize implements Artifact {
+public final class NativeCodeSize implements Artifact<Integer> {
     private final TargetMethod targetMethod;
     private final Path jitlog;
     private static final int TIER_LEVEL_4 = 4;
@@ -20,7 +20,8 @@ public final class NativeCodeSize implements Artifact {
         this.jitlog = jitlog;
     }
 
-    public int value() {
+    @Override
+    public Integer value() {
         final JWJITDataModelWrapper model = new JWJITDataModelWrapper(
                 new JWParsedLog(
                         ParserType.HOTSPOT, new JWConfig(this.targetMethod), this.jitlog.toFile()

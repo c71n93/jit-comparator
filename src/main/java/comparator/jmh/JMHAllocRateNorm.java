@@ -2,7 +2,7 @@ package comparator.jmh;
 
 import comparator.Artifact;
 
-public class JMHAllocRateNorm implements Artifact {
+public class JMHAllocRateNorm implements Artifact<Double> {
     private static final String METRIC_NAME = "gc.alloc.rate.norm";
     private final double score;
     private final String unit;
@@ -12,12 +12,9 @@ public class JMHAllocRateNorm implements Artifact {
         this.unit = unit;
     }
 
-    public double score() {
+    @Override
+    public Double value() {
         return this.score;
-    }
-
-    public String unit() {
-        return this.unit;
     }
 
     @Override

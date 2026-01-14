@@ -3,7 +3,7 @@ package comparator.jmh;
 import comparator.Artifact;
 
 // TODO: Reuse code from this class using decoration. Now JMHAllocRateNorm is simply a copy paste of JMHPrimaryScore.
-public final class JMHPrimaryScore implements Artifact {
+public final class JMHPrimaryScore implements Artifact<Double> {
     private static final String METRIC_NAME = "primary";
     private final double score;
     private final String unit;
@@ -13,12 +13,9 @@ public final class JMHPrimaryScore implements Artifact {
         this.unit = unit;
     }
 
-    public double score() {
+    @Override
+    public Double value() {
         return this.score;
-    }
-
-    public String unit() {
-        return this.unit;
     }
 
     @Override
