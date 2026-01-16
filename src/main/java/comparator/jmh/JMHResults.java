@@ -28,11 +28,11 @@ public final class JMHResults implements Results {
         writer.flush();
     }
 
-    public JMHPrimaryScore score() {
+    // TODO: Looks like we need these methods only for testing.
+    JMHPrimaryScore score() {
         return this.score;
     }
-
-    public JMHAllocRateNorm allocRateNorm() {
+    JMHAllocRateNorm allocRateNorm() {
         return this.allocRateNorm;
     }
 }

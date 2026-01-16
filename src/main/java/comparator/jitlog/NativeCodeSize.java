@@ -24,7 +24,7 @@ public final class NativeCodeSize implements Artifact<Integer> {
     public Integer value() {
         final JWJITDataModelWrapper model = new JWJITDataModelWrapper(
                 new JWParsedLog(
-                        ParserType.HOTSPOT, new JWConfig(this.targetMethod), this.jitlog.toFile()
+                        ParserType.HOTSPOT, new JWConfig(this.targetMethod.classpath()), this.jitlog.toFile()
                 ).model()
         );
         final JWMetaMemberWrapper member = new JWMetaMemberWrapper(

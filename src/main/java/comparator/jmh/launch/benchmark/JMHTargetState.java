@@ -17,7 +17,7 @@ public class JMHTargetState {
 
     @Setup(Level.Trial)
     public void loadTarget() throws Exception {
-        this.targetMethod = TargetMethod.runnableFromProperties();
+        this.targetMethod = TargetMethod.fromProperties().method();
     }
 
     public Object invoke() throws Exception {

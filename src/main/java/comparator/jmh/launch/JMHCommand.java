@@ -1,9 +1,9 @@
 package comparator.jmh.launch;
 
 import comparator.jmh.launch.benchmark.JMHEntryPoint;
+import comparator.method.Classpath;
 import comparator.method.TargetMethod;
 import comparator.property.PropertyString;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -94,13 +94,9 @@ public final class JMHCommand {
     }
 
     private String classpath() {
-        return String.join(
-                File.pathSeparator,
-                List.of(
-                        this.targetMethod.classpath().toString(),
-                        new PropertyString("java.class.path").requireValue()
-                )
-        );
+        return this.targetMethod.classpath().with(
+                new Classpath(new PropertyString("java.class.path").requireValue())
+        ).asString();
     }
 
     private static Path tmpLogFile() {
