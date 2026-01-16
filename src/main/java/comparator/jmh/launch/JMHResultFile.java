@@ -5,19 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
+import comparator.property.Properties;
+import comparator.property.PropertyString;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
  * property string used to pass the file path to the forked process and parses
  * the result file into {@link JMHResults}.
  */
-public class JMHResultFile {
-    private static final String JMH_RESULT_PROP = "jmh.result.file";
+public class JMHResultFile implements Properties {
+    private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
@@ -27,23 +29,18 @@ public class JMHResultFile {
         this.result = result;
     }
 
-    /**
-     * Builds the JVM property string that points to the result file path.
-     *
-     * @return JVM property in {@code -Dname=value} form
-     */
-    public String property() {
-        return "-D" + JMH_RESULT_PROP + "=" + this.result.toAbsolutePath();
+    @Override
+    public List<String> asJvmArgs() {
+        return List.of(JMHResultFile.JMH_RESULT_PROP.asJvmArg(this.result.toAbsolutePath().toString()));
     }
 
     /**
-     * Reads the result file path from JVM properties.
+     * Reads the result file path from JVM asJvmArgs.
      *
      * @return value of the JMH result file property
      */
     public static String resultFileFromProperty() {
-        return Objects
-                .requireNonNull(System.getProperty(JMH_RESULT_PROP), "Missing property: " + JMH_RESULT_PROP);
+        return JMHResultFile.JMH_RESULT_PROP.requireValue();
     }
 
     /**

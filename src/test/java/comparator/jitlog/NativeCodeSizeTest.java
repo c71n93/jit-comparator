@@ -1,7 +1,8 @@
 package comparator.jitlog;
 
-import comparator.method.TargetMethod;
 import comparator.jitlog.test.LogTargetDriver;
+import comparator.method.TargetMethod;
+import comparator.property.PropertyString;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class NativeCodeSizeTest {
+    private static final PropertyString JAVA_HOME = new PropertyString("java.home");
+    private static final PropertyString JAVA_CLASS_PATH = new PropertyString("java.class.path");
     private static final String TARGET_CLASS = "comparator.jitlog.test.LogTarget";
 
     @Test
@@ -45,7 +48,7 @@ class NativeCodeSizeTest {
     private void generateLog(final TargetMethod target, final Path logFile, final List<String> extraFlags)
             throws Exception {
         final List<String> cmd = new ArrayList<>();
-        cmd.add(Path.of(System.getProperty("java.home"), "bin", "java").toString());
+        cmd.add(Path.of(NativeCodeSizeTest.JAVA_HOME.requireValue(), "bin", "java").toString());
         cmd.add("-XX:+UnlockDiagnosticVMOptions");
         cmd.add("-XX:+LogCompilation");
         cmd.add("-XX:LogFile=" + logFile.toAbsolutePath());
@@ -54,7 +57,7 @@ class NativeCodeSizeTest {
         cmd.add("-Xbatch");
         cmd.addAll(extraFlags);
         cmd.add("-cp");
-        cmd.add(System.getProperty("java.class.path"));
+        cmd.add(NativeCodeSizeTest.JAVA_CLASS_PATH.requireValue());
         cmd.add(LogTargetDriver.class.getName());
         final Process process = new ProcessBuilder(cmd).start();
         final int exit = process.waitFor();

@@ -1,21 +1,20 @@
 package comparator.method;
 
+import comparator.property.Properties;
+import comparator.property.PropertyString;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
 
 /**
  * Descriptor of the target method we want to investigate.
  */
-public final class TargetMethod {
-    private static final String TARGET_CLASS = "comparator.jmh.targetClass";
-    private static final String TARGET_METHOD = "comparator.jmh.targetMethod";
+public final class TargetMethod implements Properties {
+    private static final PropertyString TARGET_CLASS = new PropertyString("comparator.jmh.targetClass");
+    private static final PropertyString TARGET_METHOD = new PropertyString("comparator.jmh.targetMethod");
 
     private final Path classpath;
     private final Method method;
@@ -37,16 +36,16 @@ public final class TargetMethod {
         return this.method.getDeclaringClass().getName();
     }
 
-    public String classProperty() {
-        return "-D" + TargetMethod.TARGET_CLASS + "=" + this.className();
-    }
-
     public String methodName() {
         return this.method.getName();
     }
 
-    public String methodProperty() {
-        return "-D" + TargetMethod.TARGET_METHOD + "=" + this.methodName();
+    @Override
+    public List<String> asJvmArgs() {
+        return List.of(
+                TargetMethod.TARGET_CLASS.asJvmArg(this.className()),
+                TargetMethod.TARGET_METHOD.asJvmArg(this.methodName())
+        );
     }
 
     public String classMethodName() {
@@ -59,8 +58,8 @@ public final class TargetMethod {
 
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     public static Method runnableFromProperties() throws Exception { // TODO: implement exception handling
-        final String className = requiredProperty(TargetMethod.TARGET_CLASS);
-        final String methodName = requiredProperty(TargetMethod.TARGET_METHOD);
+        final String className = TargetMethod.TARGET_CLASS.requireValue();
+        final String methodName = TargetMethod.TARGET_METHOD.requireValue();
         final Class<?> clazz = Class.forName(className);
         final Method method = clazz.getDeclaredMethod(methodName);
         if (!Modifier.isStatic(method.getModifiers())) { // TODO: add possibility to run not only static methods
@@ -68,10 +67,6 @@ public final class TargetMethod {
         }
         method.setAccessible(true);
         return method;
-    }
-
-    private static String requiredProperty(final String name) {
-        return Objects.requireNonNull(System.getProperty(name), "Missing property: " + name);
     }
 
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")

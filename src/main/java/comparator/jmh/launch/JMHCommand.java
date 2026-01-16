@@ -2,11 +2,13 @@ package comparator.jmh.launch;
 
 import comparator.jmh.launch.benchmark.JMHEntryPoint;
 import comparator.method.TargetMethod;
+import comparator.property.PropertyString;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +26,7 @@ public final class JMHCommand {
     public JMHCommand(final TargetMethod targetMethod) {
         this(
                 targetMethod,
-                Path.of(System.getProperty("java.home"), "bin", "java"),
+                Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
                 JMHCommand.tmpLogFile(),
                 new JMHResultFile(JMHCommand.tmpResultFile()),
                 new JMHConfig(false)
@@ -39,7 +41,7 @@ public final class JMHCommand {
     public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
         this(
                 targetMethod,
-                Path.of(System.getProperty("java.home"), "bin", "java"),
+                Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
                 JMHCommand.tmpLogFile(),
                 new JMHResultFile(JMHCommand.tmpResultFile()),
                 config
@@ -76,20 +78,19 @@ public final class JMHCommand {
     }
 
     private List<String> asList() {
-        return List.of(
-                this.javaExecutable.toString(),
-                "-XX:CompileCommand=print," + this.targetMethod.classMethodName(),
-                "-XX:+UnlockDiagnosticVMOptions",
-                "-XX:+LogCompilation",
-                "-XX:LogFile=" + this.jitlog.toAbsolutePath(),
-                this.result.property(),
-                this.config.property(),
-                "-cp",
-                this.classpath(),
-                this.targetMethod.classProperty(),
-                this.targetMethod.methodProperty(),
-                JMHEntryPoint.class.getName() // TODO: make Entry class configurable
-        );
+        final List<String> args = new ArrayList<>();
+        args.add(this.javaExecutable.toString());
+        args.add("-XX:CompileCommand=print," + this.targetMethod.classMethodName());
+        args.add("-XX:+UnlockDiagnosticVMOptions");
+        args.add("-XX:+LogCompilation");
+        args.add("-XX:LogFile=" + this.jitlog.toAbsolutePath());
+        args.addAll(this.result.asJvmArgs());
+        args.addAll(this.config.asJvmArgs());
+        args.addAll(this.targetMethod.asJvmArgs());
+        args.add("-cp");
+        args.add(this.classpath());
+        args.add(JMHEntryPoint.class.getName());
+        return args;
     }
 
     private String classpath() {
@@ -97,7 +98,7 @@ public final class JMHCommand {
                 File.pathSeparator,
                 List.of(
                         this.targetMethod.classpath().toString(),
-                        System.getProperty("java.class.path")
+                        new PropertyString("java.class.path").requireValue()
                 )
         );
     }

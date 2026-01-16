@@ -1,12 +1,13 @@
 package comparator.jmh.launch;
 
-import java.util.Objects;
+import comparator.property.Properties;
+import comparator.property.PropertyBoolean;
+import java.util.List;
 
-// TODO: implement Property interface, that will consist of two methods: property and fromProperty
-public final class JMHConfig {
+public final class JMHConfig implements Properties {
     // TODO: Current configuration is temporary and for testing. Implement more
     // useful configuration.
-    private static final String QUICK_PROPERTY = "jmh.quick";
+    private static final PropertyBoolean QUICK_PROPERTY = new PropertyBoolean("jmh.quick");
     private final boolean quick;
 
     public JMHConfig(final boolean quick) {
@@ -17,15 +18,14 @@ public final class JMHConfig {
         return this.quick;
     }
 
-    public String property() {
-        return "-D" + JMHConfig.QUICK_PROPERTY + "=" + this.quick;
+    // TODO: find a way to add fromProperties static method to the contract of
+    // Properties interface.
+    public static JMHConfig fromProperties() {
+        return new JMHConfig(QUICK_PROPERTY.requireValue());
     }
 
-    public static JMHConfig fromProperty() {
-        return new JMHConfig(Boolean.parseBoolean(JMHConfig.requiredProperty(JMHConfig.QUICK_PROPERTY)));
-    }
-
-    private static String requiredProperty(final String name) {
-        return Objects.requireNonNull(System.getProperty(name), "Missing property: " + name);
+    @Override
+    public List<String> asJvmArgs() {
+        return List.of(JMHConfig.QUICK_PROPERTY.asJvmArg(this.quick));
     }
 }

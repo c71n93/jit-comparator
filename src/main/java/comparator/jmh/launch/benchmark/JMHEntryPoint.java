@@ -21,7 +21,7 @@ public final class JMHEntryPoint {
     }
 
     public static void main(final String[] args) throws Exception {
-        final boolean quick = JMHConfig.fromProperty().quick();
+        final boolean quick = JMHConfig.fromProperties().quick();
         final Options options = new OptionsBuilder()
                 .include(JMHBenchmark.class.getName())
                 .warmupIterations(quick ? 1 : 5)
