@@ -8,17 +8,30 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
+/**
+ * Results obtained from JIT log for a single target method. All results
+ * extracted for the last compilation in log with the highest tier.
+ */
 public class LogResults implements Results {
     private final NativeCodeSize codesize;
 
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method descriptor
+     * @param jitlog
+     *            path to JIT compilation log
+     */
     public LogResults(final TargetMethod targetMethod, final Path jitlog) {
         this(new NativeCodeSize(targetMethod, jitlog));
     }
 
     /**
-     * Primary constructor.
+     * Ctor.
      *
      * @param codesize
+     *            native code size artifact
      */
     private LogResults(final NativeCodeSize codesize) {
         this.codesize = codesize;
