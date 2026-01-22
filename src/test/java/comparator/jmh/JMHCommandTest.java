@@ -7,10 +7,11 @@ import comparator.method.TargetMethod;
 import comparator.jmh.fixtures.JMHTarget;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-final class JMHRunTest {
+final class JMHCommandTest {
     @Test
     void returnsScoresFromJmhRun() {
         final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
@@ -20,9 +21,12 @@ final class JMHRunTest {
         final JMHOutput output = new JMHCommand(target, new JMHConfig(true)).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
-        Assertions.assertTrue(Double.isFinite(results.score().value()), "JMH run should produce primary score");
-        Assertions
-                .assertTrue(Double.isFinite(results.allocRateNorm().value()), "JMH run should produce alloc rate norm");
+        final List<String> row = results.asRow();
+        Assertions.assertEquals(2, row.size(), "JMH row should contain two metrics");
+        final double score = Double.parseDouble(row.get(0));
+        final double allocRateNorm = Double.parseDouble(row.get(1));
+        Assertions.assertTrue(Double.isFinite(score), "JMH run should produce primary score");
+        Assertions.assertTrue(Double.isFinite(allocRateNorm), "JMH run should produce alloc rate norm");
     }
 
     @Test

@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Results obtained from JIT log for a single target method. All results
@@ -42,5 +43,10 @@ public class LogResults implements Results {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
         writer.println("Log results:");
         writer.println(this.codesize.toString());
+    }
+
+    @Override
+    public List<String> asRow() {
+        return List.of(String.valueOf(this.codesize.value()));
     }
 }

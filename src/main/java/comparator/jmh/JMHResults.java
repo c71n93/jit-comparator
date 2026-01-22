@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,11 +29,11 @@ public final class JMHResults implements Results {
         writer.flush();
     }
 
-    // TODO: Looks like we need these methods only for testing.
-    JMHPrimaryScore score() {
-        return this.score;
-    }
-    JMHAllocRateNorm allocRateNorm() {
-        return this.allocRateNorm;
+    @Override
+    public List<String> asRow() {
+        return List.of(
+                String.valueOf(this.score.value()),
+                String.valueOf(this.allocRateNorm.value())
+        );
     }
 }

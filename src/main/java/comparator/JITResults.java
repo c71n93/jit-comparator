@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The results of analyzing various JIT artifacts of a specific target method.
@@ -27,5 +29,13 @@ public class JITResults implements Results {
         this.jmh.print(out);
         this.jitlog.print(out);
         writer.println("---------");
+    }
+
+    @Override
+    public List<String> asRow() {
+        final List<String> row = new ArrayList<>();
+        row.addAll(this.jmh.asRow());
+        row.addAll(this.jitlog.asRow());
+        return List.copyOf(row);
     }
 }

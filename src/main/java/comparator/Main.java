@@ -1,18 +1,21 @@
 package comparator;
 
+import comparator.comparison.AnalysesToCsv;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 
 public class Main {
     public static void main(final String[] args) {
         final Path forVsStreamClasspath = Path.of("examples", "for-vs-stream");
-        new Analysis(new TargetMethod(forVsStreamClasspath, "PlainForExample", "runFor")).results().print(System.out);
-        new Analysis(new TargetMethod(forVsStreamClasspath, "StreamBoxedExample", "runStreamBoxed")).results()
-                .print(System.out);
+        new AnalysesToCsv(
+                new Analysis(new TargetMethod(forVsStreamClasspath, "PlainForExample", "runFor")),
+                new Analysis(new TargetMethod(forVsStreamClasspath, "StreamBoxedExample", "runStreamBoxed"))
+        ).save(Path.of("for_vs_stream.csv"));
 
         final Path arrayVsListClasspath = Path.of("examples", "array-vs-list");
-        new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayExample", "runArray")).results().print(System.out);
-        new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayListExample", "runArrayList")).results()
-                .print(System.out);
+        new AnalysesToCsv(
+                new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayExample", "runArray")),
+                new Analysis(new TargetMethod(arrayVsListClasspath, "ArrayListExample", "runArrayList"))
+        ).save(Path.of("array_vs_list.csv"));
     }
 }
