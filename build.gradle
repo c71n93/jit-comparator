@@ -4,6 +4,7 @@ plugins {
     id 'pmd'
     id 'application'
     id 'com.diffplug.spotless' version '6.25.0'
+    id 'jacoco'
 }
 
 group = 'comparator'
@@ -50,6 +51,15 @@ pmd {
 
 test {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false
+    }
 }
 
 application {

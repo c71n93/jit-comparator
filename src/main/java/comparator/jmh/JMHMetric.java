@@ -32,10 +32,6 @@ public abstract class JMHMetric implements Artifact<Double> {
         return this.score;
     }
 
-    public String unit() {
-        return this.unit;
-    }
-
     @Override
     public String toString() {
         return this.name + ": " + this.score + " " + this.unit;
