@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayListExample {
+public class PlainForReplaceAllExample {
     private static final int N = 2_000_000;
 
     private static int compute(final int x) {
@@ -10,21 +10,16 @@ public class ArrayListExample {
         return y + 7;
     }
 
-    public static long runArrayList() {
+    public static long run() {
         final List<Integer> list = new ArrayList<>(N);
         for (int i = 0; i < N; i++) {
             list.add(i);
         }
+        list.replaceAll(PlainForReplaceAllExample::compute);
         long sum = 0;
-        for (final int v : list) {
-            sum += compute(v);
+        for (int v : list) {
+            sum += v;
         }
         return sum;
-    }
-
-    public static void main(final String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            runArrayList();
-        }
     }
 }

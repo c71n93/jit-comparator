@@ -10,7 +10,7 @@ public class StreamBoxedExample {
         return y + 7;
     }
 
-    public static long runStreamBoxed() {
+    public static long run() {
         List<Integer> list = new ArrayList<>(N);
         for (int i = 0; i < N; i++) {
             list.add(i);
@@ -19,11 +19,5 @@ public class StreamBoxedExample {
                 .map(x -> compute(x))
                 .mapToLong(Integer::longValue)
                 .sum();
-    }
-
-    public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 1000; i++) {
-            runStreamBoxed();
-        }
     }
 }

@@ -1,4 +1,4 @@
-public class ArrayExample {
+public class PlainForPlainArrayExample {
     private static final int N = 2_000_000;
 
     private static int compute(final int x) {
@@ -7,7 +7,7 @@ public class ArrayExample {
         return y + 7;
     }
 
-    public static long runArray() {
+    public static long run() {
         final int[] values = new int[N];
         for (int i = 0; i < N; i++) {
             values[i] = i;
@@ -17,11 +17,5 @@ public class ArrayExample {
             sum += compute(v);
         }
         return sum;
-    }
-
-    public static void main(final String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            runArray();
-        }
     }
 }

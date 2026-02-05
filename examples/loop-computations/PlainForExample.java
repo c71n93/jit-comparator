@@ -10,7 +10,7 @@ public class PlainForExample {
         return y + 7;
     }
 
-    public static long runFor() {
+    public static long run() {
         List<Integer> list = new ArrayList<>(N);
         for (int i = 0; i < N; i++) {
             list.add(i);
@@ -20,11 +20,5 @@ public class PlainForExample {
             sum += compute(v);
         }
         return sum;
-    }
-
-    public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 1000; i++) {
-            runFor();
-        }
     }
 }

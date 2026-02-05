@@ -43,4 +43,4 @@ bin/
 AGENTS.md
 
 ### Examples ###
-examples/*.class
+examples/*/*.class

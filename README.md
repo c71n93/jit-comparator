@@ -9,8 +9,8 @@ import comparator.Analysis;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 
-final Path classpath = Path.of("examples", "for-vs-stream");
-new Analysis(new TargetMethod(classpath, "PlainForExample", "runFor"))
+final Path classpath = Path.of("examples", "loop-computations");
+new Analysis(new TargetMethod(classpath, "PlainForExample", "run"))
         .results()
         .print(System.out);
 ```
