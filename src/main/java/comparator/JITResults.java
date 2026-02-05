@@ -38,4 +38,19 @@ public class JITResults implements Results {
         row.addAll(this.jitlog.asRow());
         return List.copyOf(row);
     }
+
+    /**
+     * Compares this result set with another using artifact-level equivalence in a
+     * priority order.
+     *
+     * @param other
+     *            other results to compare
+     * @return {@code true} if all tracked artifacts are considered equivalent
+     */
+    // TODO: Temporary implementation. Metrics priority order should be verified.
+    boolean isSame(final JITResults other) {
+        return this.jmh.primaryScore().isSame(other.jmh.primaryScore())
+                && this.jitlog.codesize().isSame(other.jitlog.codesize())
+                && this.jmh.allocRateNorm().isSame(other.jmh.allocRateNorm());
+    }
 }

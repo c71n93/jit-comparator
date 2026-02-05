@@ -27,6 +27,7 @@ public class AnalysesToCsv {
      * @param analyses
      *            analyses for conversion
      */
+    // TODO: accept analyses as pairs of original + refactored.
     public AnalysesToCsv(final Analysis... analyses) {
         this(Arrays.asList(analyses));
     }
@@ -46,6 +47,7 @@ public class AnalysesToCsv {
      *
      * @return CSV content
      */
+    // TODO: add comparison of results (call of JITResults.isSame) to the row.
     public String value() {
         final StringBuilder csv = new StringBuilder(this.rowToCsv(AnalysesToCsv.HEADER));
         for (final Analysis analysis : this.analyses) {

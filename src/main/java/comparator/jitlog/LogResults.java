@@ -38,6 +38,10 @@ public class LogResults implements Results {
         this.codesize = codesize;
     }
 
+    public NativeCodeSize codesize() {
+        return this.codesize;
+    }
+
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);

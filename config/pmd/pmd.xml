@@ -10,6 +10,12 @@
     </rule>
     <rule ref="category/java/errorprone.xml">
         <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <exclude name="AvoidLiteralsInIfCondition"/>
+    </rule>
+    <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+        <properties>
+            <property name="ignoreMagicNumbers" value="0,1,-1,0.0d"/>
+        </properties>
     </rule>
 <!--    TODO: turn this categories on eventually-->
 <!--    <rule ref="category/java/performance.xml"/>-->

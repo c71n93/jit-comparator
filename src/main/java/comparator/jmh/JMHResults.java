@@ -20,6 +20,14 @@ public final class JMHResults implements Results {
         this.allocRateNorm = Objects.requireNonNull(allocRateNorm);
     }
 
+    public JMHPrimaryScore primaryScore() {
+        return this.score;
+    }
+
+    public JMHAllocRateNorm allocRateNorm() {
+        return this.allocRateNorm;
+    }
+
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
