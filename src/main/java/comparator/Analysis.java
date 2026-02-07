@@ -23,6 +23,8 @@ public class Analysis implements AsRow {
      *
      * @return combined JIT and log results for the target method
      */
+    // TODO: The problem is that this method is called twice: in Analysis.asRow and
+    // in Comparison.asCsv
     public JITResults results() {
         final JMHOutput output = new JMHCommand(this.targetMethod).run();
         return new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()));
@@ -33,6 +35,6 @@ public class Analysis implements AsRow {
         final List<String> row = new ArrayList<>();
         row.add(this.targetMethod.classMethodName());
         row.addAll(this.results().asRow());
-        return List.copyOf(row);
+        return row;
     }
 }

@@ -31,6 +31,8 @@ public final class NativeCodeSize implements Artifact<Integer> {
         this.jitlog = jitlog;
     }
 
+    // TODO: The problem is that this method is called twice: in Artifact.isSame and
+    // in LogResults.asRow
     @Override
     public Integer value() {
         final JWJITDataModelWrapper model = new JWJITDataModelWrapper(
