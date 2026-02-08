@@ -2,20 +2,40 @@ package comparator;
 
 import comparator.jitlog.LogResults;
 import comparator.jmh.launch.JMHCommand;
+import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
 import comparator.method.TargetMethod;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Analysis of the specified {@link TargetMethod}. Provide JIT-related results
- * for specified target.
+ * Analysis of the specified {@link TargetMethod}.
  */
 public class Analysis implements AsRow {
     private final TargetMethod targetMethod;
+    private final JMHConfig config;
 
-    public Analysis(final TargetMethod targetMethod) {
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param config
+     *            JMH execution parameters.
+     */
+    public Analysis(final TargetMethod targetMethod, final JMHConfig config) {
         this.targetMethod = targetMethod;
+        this.config = config;
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     */
+    public Analysis(final TargetMethod targetMethod) {
+        this(targetMethod, new JMHConfig());
     }
 
     /**
@@ -26,7 +46,7 @@ public class Analysis implements AsRow {
     // TODO: The problem is that this method is called twice: in Analysis.asRow and
     // in Comparison.asCsv
     public JITResults results() {
-        final JMHOutput output = new JMHCommand(this.targetMethod).run();
+        final JMHOutput output = new JMHCommand(this.targetMethod, this.config).run();
         return new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()));
     }
 

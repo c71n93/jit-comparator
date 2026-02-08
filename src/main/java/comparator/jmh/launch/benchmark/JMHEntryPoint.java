@@ -7,7 +7,6 @@ import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.results.format.ResultFormatType;
 
 /**
@@ -21,13 +20,13 @@ public final class JMHEntryPoint {
     }
 
     public static void main(final String[] args) throws Exception {
-        final boolean quick = JMHConfig.fromProperties().quick();
+        final JMHConfig config = JMHConfig.fromProperties();
         final Options options = new OptionsBuilder()
                 .include(JMHBenchmark.class.getName())
-                .warmupIterations(quick ? 1 : 5)
-                .warmupTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(3))
-                .measurementIterations(1)
-                .measurementTime(quick ? TimeValue.milliseconds(50) : TimeValue.seconds(1))
+                .warmupIterations(config.warmupIterations())
+                .warmupTime(config.warmupTime())
+                .measurementIterations(config.measurementIterations())
+                .measurementTime(config.measurementTime())
                 .forks(0) // Running inside the already forked JVM.
                 .addProfiler(GCProfiler.class)
                 .shouldFailOnError(true)

@@ -3,13 +3,14 @@ package comparator.jmh;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
-import comparator.method.TargetMethod;
 import comparator.jmh.fixtures.JMHTarget;
+import comparator.method.TargetMethod;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.openjdk.jmh.runner.options.TimeValue;
 
 final class JMHCommandTest {
     @Test
@@ -18,7 +19,7 @@ final class JMHCommandTest {
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
         );
-        final JMHOutput output = new JMHCommand(target, new JMHConfig(true)).run();
+        final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig()).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
         final List<String> row = results.asRow();
@@ -38,8 +39,12 @@ final class JMHCommandTest {
         Assertions
                 .assertThrows(
                         IllegalStateException.class,
-                        () -> new JMHCommand(target, new JMHConfig(true)).run(),
+                        () -> new JMHCommand(target, JMHCommandTest.fastConfig()).run(),
                         "JMH run should fail on target exception"
                 );
+    }
+
+    private static JMHConfig fastConfig() {
+        return new JMHConfig(1, TimeValue.milliseconds(50), 1, TimeValue.milliseconds(50));
     }
 }

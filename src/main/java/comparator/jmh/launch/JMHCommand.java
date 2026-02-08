@@ -29,13 +29,13 @@ public final class JMHCommand {
                 Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
                 JMHCommand.tmpLogFile(),
                 new JMHResultFile(JMHCommand.tmpResultFile()),
-                new JMHConfig(false)
+                new JMHConfig()
         );
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
             final JMHResultFile resultFile) {
-        this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig(false));
+        this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig());
     }
 
     public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
