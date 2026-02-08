@@ -67,7 +67,7 @@ public class Comparison {
                     this.rowToCsv(
                             Comparison.rowWith(
                                     refactoring.asRow(),
-                                    String.valueOf(original.results().isSame(refactoring.results()))
+                                    String.valueOf(this.original.results().isSame(refactoring.results()))
                             )
                     )
             );
