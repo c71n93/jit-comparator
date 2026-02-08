@@ -155,8 +155,8 @@ public final class TargetMethod implements Properties {
         )) {
             final Class<?> clazz = Class.forName(className, false, loader);
             final Method method = clazz.getDeclaredMethod(methodName);
-            if (!Modifier.isStatic(method.getModifiers())) { // TODO: add possibility to run not only static methods
-                throw new IllegalArgumentException("Current JMH run supports only static methods");
+            if (!Modifier.isStatic(method.getModifiers())) {
+                throw new IllegalArgumentException("Non static methods are not supported");
             }
             method.setAccessible(true);
             return method;
