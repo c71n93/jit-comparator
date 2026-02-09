@@ -7,6 +7,7 @@ import comparator.jmh.launch.JMHOutput;
 import comparator.method.TargetMethod;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Analysis of the specified {@link TargetMethod}.
@@ -14,6 +15,7 @@ import java.util.List;
 public class Analysis implements AsRow {
     private final TargetMethod targetMethod;
     private final JMHConfig config;
+    private Optional<JITResults> cachedResults;
 
     /**
      * Ctor.
@@ -26,6 +28,7 @@ public class Analysis implements AsRow {
     public Analysis(final TargetMethod targetMethod, final JMHConfig config) {
         this.targetMethod = targetMethod;
         this.config = config;
+        this.cachedResults = Optional.empty();
     }
 
     /**
@@ -43,11 +46,14 @@ public class Analysis implements AsRow {
      *
      * @return combined JIT and log results for the target method
      */
-    // TODO: The problem is that this method is called twice: in Analysis.asRow and
-    // in Comparison.asCsv
     public JITResults results() {
-        final JMHOutput output = new JMHCommand(this.targetMethod, this.config).run();
-        return new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()));
+        if (this.cachedResults.isEmpty()) {
+            final JMHOutput output = new JMHCommand(this.targetMethod, this.config).run();
+            this.cachedResults = Optional.of(
+                    new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()))
+            );
+        }
+        return this.cachedResults.orElseThrow();
     }
 
     @Override
