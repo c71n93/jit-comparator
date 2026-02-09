@@ -7,6 +7,7 @@ import comparator.jitlog.jitwatch.JWParsedLog;
 import comparator.jitlog.jitwatch.model.JWMetaMemberWrapper;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.adoptopenjdk.jitwatch.model.Compilation;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
 
@@ -16,6 +17,7 @@ import org.adoptopenjdk.jitwatch.parser.ParserType;
 public final class NativeCodeSize implements Artifact<Integer> {
     private final TargetMethod targetMethod;
     private final Path jitlog;
+    private Optional<Integer> cached;
     private static final int TIER_LEVEL_4 = 4;
 
     /**
@@ -29,12 +31,18 @@ public final class NativeCodeSize implements Artifact<Integer> {
     public NativeCodeSize(final TargetMethod targetMethod, final Path jitlog) {
         this.targetMethod = targetMethod;
         this.jitlog = jitlog;
+        this.cached = Optional.empty();
     }
 
-    // TODO: The problem is that this method is called twice: in Artifact.isSame and
-    // in LogResults.asRow
     @Override
     public Integer value() {
+        if (this.cached.isEmpty()) {
+            this.cached = Optional.of(this.sizeFromJitLog());
+        }
+        return this.cached.orElseThrow();
+    }
+
+    private int sizeFromJitLog() {
         final JWJITDataModelWrapper model = new JWJITDataModelWrapper(
                 new JWParsedLog(
                         ParserType.HOTSPOT, new JWConfig(this.targetMethod.classpath()), this.jitlog.toFile()
