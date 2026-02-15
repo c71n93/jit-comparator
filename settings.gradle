@@ -1,1 +1,16 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url = 'https://jitpack.io' }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'io.unifycode.java') {
+                useModule("com.github.c71n93.unifycode-java:unifycode-java-gradle:${requested.version}")
+            }
+        }
+    }
+}
+
 rootProject.name = 'comparator'

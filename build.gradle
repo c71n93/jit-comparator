@@ -1,9 +1,7 @@
 plugins {
     id 'java'
-    id 'checkstyle'
-    id 'pmd'
     id 'application'
-    id 'com.diffplug.spotless' version '6.25.0'
+    id 'io.unifycode.java' version 'master-SNAPSHOT'
     id 'jacoco'
 }
 
@@ -30,23 +28,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
-}
-
-spotless {
-    java {
-        eclipse().configFile('config/spotless/eclipse-java-formatter.xml')
-    }
-}
-
-checkstyle {
-    toolVersion = '10.17.0'
-    configFile = file('config/checkstyle/checkstyle.xml')
-}
-
-pmd {
-    toolVersion = '7.0.0'
-    ruleSets = []
-    ruleSetFiles = files('config/pmd/pmd.xml')
 }
 
 test {
