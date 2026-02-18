@@ -1,5 +1,5 @@
 public class PlainForPlainArrayExample {
-    private static final int N = 2_000_000;
+    private static final int N = 2_000;
 
     private static int compute(final int x) {
         int y = x * 31;

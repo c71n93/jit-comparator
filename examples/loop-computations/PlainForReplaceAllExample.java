@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlainForReplaceAllExample {
-    private static final int N = 2_000_000;
+    private static final int N = 2_000;
 
     private static int compute(final int x) {
         int y = x * 31;
