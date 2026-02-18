@@ -14,10 +14,21 @@ class JMHResultFileTest {
     void parsesMetricsFromJson(@TempDir final Path tempDir) throws Exception {
         final Path result = tempDir.resolve("result.json");
         final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
+                + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"}}}]";
+        Files.writeString(result, json, StandardCharsets.UTF_8);
+        final JMHResults parsed = new JMHResultFile(result).parsedResult();
+        Assertions.assertEquals(List.of("1.1", "2.2", "3.3"), parsed.asRow(), "JMH result should parse metrics");
+    }
+
+    @Test
+    void parsesMetricsWithoutPerfInstructions(@TempDir final Path tempDir) throws Exception {
+        final Path result = tempDir.resolve("result-without-perf.json");
+        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
                 + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
         Files.writeString(result, json, StandardCharsets.UTF_8);
         final JMHResults parsed = new JMHResultFile(result).parsedResult();
-        Assertions.assertEquals(List.of("1.1", "2.2"), parsed.asRow(), "JMH result should parse metrics");
+        Assertions.assertEquals(List.of("1.1", "2.2", ""), parsed.asRow(), "Missing perf metric should be empty");
     }
 
     @Test

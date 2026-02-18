@@ -3,24 +3,27 @@ package comparator.jmh.launch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comparator.jmh.JMHAllocRateNorm;
+import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
-import comparator.property.Properties;
+import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
  * property string used to pass the file path to the forked process and parses
  * the result file into {@link JMHResults}.
  */
-public class JMHResultFile implements Properties {
+public class JMHResultFile implements JvmSystemProperties {
     private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
+    private static final String INSTRUCTIONS = "instructions:u";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
@@ -30,12 +33,12 @@ public class JMHResultFile implements Properties {
     }
 
     @Override
-    public List<String> asJvmArgs() {
+    public List<String> asJvmPropertyArgs() {
         return List.of(JMHResultFile.JMH_RESULT_PROP.asJvmArg(this.result.toAbsolutePath().toString()));
     }
 
     /**
-     * Reads the result file path from JVM asJvmArgs.
+     * Reads the result file path from JVM system property arguments.
      *
      * @return value of the JMH result file property
      */
@@ -62,7 +65,8 @@ public class JMHResultFile implements Properties {
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(
                     node.path("secondaryMetrics").path(GC_ALLOC_RATE_NORM)
             );
-            return new JMHResults(score, allocRateNorm);
+            final Optional<JMHInstructions> instructions = this.instructionsFrom(node.path("secondaryMetrics"));
+            return new JMHResults(score, allocRateNorm, instructions);
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -80,5 +84,18 @@ public class JMHResultFile implements Properties {
             throw new IllegalStateException("Missing gc.alloc.rate.norm in JMH result file: " + this.result);
         }
         return new JMHAllocRateNorm(node.get(SCORE_FIELD).asDouble(), node.get(SCORE_UNIT_FIELD).asText());
+    }
+
+    private Optional<JMHInstructions> instructionsFrom(final JsonNode node) {
+        final JsonNode instructions = node.path(INSTRUCTIONS);
+        if (instructions.isMissingNode() || !instructions.hasNonNull(SCORE_FIELD)
+                || !instructions.hasNonNull(SCORE_UNIT_FIELD)) {
+            return Optional.empty();
+        }
+        return Optional.of(
+                new JMHInstructions(
+                        instructions.get(SCORE_FIELD).asDouble(), instructions.get(SCORE_UNIT_FIELD).asText()
+                )
+        );
     }
 }

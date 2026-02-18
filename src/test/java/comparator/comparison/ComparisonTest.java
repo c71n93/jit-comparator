@@ -21,18 +21,18 @@ class ComparisonTest {
     void rendersCsvWithHeaderAndRows() {
         final Comparison comparison = new Comparison(
                 new StubAnalysis(
-                        List.of("Example::run", "1.23", "42", "64"),
+                        List.of("Example::run", "1.23", "42", "100", "64"),
                         ComparisonTest.stubResults(false)
                 ),
                 new StubAnalysis(
-                        List.of("Example, \"quoted\"", "3.21", "5", "6"),
+                        List.of("Example, \"quoted\"", "3.21", "5", "200", "6"),
                         ComparisonTest.stubResults(false)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Native code size, B\","
                 + "JIT artifacts equivalent?";
-        final String rowOne = "Example::run,1.23,42,64,Original";
-        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,6,false";
+        final String rowOne = "Example::run,1.23,42,100,64,Original";
+        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,6,false";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(expected, comparison.asCsv(), "Comparison CSV output should match expected content");
     }
@@ -41,7 +41,7 @@ class ComparisonTest {
     void savesCsvToFile(@TempDir final Path tempDir) throws Exception {
         final Comparison comparison = new Comparison(
                 new StubAnalysis(
-                        List.of("Example::run", "1.23", "42", "64"),
+                        List.of("Example::run", "1.23", "42", "100", "64"),
                         ComparisonTest.stubResults(true)
                 )
         );

@@ -28,23 +28,6 @@ public class Main {
                                 )
                         ),
                         new Analysis(new TargetMethod(loopComputationsClasspath, "StreamBoxedExample", Main.RUN_METHOD))
-                ),
-                new Comparison(
-                        new Analysis(new TargetMethod(loopComputationsClasspath, "PlainForExample", Main.RUN_METHOD)),
-                        new Analysis(
-                                new TargetMethod(
-                                        loopComputationsClasspath, "PlainForPlainArrayExample", Main.RUN_METHOD
-                                )
-                        ),
-                        new Analysis(
-                                new TargetMethod(loopComputationsClasspath, "PlainForIndexedExample", Main.RUN_METHOD)
-                        ),
-                        new Analysis(
-                                new TargetMethod(
-                                        loopComputationsClasspath, "PlainForReplaceAllExample", Main.RUN_METHOD
-                                )
-                        ),
-                        new Analysis(new TargetMethod(loopComputationsClasspath, "StreamBoxedExample", Main.RUN_METHOD))
                 )
         ).saveAsCsv(Path.of("comparisons.csv"));
     }

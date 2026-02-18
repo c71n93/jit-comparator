@@ -78,15 +78,13 @@ public final class JMHCommand {
     }
 
     private List<String> asList() {
+        final JMHJitLogFile jitlogFile = new JMHJitLogFile(this.jitlog);
         final List<String> args = new ArrayList<>();
         args.add(this.javaExecutable.toString());
-        args.add("-XX:CompileCommand=print," + this.targetMethod.classMethodName());
-        args.add("-XX:+UnlockDiagnosticVMOptions");
-        args.add("-XX:+LogCompilation");
-        args.add("-XX:LogFile=" + this.jitlog.toAbsolutePath());
-        args.addAll(this.result.asJvmArgs());
-        args.addAll(this.config.asJvmArgs());
-        args.addAll(this.targetMethod.asJvmArgs());
+        args.addAll(this.result.asJvmPropertyArgs());
+        args.addAll(this.config.asJvmPropertyArgs());
+        args.addAll(this.targetMethod.asJvmPropertyArgs());
+        args.addAll(jitlogFile.asJvmPropertyArgs());
         args.add("-cp");
         args.add(this.classpath());
         args.add(JMHEntryPoint.class.getName());

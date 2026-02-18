@@ -1,6 +1,6 @@
 package comparator.method;
 
-import comparator.property.Properties;
+import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Descriptor of a target method along with the classpath needed to load it.
  */
-public final class TargetMethod implements Properties {
+public final class TargetMethod implements JvmSystemProperties {
     private static final PropertyString TARGET_CLASS = new PropertyString("comparator.jmh.targetClass");
     private static final PropertyString TARGET_METHOD = new PropertyString("comparator.jmh.targetMethod");
 
@@ -110,13 +110,8 @@ public final class TargetMethod implements Properties {
         return this.className() + "::" + this.methodName();
     }
 
-    /**
-     * Returns JVM {@code -D} arguments that describe the target class and method.
-     *
-     * @return JVM arguments for the target method
-     */
     @Override
-    public List<String> asJvmArgs() {
+    public List<String> asJvmPropertyArgs() {
         return List.of(
                 TargetMethod.TARGET_CLASS.asJvmArg(this.className()),
                 TargetMethod.TARGET_METHOD.asJvmArg(this.methodName())

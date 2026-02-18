@@ -51,6 +51,14 @@ public class JITResults implements Results {
     public boolean isSame(final JITResults other) {
         return this.jmh.primaryScore().isSame(other.jmh.primaryScore())
                 && this.jitlog.codesize().isSame(other.jitlog.codesize())
-                && this.jmh.allocRateNorm().isSame(other.jmh.allocRateNorm());
+                && this.jmh.allocRateNorm().isSame(other.jmh.allocRateNorm())
+                && this.instructionsAreSame(other);
+    }
+
+    private boolean instructionsAreSame(final JITResults other) {
+        if (this.jmh.instructions().isPresent() && other.jmh.instructions().isPresent()) {
+            return this.jmh.instructions().orElseThrow().isSame(other.jmh.instructions().orElseThrow());
+        }
+        return this.jmh.instructions().isEmpty() && other.jmh.instructions().isEmpty();
     }
 }

@@ -3,10 +3,12 @@ package comparator;
 import comparator.jitlog.LogResults;
 import comparator.jitlog.test.JITLogFixture;
 import comparator.jmh.JMHAllocRateNorm;
+import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,6 +41,22 @@ class JITResultsTest {
         Assertions.assertFalse(left.isSame(right), "Allocation rate difference should mark results as different");
     }
 
+    @Test
+    void returnsFalseWhenInstructionsDiffer(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithInstructions(100.0d, 10.0d, 1000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithInstructions(105.0d, 10.5d, 1200.0d), log);
+        Assertions.assertFalse(left.isSame(right), "Instructions difference should mark results as different");
+    }
+
+    @Test
+    void returnsFalseWhenInstructionsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithInstructions(100.0d, 10.0d, 1000.0d), log);
+        final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
+        Assertions.assertFalse(left.isSame(right), "Missing instructions metric should mark results as different");
+    }
+
     private LogResults logResults(final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve("jit-log.xml");
         final TargetMethod target = new TargetMethod(this.testClasses(), JITResultsTest.TARGET_CLASS, "target");
@@ -48,6 +66,14 @@ class JITResultsTest {
 
     private JMHResults jmh(final double score, final double alloc) {
         return new JMHResults(new JMHPrimaryScore(score, "us/op"), new JMHAllocRateNorm(alloc, "B"));
+    }
+
+    private JMHResults jmhWithInstructions(final double score, final double alloc, final double instructions) {
+        return new JMHResults(
+                new JMHPrimaryScore(score, "us/op"),
+                new JMHAllocRateNorm(alloc, "B"),
+                Optional.of(new JMHInstructions(instructions, "#/op"))
+        );
     }
 
     private Path testClasses() {
