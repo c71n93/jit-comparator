@@ -22,6 +22,7 @@ public class Comparison {
             "JMH primary score, us/op",
             "Allocations, B",
             "Instructions, #/op",
+            "Memory loads, #/op",
             "Native code size, B",
             "JIT artifacts equivalent?"
     );

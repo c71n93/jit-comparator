@@ -15,20 +15,35 @@ class JMHResultFileTest {
         final Path result = tempDir.resolve("result.json");
         final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
                 + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
-                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"}}}]";
+                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
+                + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
         Files.writeString(result, json, StandardCharsets.UTF_8);
         final JMHResults parsed = new JMHResultFile(result).parsedResult();
-        Assertions.assertEquals(List.of("1.1", "2.2", "3.3"), parsed.asRow(), "JMH result should parse metrics");
+        Assertions.assertEquals(List.of("1.1", "2.2", "3.3", "4.4"), parsed.asRow(), "JMH result should parse metrics");
     }
 
     @Test
-    void parsesMetricsWithoutPerfInstructions(@TempDir final Path tempDir) throws Exception {
+    void parsesMetricsWithoutPerfMetrics(@TempDir final Path tempDir) throws Exception {
         final Path result = tempDir.resolve("result-without-perf.json");
         final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
                 + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
         Files.writeString(result, json, StandardCharsets.UTF_8);
         final JMHResults parsed = new JMHResultFile(result).parsedResult();
-        Assertions.assertEquals(List.of("1.1", "2.2", ""), parsed.asRow(), "Missing perf metric should be empty");
+        Assertions.assertEquals(List.of("1.1", "2.2", "", ""), parsed.asRow(), "Missing perf metrics should be empty");
+    }
+
+    @Test
+    void ignoresMetricsWithMemoryLoadsSuffix(@TempDir final Path tempDir) throws Exception {
+        final Path result = tempDir.resolve("result-with-load-suffix.json");
+        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
+                + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
+                + "\"mem_inst_retired.all_loads:p\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
+        Files.writeString(result, json, StandardCharsets.UTF_8);
+        final JMHResults parsed = new JMHResultFile(result).parsedResult();
+        Assertions.assertEquals(
+                List.of("1.1", "2.2", "3.3", ""), parsed.asRow(), "Memory loads suffix should be ignored"
+        );
     }
 
     @Test

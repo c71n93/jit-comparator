@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
+import comparator.jmh.JMHMemoryLoads;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.property.JvmSystemProperties;
@@ -24,6 +25,7 @@ public class JMHResultFile implements JvmSystemProperties {
     private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
     private static final String INSTRUCTIONS = "instructions:u";
+    private static final String MEMORY_LOADS = "mem_inst_retired.all_loads:u";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
@@ -61,12 +63,12 @@ public class JMHResultFile implements JvmSystemProperties {
                 throw new IllegalStateException("JMH result file is empty: " + this.result);
             }
             final JsonNode node = root.get(0);
+            final JsonNode secondaryMetrics = node.path("secondaryMetrics");
             final JMHPrimaryScore score = this.scoreFrom(node.path("primaryMetric"));
-            final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(
-                    node.path("secondaryMetrics").path(GC_ALLOC_RATE_NORM)
-            );
-            final Optional<JMHInstructions> instructions = this.instructionsFrom(node.path("secondaryMetrics"));
-            return new JMHResults(score, allocRateNorm, instructions);
+            final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(secondaryMetrics.path(GC_ALLOC_RATE_NORM));
+            final Optional<JMHInstructions> instructions = this.instructionsFrom(secondaryMetrics);
+            final Optional<JMHMemoryLoads> memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
+            return new JMHResults(score, allocRateNorm, instructions, memoryLoads);
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -97,5 +99,13 @@ public class JMHResultFile implements JvmSystemProperties {
                         instructions.get(SCORE_FIELD).asDouble(), instructions.get(SCORE_UNIT_FIELD).asText()
                 )
         );
+    }
+
+    private Optional<JMHMemoryLoads> memoryLoadsFrom(final JsonNode node) {
+        final JsonNode loads = node.path(MEMORY_LOADS);
+        if (loads.isMissingNode() || !loads.hasNonNull(SCORE_FIELD) || !loads.hasNonNull(SCORE_UNIT_FIELD)) {
+            return Optional.empty();
+        }
+        return Optional.of(new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText()));
     }
 }

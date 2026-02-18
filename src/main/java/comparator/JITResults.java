@@ -52,7 +52,8 @@ public class JITResults implements Results {
         return this.jmh.primaryScore().isSame(other.jmh.primaryScore())
                 && this.jitlog.codesize().isSame(other.jitlog.codesize())
                 && this.jmh.allocRateNorm().isSame(other.jmh.allocRateNorm())
-                && this.instructionsAreSame(other);
+                && this.instructionsAreSame(other)
+                && this.memoryLoadsAreSame(other);
     }
 
     private boolean instructionsAreSame(final JITResults other) {
@@ -60,5 +61,12 @@ public class JITResults implements Results {
             return this.jmh.instructions().orElseThrow().isSame(other.jmh.instructions().orElseThrow());
         }
         return this.jmh.instructions().isEmpty() && other.jmh.instructions().isEmpty();
+    }
+
+    private boolean memoryLoadsAreSame(final JITResults other) {
+        if (this.jmh.memoryLoads().isPresent() && other.jmh.memoryLoads().isPresent()) {
+            return this.jmh.memoryLoads().orElseThrow().isSame(other.jmh.memoryLoads().orElseThrow());
+        }
+        return this.jmh.memoryLoads().isEmpty() && other.jmh.memoryLoads().isEmpty();
     }
 }

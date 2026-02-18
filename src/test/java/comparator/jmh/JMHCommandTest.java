@@ -25,12 +25,13 @@ final class JMHCommandTest {
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
         final List<String> row = results.asRow();
-        Assertions.assertEquals(3, row.size(), "JMH row should contain three metrics");
+        Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
         final double score = Double.parseDouble(row.get(0));
         final double allocRateNorm = Double.parseDouble(row.get(1));
         Assertions.assertTrue(Double.isFinite(score), "JMH run should produce primary score");
         Assertions.assertTrue(Double.isFinite(allocRateNorm), "JMH run should produce alloc rate norm");
         Assertions.assertTrue(row.get(2).isEmpty(), "Instructions should be empty when perf profiler is disabled");
+        Assertions.assertTrue(row.get(3).isEmpty(), "Memory loads should be empty when perf profiler is disabled");
     }
 
     @Test
@@ -43,8 +44,9 @@ final class JMHCommandTest {
         final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig(true)).run();
         final JMHResults results = output.results();
         final List<String> row = results.asRow();
-        Assertions.assertEquals(3, row.size(), "JMH row should contain three metrics");
+        Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
         Assertions.assertFalse(row.get(2).isEmpty(), "Instructions should be present when perf profiler is enabled");
+        Assertions.assertFalse(row.get(3).isEmpty(), "Memory loads should be present when perf profiler is enabled");
     }
 
     @Test
@@ -67,7 +69,9 @@ final class JMHCommandTest {
 
     private static boolean perfAvailable() {
         try {
-            final Process process = new ProcessBuilder("perf", "stat", "-e", "instructions", "echo", "1").start();
+            final Process process = new ProcessBuilder(
+                    "perf", "stat", "-e", "instructions,mem_inst_retired.all_loads", "echo", "1"
+            ).start();
             process.getInputStream().readAllBytes();
             process.getErrorStream().readAllBytes();
             return process.waitFor() == 0;

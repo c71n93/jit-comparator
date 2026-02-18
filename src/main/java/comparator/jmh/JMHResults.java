@@ -15,17 +15,25 @@ import java.util.Optional;
 public final class JMHResults implements Results {
     private final JMHPrimaryScore score;
     private final JMHAllocRateNorm allocRateNorm;
+    // TODO: Combine these artifacts into JMHPerfResults.
     private final Optional<JMHInstructions> instructions;
+    private final Optional<JMHMemoryLoads> memoryLoads;
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm) {
-        this(score, allocRateNorm, Optional.empty());
+        this(score, allocRateNorm, Optional.empty(), Optional.empty());
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
             final Optional<JMHInstructions> instructions) {
+        this(score, allocRateNorm, instructions, Optional.empty());
+    }
+
+    public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
+            final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads) {
         this.score = Objects.requireNonNull(score);
         this.allocRateNorm = Objects.requireNonNull(allocRateNorm);
         this.instructions = Objects.requireNonNull(instructions);
+        this.memoryLoads = Objects.requireNonNull(memoryLoads);
     }
 
     public JMHPrimaryScore primaryScore() {
@@ -40,6 +48,10 @@ public final class JMHResults implements Results {
         return this.instructions;
     }
 
+    public Optional<JMHMemoryLoads> memoryLoads() {
+        return this.memoryLoads;
+    }
+
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
@@ -47,6 +59,7 @@ public final class JMHResults implements Results {
         writer.println("- " + this.score.toString());
         writer.println("- " + this.allocRateNorm.toString());
         this.instructions.ifPresent(metric -> writer.println("- " + metric.toString()));
+        this.memoryLoads.ifPresent(metric -> writer.println("- " + metric.toString()));
         writer.flush();
     }
 
@@ -55,7 +68,8 @@ public final class JMHResults implements Results {
         return List.of(
                 String.valueOf(this.score.value()),
                 String.valueOf(this.allocRateNorm.value()),
-                this.instructions.map(metric -> String.valueOf(metric.value())).orElse("")
+                this.instructions.map(metric -> String.valueOf(metric.value())).orElse(""),
+                this.memoryLoads.map(metric -> String.valueOf(metric.value())).orElse("")
         );
     }
 }
