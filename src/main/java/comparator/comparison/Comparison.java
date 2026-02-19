@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * CSV comparison table for the original analysis and its refactorings,
- * including the JIT artifacts equivalence flag.
+ * including the JIT artifacts dissimilarity score.
  */
 public class Comparison {
     // TODO: make JITResults return metric names and their measure units. For
@@ -24,7 +24,7 @@ public class Comparison {
             "Instructions, #/op",
             "Memory loads, #/op",
             "Native code size, B",
-            "JIT artifacts equivalent?"
+            "JIT artifacts dissimilarity score"
     );
     private final Analysis original;
     private final List<Analysis> refactorings;
@@ -69,7 +69,7 @@ public class Comparison {
                     this.rowToCsv(
                             Comparison.rowWith(
                                     refactoring.asRow(),
-                                    String.valueOf(this.original.results().isSame(refactoring.results()))
+                                    String.valueOf(this.original.results().relativeDifference(refactoring.results()))
                             )
                     )
             );

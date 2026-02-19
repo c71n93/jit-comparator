@@ -22,17 +22,17 @@ class ComparisonTest {
         final Comparison comparison = new Comparison(
                 new StubAnalysis(
                         List.of("Example::run", "1.23", "42", "100", "300", "64"),
-                        ComparisonTest.stubResults(false)
+                        ComparisonTest.stubResults(0.25d)
                 ),
                 new StubAnalysis(
                         List.of("Example, \"quoted\"", "3.21", "5", "200", "400", "6"),
-                        ComparisonTest.stubResults(false)
+                        ComparisonTest.stubResults(0.0d)
                 )
         );
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Native code size, B\","
-                + "JIT artifacts equivalent?";
+                + "JIT artifacts dissimilarity score";
         final String rowOne = "Example::run,1.23,42,100,300,64,Original";
-        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,6,false";
+        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,6,0.25";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(expected, comparison.asCsv(), "Comparison CSV output should match expected content");
     }
@@ -42,7 +42,7 @@ class ComparisonTest {
         final Comparison comparison = new Comparison(
                 new StubAnalysis(
                         List.of("Example::run", "1.23", "42", "100", "300", "64"),
-                        ComparisonTest.stubResults(true)
+                        ComparisonTest.stubResults(0.0d)
                 )
         );
         final Path output = tempDir.resolve("results.csv");
@@ -56,14 +56,14 @@ class ComparisonTest {
         return new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
     }
 
-    private static JITResults stubResults(final boolean equivalent) {
+    private static JITResults stubResults(final double relDiff) {
         return new JITResults(
                 new JMHResults(new JMHPrimaryScore(0.0d, "us/op"), new JMHAllocRateNorm(0.0d, "B")),
                 new LogResults(ComparisonTest.targetMethod(), Path.of("build", "test-jit.log"))
         ) {
             @Override
-            public boolean isSame(final JITResults other) {
-                return equivalent;
+            public double relativeDifference(final JITResults other) {
+                return relDiff;
             }
         };
     }

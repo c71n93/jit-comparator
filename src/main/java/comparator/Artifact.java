@@ -5,7 +5,9 @@ package comparator;
  * single artifact corresponds to a single scalar value.
  */
 public interface Artifact<T extends Number> {
-    double ACCURACY = 0.9;
+    double MAX_REL_DIFF = 0.1;
+    // TODO: Use some reasonable epsilon here.
+    double REL_DIFF_EPSILON = 1.0e-9;
 
     /**
      * Returns the value of this artifact.
@@ -24,14 +26,14 @@ public interface Artifact<T extends Number> {
     // TODO: Temporary implementation. Implement this method for each Artifact when
     // actual accuracy will be chosen.
     default boolean isSame(Artifact<T> other) {
-        final double baseVal = this.value().doubleValue();
-        final double otherVal = other.value().doubleValue();
-        final double diff = Math.abs(baseVal - otherVal);
-        if (baseVal == 0.0d) {
-            return diff == 0.0d;
-        } else {
-            final double relDiff = diff / Math.abs(baseVal);
-            return relDiff < (1.0d - Artifact.ACCURACY);
-        }
+        return this.relativeDifference(other) < MAX_REL_DIFF;
+    }
+
+    default double relativeDifference(final Artifact<T> other) {
+        final double left = this.value().doubleValue();
+        final double right = other.value().doubleValue();
+        final double numerator = 2.0d * Math.abs(left - right);
+        final double denominator = Math.abs(left) + Math.abs(right) + Artifact.REL_DIFF_EPSILON;
+        return numerator / denominator;
     }
 }

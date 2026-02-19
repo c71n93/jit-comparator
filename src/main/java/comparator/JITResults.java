@@ -56,6 +56,38 @@ public class JITResults implements Results {
                 && this.memoryLoadsAreSame(other);
     }
 
+    // TODO: Implement some toVector method (similar to asRow, but for values) to
+    // make this operations in a loop.
+    public double relativeDifference(final JITResults other) {
+        double sumSquares = 0.0d;
+        int count = 0;
+        final double primaryScore = this.jmh.primaryScore().relativeDifference(other.jmh.primaryScore());
+        sumSquares += primaryScore * primaryScore;
+        count += 1;
+        final double allocRate = this.jmh.allocRateNorm().relativeDifference(other.jmh.allocRateNorm());
+        sumSquares += allocRate * allocRate;
+        count += 1;
+        final double codeSize = this.jitlog.codesize().relativeDifference(other.jitlog.codesize());
+        sumSquares += codeSize * codeSize;
+        count += 1;
+        if (this.jmh.instructions().isPresent() && other.jmh.instructions().isPresent()) {
+            final double instructions = this.jmh.instructions().orElseThrow()
+                    .relativeDifference(other.jmh.instructions().orElseThrow());
+            sumSquares += instructions * instructions;
+            count += 1;
+        }
+        if (this.jmh.memoryLoads().isPresent() && other.jmh.memoryLoads().isPresent()) {
+            final double memoryLoads = this.jmh.memoryLoads().orElseThrow()
+                    .relativeDifference(other.jmh.memoryLoads().orElseThrow());
+            sumSquares += memoryLoads * memoryLoads;
+            count += 1;
+        }
+        if (count == 0) {
+            return 0.0d;
+        }
+        return Math.sqrt(sumSquares / count);
+    }
+
     private boolean instructionsAreSame(final JITResults other) {
         if (this.jmh.instructions().isPresent() && other.jmh.instructions().isPresent()) {
             return this.jmh.instructions().orElseThrow().isSame(other.jmh.instructions().orElseThrow());
