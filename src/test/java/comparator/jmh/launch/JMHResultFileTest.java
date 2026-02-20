@@ -33,7 +33,7 @@ class JMHResultFileTest {
     }
 
     @Test
-    void ignoresMetricsWithMemoryLoadsSuffix(@TempDir final Path tempDir) throws Exception {
+    void ignoresIncompletePerfMetrics(@TempDir final Path tempDir) throws Exception {
         final Path result = tempDir.resolve("result-with-load-suffix.json");
         final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
                 + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
@@ -42,7 +42,8 @@ class JMHResultFileTest {
         Files.writeString(result, json, StandardCharsets.UTF_8);
         final JMHResults parsed = new JMHResultFile(result).parsedResult();
         Assertions.assertEquals(
-                List.of("1.1", "2.2", "3.3", ""), parsed.asRow(), "Memory loads suffix should be ignored"
+                List.of("1.1", "2.2", "", ""), parsed.asRow(),
+                "Incomplete perf metric set should be ignored"
         );
     }
 

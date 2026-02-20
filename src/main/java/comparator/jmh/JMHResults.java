@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -15,12 +15,10 @@ import java.util.Optional;
 public final class JMHResults implements Results {
     private final JMHPrimaryScore score;
     private final JMHAllocRateNorm allocRateNorm;
-    // TODO: Combine these artifacts into JMHPerfResults.
-    private final Optional<JMHInstructions> instructions;
-    private final Optional<JMHMemoryLoads> memoryLoads;
+    private final JMHPerfResults perf;
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm) {
-        this(score, allocRateNorm, Optional.empty(), Optional.empty());
+        this(score, allocRateNorm, JMHPerfResults.absent());
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
@@ -30,10 +28,13 @@ public final class JMHResults implements Results {
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
             final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads) {
-        this.score = Objects.requireNonNull(score);
-        this.allocRateNorm = Objects.requireNonNull(allocRateNorm);
-        this.instructions = Objects.requireNonNull(instructions);
-        this.memoryLoads = Objects.requireNonNull(memoryLoads);
+        this(score, allocRateNorm, JMHPerfResults.from(instructions, memoryLoads));
+    }
+
+    public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm, final JMHPerfResults perf) {
+        this.score = score;
+        this.allocRateNorm = allocRateNorm;
+        this.perf = perf;
     }
 
     public JMHPrimaryScore primaryScore() {
@@ -45,11 +46,11 @@ public final class JMHResults implements Results {
     }
 
     public Optional<JMHInstructions> instructions() {
-        return this.instructions;
+        return this.perf.instructions();
     }
 
     public Optional<JMHMemoryLoads> memoryLoads() {
-        return this.memoryLoads;
+        return this.perf.memoryLoads();
     }
 
     @Override
@@ -58,18 +59,17 @@ public final class JMHResults implements Results {
         writer.println("JMH results:");
         writer.println("- " + this.score.toString());
         writer.println("- " + this.allocRateNorm.toString());
-        this.instructions.ifPresent(metric -> writer.println("- " + metric.toString()));
-        this.memoryLoads.ifPresent(metric -> writer.println("- " + metric.toString()));
+        this.perf.print(out);
         writer.flush();
     }
 
     @Override
     public List<String> asRow() {
-        return List.of(
+        final List<String> row = new ArrayList<>(List.of(
                 String.valueOf(this.score.value()),
-                String.valueOf(this.allocRateNorm.value()),
-                this.instructions.map(metric -> String.valueOf(metric.value())).orElse(""),
-                this.memoryLoads.map(metric -> String.valueOf(metric.value())).orElse("")
-        );
+                String.valueOf(this.allocRateNorm.value())
+        ));
+        row.addAll(this.perf.asRow());
+        return row;
     }
 }
