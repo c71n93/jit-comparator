@@ -1,15 +1,11 @@
 package comparator;
 
-import java.util.List;
-
 /**
- * A row of string values representing a CSV record.
+ * A composite row contract with textual and artifact projections of the same
+ * data.
+ *
+ * @see AsCsvRow
+ * @see AsArtifactRow
  */
-public interface AsRow {
-    /**
-     * Returns row values in column order.
-     *
-     * @return row values
-     */
-    List<String> asRow();
+public interface AsRow extends AsCsvRow, AsArtifactRow {
 }

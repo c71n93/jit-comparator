@@ -23,13 +23,22 @@ public interface Artifact<T extends Number> {
      *            other artifact to compare
      * @return {@code true} if the artifacts are considered the same
      */
-    // TODO: Temporary implementation. Implement this method for each Artifact when
-    // actual accuracy will be chosen.
-    default boolean isSame(Artifact<T> other) {
+    // TODO: This method is useless now.
+    default boolean isSame(final Artifact<?> other) {
         return this.relativeDifference(other) < MAX_REL_DIFF;
     }
 
-    default double relativeDifference(final Artifact<T> other) {
+    /**
+     * Symmetric normalized relative difference between this artifact and another.
+     * The value is computed as:
+     * {@code 2 * |left - right| / (|left| + |right| + REL_DIFF_EPSILON)}. Equal
+     * values produce {@code 0.0}.
+     *
+     * @param other
+     *            artifact to compare
+     * @return normalized relative difference value
+     */
+    default double relativeDifference(final Artifact<?> other) {
         final double left = this.value().doubleValue();
         final double right = other.value().doubleValue();
         final double numerator = 2.0d * Math.abs(left - right);

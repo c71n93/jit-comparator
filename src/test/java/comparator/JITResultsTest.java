@@ -51,11 +51,15 @@ class JITResultsTest {
     }
 
     @Test
-    void returnsFalseWhenInstructionsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
+    void throwsWhenInstructionsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
-        Assertions.assertFalse(left.isSame(right), "Missing instructions metric should mark results as different");
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> left.isSame(right),
+                "Different metric sets should not be compared"
+        );
     }
 
     @Test
@@ -67,11 +71,15 @@ class JITResultsTest {
     }
 
     @Test
-    void returnsFalseWhenMemoryLoadsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
+    void throwsWhenMemoryLoadsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
         final JITResults right = new JITResults(this.jmhWithInstructions(100.0d, 10.0d, 1000.0d), log);
-        Assertions.assertFalse(left.isSame(right), "Missing memory loads metric should mark results as different");
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> left.isSame(right),
+                "Different metric sets should not be compared"
+        );
     }
 
     @Test
@@ -118,13 +126,14 @@ class JITResultsTest {
     }
 
     @Test
-    void excludesMissingOptionalMetricsFromRelDiffAggregation(@TempDir final Path tempDir) throws Exception {
+    void throwsWhenOptionalMetricsPresenceDiffersForRelDiff(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d), log);
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
-        Assertions.assertEquals(
-                0.0d, left.relativeDifference(right), 1.0e-12,
-                "Optional metrics should be ignored if absent on one side"
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> left.relativeDifference(right),
+                "Different metric sets should not be compared"
         );
     }
 

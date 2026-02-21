@@ -24,7 +24,7 @@ final class JMHCommandTest {
         final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig(false)).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
-        final List<String> row = results.asRow();
+        final List<String> row = results.asCsvRow();
         Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
         final double score = Double.parseDouble(row.get(0));
         final double allocRateNorm = Double.parseDouble(row.get(1));
@@ -43,7 +43,7 @@ final class JMHCommandTest {
         );
         final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig(true)).run();
         final JMHResults results = output.results();
-        final List<String> row = results.asRow();
+        final List<String> row = results.asCsvRow();
         Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
         Assertions.assertFalse(row.get(2).isEmpty(), "Instructions should be present when perf profiler is enabled");
         Assertions.assertFalse(row.get(3).isEmpty(), "Memory loads should be present when perf profiler is enabled");

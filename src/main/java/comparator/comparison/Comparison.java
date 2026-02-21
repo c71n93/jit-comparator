@@ -62,13 +62,13 @@ public class Comparison {
     public String asCsv() {
         final StringBuilder csv = new StringBuilder(this.rowToCsv(Comparison.HEADER));
         csv.append(System.lineSeparator());
-        csv.append(this.rowToCsv(Comparison.rowWith(this.original.asRow(), "Original")));
+        csv.append(this.rowToCsv(Comparison.rowWith(this.original.asCsvRow(), "Original")));
         for (final Analysis refactoring : this.refactorings) {
             csv.append(System.lineSeparator());
             csv.append(
                     this.rowToCsv(
                             Comparison.rowWith(
-                                    refactoring.asRow(),
+                                    refactoring.asCsvRow(),
                                     String.valueOf(this.original.results().relativeDifference(refactoring.results()))
                             )
                     )

@@ -1,5 +1,6 @@
 package comparator.jmh;
 
+import comparator.Artifact;
 import comparator.Results;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -24,12 +25,11 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         return Absent.INSTANCE;
     }
 
-    Optional<JMHInstructions> instructions();
-
-    Optional<JMHMemoryLoads> memoryLoads();
+    @Override
+    List<String> asCsvRow();
 
     @Override
-    List<String> asRow();
+    List<Artifact<?>> asArtifactRow();
 
     @Override
     void print(final OutputStream out);
@@ -47,18 +47,13 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         }
 
         @Override
-        public Optional<JMHInstructions> instructions() {
-            return Optional.of(this.instructions);
+        public List<String> asCsvRow() {
+            return this.asArtifactRow().stream().map(artifact -> String.valueOf(artifact.value())).toList();
         }
 
         @Override
-        public Optional<JMHMemoryLoads> memoryLoads() {
-            return Optional.of(this.memoryLoads);
-        }
-
-        @Override
-        public List<String> asRow() {
-            return List.of(String.valueOf(this.instructions.value()), String.valueOf(this.memoryLoads.value()));
+        public List<Artifact<?>> asArtifactRow() {
+            return List.of(this.instructions, this.memoryLoads);
         }
 
         @Override
@@ -80,18 +75,13 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         }
 
         @Override
-        public Optional<JMHInstructions> instructions() {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<JMHMemoryLoads> memoryLoads() {
-            return Optional.empty();
-        }
-
-        @Override
-        public List<String> asRow() {
+        public List<String> asCsvRow() {
             return List.of("", "");
+        }
+
+        @Override
+        public List<Artifact<?>> asArtifactRow() {
+            return List.of();
         }
 
         @Override

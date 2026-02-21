@@ -79,7 +79,7 @@ class ComparisonTest {
         }
 
         @Override
-        public List<String> asRow() {
+        public List<String> asCsvRow() {
             return this.row;
         }
 

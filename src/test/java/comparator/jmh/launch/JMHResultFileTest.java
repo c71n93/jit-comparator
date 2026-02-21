@@ -1,5 +1,6 @@
 package comparator.jmh.launch;
 
+import comparator.Artifact;
 import comparator.jmh.JMHResults;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,48 +11,101 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class JMHResultFileTest {
-    @Test
-    void parsesMetricsFromJson(@TempDir final Path tempDir) throws Exception {
-        final Path result = tempDir.resolve("result.json");
-        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-                + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
-                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-                + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
-        Files.writeString(result, json, StandardCharsets.UTF_8);
-        final JMHResults parsed = new JMHResultFile(result).parsedResult();
-        Assertions.assertEquals(List.of("1.1", "2.2", "3.3", "4.4"), parsed.asRow(), "JMH result should parse metrics");
-    }
+    private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+            + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
+            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
+    private static final String JSON_WITHOUT_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
+    private static final String JSON_WITH_INCOMPLETE_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+            + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
+            + "\"mem_inst_retired.all_loads:p\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
+    private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
+    private static final String JSON_WITHOUT_ALLOC = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
 
     @Test
-    void parsesMetricsWithoutPerfMetrics(@TempDir final Path tempDir) throws Exception {
-        final Path result = tempDir.resolve("result-without-perf.json");
-        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-                + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
-        Files.writeString(result, json, StandardCharsets.UTF_8);
-        final JMHResults parsed = new JMHResultFile(result).parsedResult();
-        Assertions.assertEquals(List.of("1.1", "2.2", "", ""), parsed.asRow(), "Missing perf metrics should be empty");
-    }
-
-    @Test
-    void ignoresIncompletePerfMetrics(@TempDir final Path tempDir) throws Exception {
-        final Path result = tempDir.resolve("result-with-load-suffix.json");
-        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-                + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
-                + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-                + "\"mem_inst_retired.all_loads:p\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
-        Files.writeString(result, json, StandardCharsets.UTF_8);
-        final JMHResults parsed = new JMHResultFile(result).parsedResult();
+    void parsesMetricsAsCsvRowFromJson(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF);
         Assertions.assertEquals(
-                List.of("1.1", "2.2", "", ""), parsed.asRow(),
+                List.of("1.1", "2.2", "3.3", "4.4"), parsed.asCsvRow(), "JMH result should parse metrics"
+        );
+    }
+
+    @Test
+    void parsesMetricsAsArtifactRowFromJson(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF);
+        final List<Artifact<?>> artifacts = parsed.asArtifactRow();
+        Assertions.assertEquals(4, artifacts.size(), "JMH result should expose four artifacts");
+        Assertions.assertEquals(1.1d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Primary metric should match");
+        Assertions.assertEquals(
+                2.2d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Allocation metric should match"
+        );
+        Assertions.assertEquals(
+                3.3d, artifacts.get(2).value().doubleValue(), 1.0e-12, "Instructions metric should match"
+        );
+        Assertions.assertEquals(
+                4.4d, artifacts.get(3).value().doubleValue(), 1.0e-12, "Memory loads metric should match"
+        );
+    }
+
+    @Test
+    void parsesMetricsWithoutPerfMetricsAsCsvRow(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-without-perf.json",
+                JMHResultFileTest.JSON_WITHOUT_PERF
+        );
+        Assertions
+                .assertEquals(List.of("1.1", "2.2", "", ""), parsed.asCsvRow(), "Missing perf metrics should be empty");
+    }
+
+    @Test
+    void parsesMetricsWithoutPerfMetricsAsArtifactRow(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-without-perf.json",
+                JMHResultFileTest.JSON_WITHOUT_PERF
+        );
+        final List<Artifact<?>> artifacts = parsed.asArtifactRow();
+        Assertions.assertEquals(2, artifacts.size(), "Missing perf metrics should be omitted from artifact row");
+        Assertions.assertEquals(1.1d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Primary metric should match");
+        Assertions.assertEquals(
+                2.2d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Allocation metric should match"
+        );
+    }
+
+    @Test
+    void ignoresIncompletePerfMetricsInCsvRow(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-with-load-suffix.json",
+                JMHResultFileTest.JSON_WITH_INCOMPLETE_PERF
+        );
+        Assertions.assertEquals(
+                List.of("1.1", "2.2", "", ""), parsed.asCsvRow(),
                 "Incomplete perf metric set should be ignored"
         );
     }
 
     @Test
+    void ignoresIncompletePerfMetricsInArtifactRow(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-with-load-suffix.json",
+                JMHResultFileTest.JSON_WITH_INCOMPLETE_PERF
+        );
+        final List<Artifact<?>> artifacts = parsed.asArtifactRow();
+        Assertions.assertEquals(2, artifacts.size(), "Incomplete perf metric set should be omitted from artifact row");
+        Assertions.assertEquals(1.1d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Primary metric should match");
+        Assertions.assertEquals(
+                2.2d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Allocation metric should match"
+        );
+    }
+
+    @Test
     void failsWhenPrimaryMetricMissing(@TempDir final Path tempDir) throws Exception {
-        final Path result = tempDir.resolve("missing-primary.json");
-        final String json = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
-        Files.writeString(result, json, StandardCharsets.UTF_8);
+        final Path result = this.writeJson(tempDir, "missing-primary.json", JMHResultFileTest.JSON_WITHOUT_PRIMARY);
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> new JMHResultFile(result).parsedResult(),
@@ -61,13 +115,22 @@ class JMHResultFileTest {
 
     @Test
     void failsWhenAllocRateMissing(@TempDir final Path tempDir) throws Exception {
-        final Path result = tempDir.resolve("missing-alloc.json");
-        final String json = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
-        Files.writeString(result, json, StandardCharsets.UTF_8);
+        final Path result = this.writeJson(tempDir, "missing-alloc.json", JMHResultFileTest.JSON_WITHOUT_ALLOC);
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> new JMHResultFile(result).parsedResult(),
                 "Missing allocation metric should fail parsing"
         );
+    }
+
+    private JMHResults parsedResult(final Path tempDir, final String fileName, final String json) throws Exception {
+        final Path result = this.writeJson(tempDir, fileName, json);
+        return new JMHResultFile(result).parsedResult();
+    }
+
+    private Path writeJson(final Path tempDir, final String fileName, final String json) throws Exception {
+        final Path result = tempDir.resolve(fileName);
+        Files.writeString(result, json, StandardCharsets.UTF_8);
+        return result;
     }
 }

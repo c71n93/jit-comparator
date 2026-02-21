@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Analysis of the specified {@link TargetMethod}.
  */
-public class Analysis implements AsRow {
+public class Analysis implements AsCsvRow {
     private final TargetMethod targetMethod;
     private final JMHConfig config;
     private Optional<JITResults> cachedResults;
@@ -57,10 +57,10 @@ public class Analysis implements AsRow {
     }
 
     @Override
-    public List<String> asRow() {
+    public List<String> asCsvRow() {
         final List<String> row = new ArrayList<>();
         row.add(this.targetMethod.classMethodName());
-        row.addAll(this.results().asRow());
+        row.addAll(this.results().asCsvRow());
         return row;
     }
 }

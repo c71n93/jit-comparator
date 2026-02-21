@@ -1,33 +1,77 @@
 package comparator.jmh;
 
+import comparator.Artifact;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class JMHResultsTest {
+    private static final String PRIMARY_SCORE_UNIT = "us/op";
+    private static final String ALLOC_RATE_UNIT = "B";
+    private static final String PERF_METRIC_UNIT = "#/op";
+
     @Test
-    void exposesMetricsAsRow() {
+    void exposesMetricsAsCsvRow() {
         final JMHResults results = new JMHResults(
-                new JMHPrimaryScore(1.5, "us/op"),
-                new JMHAllocRateNorm(2.5, "B"),
-                Optional.of(new JMHInstructions(3.5, "#/op")),
-                Optional.of(new JMHMemoryLoads(4.5, "#/op"))
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
+                Optional.of(new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)),
+                Optional.of(new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT))
         );
         Assertions.assertEquals(
                 List.of("1.5", "2.5", "3.5", "4.5"),
-                results.asRow(),
+                results.asCsvRow(),
                 "JMH results should expose metric values"
         );
     }
 
     @Test
-    void rendersEmptyPerfMetricsWhenMissing() {
-        final JMHResults results = new JMHResults(new JMHPrimaryScore(1.5, "us/op"), new JMHAllocRateNorm(2.5, "B"));
+    void exposesMetricsAsArtifactRow() {
+        final JMHResults results = new JMHResults(
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
+                Optional.of(new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)),
+                Optional.of(new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT))
+        );
+        final List<Artifact<?>> artifacts = results.asArtifactRow();
+        Assertions.assertEquals(4, artifacts.size(), "JMH artifact row should contain four metrics");
+        Assertions.assertInstanceOf(JMHPrimaryScore.class, artifacts.get(0), "Primary score should be first");
+        Assertions.assertInstanceOf(JMHAllocRateNorm.class, artifacts.get(1), "Alloc rate norm should be second");
+        Assertions.assertInstanceOf(JMHInstructions.class, artifacts.get(2), "Instructions should be third");
+        Assertions.assertInstanceOf(JMHMemoryLoads.class, artifacts.get(3), "Memory loads should be fourth");
+        Assertions.assertEquals(
+                1.5d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Primary score value should match"
+        );
+        Assertions.assertEquals(2.5d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Alloc rate value should match");
+        Assertions
+                .assertEquals(3.5d, artifacts.get(2).value().doubleValue(), 1.0e-12, "Instructions value should match");
+        Assertions
+                .assertEquals(4.5d, artifacts.get(3).value().doubleValue(), 1.0e-12, "Memory loads value should match");
+    }
+
+    @Test
+    void rendersEmptyPerfMetricsInCsvRowWhenMissing() {
+        final JMHResults results = new JMHResults(
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT)
+        );
         Assertions.assertEquals(
                 List.of("1.5", "2.5", "", ""),
-                results.asRow(),
+                results.asCsvRow(),
                 "Missing perf metrics should be empty"
         );
+    }
+
+    @Test
+    void omitsPerfMetricsInArtifactRowWhenMissing() {
+        final JMHResults results = new JMHResults(
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT)
+        );
+        final List<Artifact<?>> artifacts = results.asArtifactRow();
+        Assertions.assertEquals(2, artifacts.size(), "Missing perf metrics should be omitted from artifact row");
+        Assertions.assertInstanceOf(JMHPrimaryScore.class, artifacts.get(0), "Primary score should be first");
+        Assertions.assertInstanceOf(JMHAllocRateNorm.class, artifacts.get(1), "Alloc rate norm should be second");
     }
 }

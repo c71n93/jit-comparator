@@ -1,5 +1,6 @@
 package comparator.jitlog;
 
+import comparator.Artifact;
 import comparator.Results;
 import comparator.method.TargetMethod;
 import java.io.OutputStream;
@@ -38,10 +39,6 @@ public class LogResults implements Results {
         this.codesize = codesize;
     }
 
-    public NativeCodeSize codesize() {
-        return this.codesize;
-    }
-
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
@@ -50,7 +47,12 @@ public class LogResults implements Results {
     }
 
     @Override
-    public List<String> asRow() {
-        return List.of(String.valueOf(this.codesize.value()));
+    public List<String> asCsvRow() {
+        return this.asArtifactRow().stream().map(artifact -> String.valueOf(artifact.value())).toList();
+    }
+
+    @Override
+    public List<Artifact<?>> asArtifactRow() {
+        return List.of(this.codesize);
     }
 }

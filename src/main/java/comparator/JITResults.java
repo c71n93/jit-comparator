@@ -32,73 +32,68 @@ public class JITResults implements Results {
     }
 
     @Override
-    public List<String> asRow() {
+    public List<String> asCsvRow() {
         final List<String> row = new ArrayList<>();
-        row.addAll(this.jmh.asRow());
-        row.addAll(this.jitlog.asRow());
+        row.addAll(this.jmh.asCsvRow());
+        row.addAll(this.jitlog.asCsvRow());
+        return row;
+    }
+
+    @Override
+    public List<Artifact<?>> asArtifactRow() {
+        final List<Artifact<?>> row = new ArrayList<>();
+        row.addAll(this.jmh.asArtifactRow());
+        row.addAll(this.jitlog.asArtifactRow());
         return row;
     }
 
     /**
      * Compares this result set with another using artifact-level equivalence in a
-     * priority order.
+     * priority order. Now order is defined by asArtifactRow method.
      *
      * @param other
      *            other results to compare
      * @return {@code true} if all tracked artifacts are considered equivalent
      */
-    // TODO: Temporary implementation. Metrics priority order should be verified.
     public boolean isSame(final JITResults other) {
-        return this.jmh.primaryScore().isSame(other.jmh.primaryScore())
-                && this.jitlog.codesize().isSame(other.jitlog.codesize())
-                && this.jmh.allocRateNorm().isSame(other.jmh.allocRateNorm())
-                && this.instructionsAreSame(other)
-                && this.memoryLoadsAreSame(other);
+        final List<Artifact<?>> thisArtifacts = this.asArtifactRow();
+        final List<Artifact<?>> otherArtifacts = other.asArtifactRow();
+        checkSizeCompatibility(thisArtifacts, otherArtifacts);
+        for (int index = 0; index < thisArtifacts.size(); index += 1) {
+            if (!thisArtifacts.get(index).isSame(otherArtifacts.get(index))) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    // TODO: Implement some toVector method (similar to asRow, but for values) to
-    // make this operations in a loop.
+    /**
+     * Root mean square aggregate of per-artifact relative differences. The artifact
+     * order is defined by {@link #asArtifactRow()}.
+     *
+     * @param other
+     *            other results to compare
+     * @return aggregated relative difference
+     * @throws IllegalArgumentException
+     *             if artifact rows have different sizes
+     */
+    // TODO: We need to somehow ensure (statically if it possible) that we compare
+    // same types of artifacts here.
     public double relativeDifference(final JITResults other) {
-        double sumSquares = 0.0d;
-        int count = 0;
-        final double primaryScore = this.jmh.primaryScore().relativeDifference(other.jmh.primaryScore());
-        sumSquares += primaryScore * primaryScore;
-        count += 1;
-        final double allocRate = this.jmh.allocRateNorm().relativeDifference(other.jmh.allocRateNorm());
-        sumSquares += allocRate * allocRate;
-        count += 1;
-        final double codeSize = this.jitlog.codesize().relativeDifference(other.jitlog.codesize());
-        sumSquares += codeSize * codeSize;
-        count += 1;
-        if (this.jmh.instructions().isPresent() && other.jmh.instructions().isPresent()) {
-            final double instructions = this.jmh.instructions().orElseThrow()
-                    .relativeDifference(other.jmh.instructions().orElseThrow());
-            sumSquares += instructions * instructions;
-            count += 1;
+        final List<Artifact<?>> thisArtifacts = this.asArtifactRow();
+        final List<Artifact<?>> otherArtifacts = other.asArtifactRow();
+        checkSizeCompatibility(thisArtifacts, otherArtifacts);
+        double sumSquares = 0.0;
+        for (int index = 0; index < thisArtifacts.size(); index += 1) {
+            final double relDiff = thisArtifacts.get(index).relativeDifference(otherArtifacts.get(index));
+            sumSquares += relDiff * relDiff;
         }
-        if (this.jmh.memoryLoads().isPresent() && other.jmh.memoryLoads().isPresent()) {
-            final double memoryLoads = this.jmh.memoryLoads().orElseThrow()
-                    .relativeDifference(other.jmh.memoryLoads().orElseThrow());
-            sumSquares += memoryLoads * memoryLoads;
-            count += 1;
-        }
-        if (count == 0) {
-            return 0.0d;
-        }
-        return Math.sqrt(sumSquares / count);
+        return Math.sqrt(sumSquares / thisArtifacts.size());
     }
 
-    private boolean instructionsAreSame(final JITResults other) {
-        if (this.jmh.instructions().isPresent() && other.jmh.instructions().isPresent()) {
-            return this.jmh.instructions().orElseThrow().isSame(other.jmh.instructions().orElseThrow());
+    private static void checkSizeCompatibility(final List<Artifact<?>> a1, final List<Artifact<?>> a2) {
+        if (a1.size() != a2.size()) {
+            throw new IllegalArgumentException("Can't compare different sets of JIT results.");
         }
-        return this.jmh.instructions().isEmpty() && other.jmh.instructions().isEmpty();
-    }
-
-    private boolean memoryLoadsAreSame(final JITResults other) {
-        if (this.jmh.memoryLoads().isPresent() && other.jmh.memoryLoads().isPresent()) {
-            return this.jmh.memoryLoads().orElseThrow().isSame(other.jmh.memoryLoads().orElseThrow());
-        }
-        return this.jmh.memoryLoads().isEmpty() && other.jmh.memoryLoads().isEmpty();
     }
 }

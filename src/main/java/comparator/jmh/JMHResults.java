@@ -1,5 +1,6 @@
 package comparator.jmh;
 
+import comparator.Artifact;
 import comparator.Results;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -37,22 +38,6 @@ public final class JMHResults implements Results {
         this.perf = perf;
     }
 
-    public JMHPrimaryScore primaryScore() {
-        return this.score;
-    }
-
-    public JMHAllocRateNorm allocRateNorm() {
-        return this.allocRateNorm;
-    }
-
-    public Optional<JMHInstructions> instructions() {
-        return this.perf.instructions();
-    }
-
-    public Optional<JMHMemoryLoads> memoryLoads() {
-        return this.perf.memoryLoads();
-    }
-
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
@@ -64,12 +49,21 @@ public final class JMHResults implements Results {
     }
 
     @Override
-    public List<String> asRow() {
-        final List<String> row = new ArrayList<>(List.of(
-                String.valueOf(this.score.value()),
-                String.valueOf(this.allocRateNorm.value())
-        ));
-        row.addAll(this.perf.asRow());
+    public List<String> asCsvRow() {
+        final List<String> row = new ArrayList<>(
+                List.of(
+                        String.valueOf(this.score.value()),
+                        String.valueOf(this.allocRateNorm.value())
+                )
+        );
+        row.addAll(this.perf.asCsvRow());
+        return row;
+    }
+
+    @Override
+    public List<Artifact<?>> asArtifactRow() {
+        final List<Artifact<?>> row = new ArrayList<>(List.of(this.score, this.allocRateNorm));
+        row.addAll(this.perf.asArtifactRow());
         return row;
     }
 }
