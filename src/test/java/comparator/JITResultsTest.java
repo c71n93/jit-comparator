@@ -9,6 +9,7 @@ import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -144,6 +145,21 @@ class JITResultsTest {
         final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
         Assertions.assertEquals(
                 left.relativeDifference(right), right.relativeDifference(left), 1.0e-12, "relDiff should be symmetric"
+        );
+    }
+
+    @Test
+    void returnsCsvHeaderInArtifactOrder(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults results = new JITResults(this.jmh(100.0d, 10.0d), log);
+        Assertions.assertEquals(
+                List.of(
+                        "JMH primary score, us/op",
+                        "Allocations, B",
+                        "Native code size, B"
+                ),
+                results.headerCsv(),
+                "CSV header should match artifact order and units"
         );
     }
 

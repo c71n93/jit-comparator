@@ -4,7 +4,8 @@ package comparator.jmh;
  * Normalized CPU instructions metric reported by the perf profiler.
  */
 public final class JMHInstructions extends JMHMetric {
-    private static final String METRIC_NAME = "instructions";
+    static final String DEFAULT_UNIT = "#/op";
+    private static final String METRIC_NAME = "Instructions";
 
     /**
      * Ctor.

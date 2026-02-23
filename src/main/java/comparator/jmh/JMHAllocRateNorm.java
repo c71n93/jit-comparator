@@ -4,7 +4,7 @@ package comparator.jmh;
  * Normalized allocation rate metric reported by the GC profiler.
  */
 public final class JMHAllocRateNorm extends JMHMetric {
-    private static final String METRIC_NAME = "gc.alloc.rate.norm";
+    private static final String METRIC_NAME = "Allocations";
 
     /**
      * Ctor.

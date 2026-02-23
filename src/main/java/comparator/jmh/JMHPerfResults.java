@@ -26,9 +26,6 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
     }
 
     @Override
-    List<String> asCsvRow();
-
-    @Override
     List<Artifact<?>> asArtifactRow();
 
     @Override
@@ -44,11 +41,6 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         Present(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads) {
             this.instructions = instructions;
             this.memoryLoads = memoryLoads;
-        }
-
-        @Override
-        public List<String> asCsvRow() {
-            return this.asArtifactRow().stream().map(artifact -> String.valueOf(artifact.value())).toList();
         }
 
         @Override
@@ -72,11 +64,6 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         private static final Absent INSTANCE = new Absent();
 
         private Absent() {
-        }
-
-        @Override
-        public List<String> asCsvRow() {
-            return List.of("", "");
         }
 
         @Override

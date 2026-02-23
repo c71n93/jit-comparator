@@ -17,6 +17,13 @@ public interface Artifact<T extends Number> {
     T value();
 
     /**
+     * Returns the CSV header for this artifact.
+     *
+     * @return CSV column header
+     */
+    String headerCsv();
+
+    /**
      * Determines whether this artifact is considered the same as another.
      *
      * @param other

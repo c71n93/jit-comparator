@@ -32,14 +32,6 @@ public class JITResults implements Results {
     }
 
     @Override
-    public List<String> asCsvRow() {
-        final List<String> row = new ArrayList<>();
-        row.addAll(this.jmh.asCsvRow());
-        row.addAll(this.jitlog.asCsvRow());
-        return row;
-    }
-
-    @Override
     public List<Artifact<?>> asArtifactRow() {
         final List<Artifact<?>> row = new ArrayList<>();
         row.addAll(this.jmh.asArtifactRow());

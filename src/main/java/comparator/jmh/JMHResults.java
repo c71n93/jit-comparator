@@ -49,18 +49,6 @@ public final class JMHResults implements Results {
     }
 
     @Override
-    public List<String> asCsvRow() {
-        final List<String> row = new ArrayList<>(
-                List.of(
-                        String.valueOf(this.score.value()),
-                        String.valueOf(this.allocRateNorm.value())
-                )
-        );
-        row.addAll(this.perf.asCsvRow());
-        return row;
-    }
-
-    @Override
     public List<Artifact<?>> asArtifactRow() {
         final List<Artifact<?>> row = new ArrayList<>(List.of(this.score, this.allocRateNorm));
         row.addAll(this.perf.asArtifactRow());

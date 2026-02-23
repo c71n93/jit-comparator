@@ -56,8 +56,7 @@ class JMHResultFileTest {
                 "result-without-perf.json",
                 JMHResultFileTest.JSON_WITHOUT_PERF
         );
-        Assertions
-                .assertEquals(List.of("1.1", "2.2", "", ""), parsed.asCsvRow(), "Missing perf metrics should be empty");
+        Assertions.assertEquals(List.of("1.1", "2.2"), parsed.asCsvRow(), "Missing perf metrics should be omitted");
     }
 
     @Test
@@ -83,7 +82,7 @@ class JMHResultFileTest {
                 JMHResultFileTest.JSON_WITH_INCOMPLETE_PERF
         );
         Assertions.assertEquals(
-                List.of("1.1", "2.2", "", ""), parsed.asCsvRow(),
+                List.of("1.1", "2.2"), parsed.asCsvRow(),
                 "Incomplete perf metric set should be ignored"
         );
     }

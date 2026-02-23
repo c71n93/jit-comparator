@@ -7,6 +7,16 @@ import java.util.List;
  * A collection of JIT artifacts.
  */
 public interface Results extends AsRow {
+    @Override
+    default List<String> asCsvRow() {
+        return this.asArtifactRow().stream().map(artifact -> String.valueOf(artifact.value())).toList();
+    }
+
+    @Override
+    default List<String> headerCsv() {
+        return this.asArtifactRow().stream().map(Artifact::headerCsv).toList();
+    }
+
     /**
      * Prints a human-readable representation of these results.
      *
@@ -14,10 +24,4 @@ public interface Results extends AsRow {
      *            output stream
      */
     void print(final OutputStream out);
-
-    @Override
-    default List<Artifact<?>> asArtifactRow() {
-        // TODO Temporary to avoid compilation errors
-        throw new UnsupportedOperationException("Unimplemented method 'asArtifactRow'");
-    }
 }

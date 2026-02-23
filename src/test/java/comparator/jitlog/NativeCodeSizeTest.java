@@ -89,5 +89,10 @@ class NativeCodeSizeTest {
         public Integer value() {
             return this.value;
         }
+
+        @Override
+        public String headerCsv() {
+            return "Fixed artifact";
+        }
     }
 }

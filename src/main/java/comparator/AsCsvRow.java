@@ -12,4 +12,11 @@ public interface AsCsvRow {
      * @return a row of string values in CSV column order
      */
     List<String> asCsvRow();
+
+    /**
+     * Returns CSV headers in the same order as {@link #asCsvRow()}.
+     *
+     * @return a row of CSV headers
+     */
+    List<String> headerCsv();
 }

@@ -56,6 +56,11 @@ public final class NativeCodeSize implements Artifact<Integer> {
     }
 
     @Override
+    public String headerCsv() {
+        return "Native code size, B";
+    }
+
+    @Override
     public String toString() {
         return this.targetMethod.classMethodName() + ": " + this.value() + " bytes";
     }

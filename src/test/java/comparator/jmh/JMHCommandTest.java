@@ -25,17 +25,15 @@ final class JMHCommandTest {
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
-        Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
+        Assertions.assertEquals(2, row.size(), "JMH row should contain only mandatory metrics");
         final double score = Double.parseDouble(row.get(0));
         final double allocRateNorm = Double.parseDouble(row.get(1));
         Assertions.assertTrue(Double.isFinite(score), "JMH run should produce primary score");
         Assertions.assertTrue(Double.isFinite(allocRateNorm), "JMH run should produce alloc rate norm");
-        Assertions.assertTrue(row.get(2).isEmpty(), "Instructions should be empty when perf profiler is disabled");
-        Assertions.assertTrue(row.get(3).isEmpty(), "Memory loads should be empty when perf profiler is disabled");
     }
 
     @Test
-    void returnsInstructionsFromPerfRun() {
+    void returnsScoresFromJMHPerfRun() {
         Assumptions.assumeTrue(JMHCommandTest.perfAvailable(), "perf is required for this test");
         final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
         final TargetMethod target = new TargetMethod(

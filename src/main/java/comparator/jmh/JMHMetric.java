@@ -33,6 +33,11 @@ public abstract class JMHMetric implements Artifact<Double> {
     }
 
     @Override
+    public String headerCsv() {
+        return this.name + ", " + this.unit;
+    }
+
+    @Override
     public String toString() {
         return this.name + ": " + this.score + " " + this.unit;
     }

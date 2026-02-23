@@ -15,17 +15,6 @@ import java.util.stream.Collectors;
  * including the JIT artifacts dissimilarity score.
  */
 public class Comparison {
-    // TODO: make JITResults return metric names and their measure units. For
-    // example "Allocations, B"
-    private static final List<String> HEADER = List.of(
-            "Target",
-            "JMH primary score, us/op",
-            "Allocations, B",
-            "Instructions, #/op",
-            "Memory loads, #/op",
-            "Native code size, B",
-            "JIT artifacts dissimilarity score"
-    );
     private final Analysis original;
     private final List<Analysis> refactorings;
 
@@ -60,14 +49,14 @@ public class Comparison {
      * @return CSV content
      */
     public String asCsv() {
-        final StringBuilder csv = new StringBuilder(this.rowToCsv(Comparison.HEADER));
+        final StringBuilder csv = new StringBuilder(this.rowToCsv(this.headerCsv()));
         csv.append(System.lineSeparator());
-        csv.append(this.rowToCsv(Comparison.rowWith(this.original.asCsvRow(), "Original")));
+        csv.append(this.rowToCsv(this.rowWith(this.original.asCsvRow(), "Original")));
         for (final Analysis refactoring : this.refactorings) {
             csv.append(System.lineSeparator());
             csv.append(
                     this.rowToCsv(
-                            Comparison.rowWith(
+                            this.rowWith(
                                     refactoring.asCsvRow(),
                                     String.valueOf(this.original.results().relativeDifference(refactoring.results()))
                             )
@@ -104,7 +93,11 @@ public class Comparison {
         return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 
-    private static List<String> rowWith(final List<String> row, final String value) {
+    private List<String> headerCsv() {
+        return this.rowWith(this.original.headerCsv(), "JIT artifacts dissimilarity score");
+    }
+
+    private List<String> rowWith(final List<String> row, final String value) {
         final List<String> updated = new ArrayList<>(row);
         updated.add(value);
         return updated;

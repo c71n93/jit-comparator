@@ -63,4 +63,12 @@ public class Analysis implements AsCsvRow {
         row.addAll(this.results().asCsvRow());
         return row;
     }
+
+    @Override
+    public List<String> headerCsv() {
+        final List<String> header = new ArrayList<>();
+        header.add("Target");
+        header.addAll(this.results().headerCsv());
+        return List.copyOf(header);
+    }
 }

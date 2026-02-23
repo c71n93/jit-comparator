@@ -51,15 +51,15 @@ class JMHResultsTest {
     }
 
     @Test
-    void rendersEmptyPerfMetricsInCsvRowWhenMissing() {
+    void omitsPerfMetricsInCsvRowWhenMissing() {
         final JMHResults results = new JMHResults(
                 new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT)
         );
         Assertions.assertEquals(
-                List.of("1.5", "2.5", "", ""),
+                List.of("1.5", "2.5"),
                 results.asCsvRow(),
-                "Missing perf metrics should be empty"
+                "Missing perf metrics should be omitted from csv row"
         );
     }
 

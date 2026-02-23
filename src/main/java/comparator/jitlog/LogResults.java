@@ -47,11 +47,6 @@ public class LogResults implements Results {
     }
 
     @Override
-    public List<String> asCsvRow() {
-        return this.asArtifactRow().stream().map(artifact -> String.valueOf(artifact.value())).toList();
-    }
-
-    @Override
     public List<Artifact<?>> asArtifactRow() {
         return List.of(this.codesize);
     }

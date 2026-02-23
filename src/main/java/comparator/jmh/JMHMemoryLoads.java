@@ -4,7 +4,8 @@ package comparator.jmh;
  * Normalized CPU memory loads metric reported by the perf profiler.
  */
 public final class JMHMemoryLoads extends JMHMetric {
-    private static final String METRIC_NAME = "memory loads";
+    static final String DEFAULT_UNIT = "#/op";
+    private static final String METRIC_NAME = "Memory loads";
 
     /**
      * Ctor.
