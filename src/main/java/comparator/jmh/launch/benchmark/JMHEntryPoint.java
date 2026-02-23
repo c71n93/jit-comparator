@@ -42,8 +42,10 @@ public final class JMHEntryPoint {
                 .result(JMHResultFile.resultFileFromProperty())
                 .resultFormat(ResultFormatType.JSON);
         if (config.perfEnabled()) {
-            // TODO: To figure out what these metrics are exactly estimating and how.
-            builder.addProfiler(LinuxPerfNormProfiler.class, "events=instructions,mem_inst_retired.all_loads");
+            builder.addProfiler(
+                    LinuxPerfNormProfiler.class,
+                    "events=instructions,mem_inst_retired.all_loads,mem_inst_retired.all_stores"
+            );
         }
         final Options options = builder.build();
         new Runner(options).run();

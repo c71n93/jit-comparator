@@ -8,7 +8,7 @@ import java.util.List;
  * Analysis row with predefined CSV values and stubbed JIT results.
  */
 final class StubAnalysis extends Analysis {
-    private static final int WIDTH_WITH_PERF = 6;
+    private static final int WIDTH_WITH_PERF = 7;
     private static final int WIDTH_WITHOUT_PERF = 4;
     private final List<String> row;
     private final JITResults results;
@@ -38,6 +38,7 @@ final class StubAnalysis extends Analysis {
                     "Allocations, B",
                     "Instructions, #/op",
                     "Memory loads, #/op",
+                    "Memory stores, #/op",
                     "Native code size, B"
             );
         }

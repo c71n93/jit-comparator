@@ -14,13 +14,15 @@ class JMHResultFileTest {
     private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
+            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
+            + "\"mem_inst_retired.all_stores:u\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
     private static final String JSON_WITHOUT_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
     private static final String JSON_WITH_INCOMPLETE_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_loads:p\":{\"score\":4.4,\"scoreUnit\":\"#/op\"}}}]";
+            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
+            + "\"mem_inst_retired.all_stores:p\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
     private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
     private static final String JSON_WITHOUT_ALLOC = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
 
@@ -28,7 +30,7 @@ class JMHResultFileTest {
     void parsesMetricsAsCsvRowFromJson(@TempDir final Path tempDir) throws Exception {
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF);
         Assertions.assertEquals(
-                List.of("1.1", "2.2", "3.3", "4.4"), parsed.asCsvRow(), "JMH result should parse metrics"
+                List.of("1.1", "2.2", "3.3", "4.4", "5.5"), parsed.asCsvRow(), "JMH result should parse metrics"
         );
     }
 
@@ -36,7 +38,7 @@ class JMHResultFileTest {
     void parsesMetricsAsArtifactRowFromJson(@TempDir final Path tempDir) throws Exception {
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF);
         final List<Artifact<?>> artifacts = parsed.asArtifactRow();
-        Assertions.assertEquals(4, artifacts.size(), "JMH result should expose four artifacts");
+        Assertions.assertEquals(5, artifacts.size(), "JMH result should expose five artifacts");
         Assertions.assertEquals(1.1d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Primary metric should match");
         Assertions.assertEquals(
                 2.2d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Allocation metric should match"
@@ -46,6 +48,9 @@ class JMHResultFileTest {
         );
         Assertions.assertEquals(
                 4.4d, artifacts.get(3).value().doubleValue(), 1.0e-12, "Memory loads metric should match"
+        );
+        Assertions.assertEquals(
+                5.5d, artifacts.get(4).value().doubleValue(), 1.0e-12, "Memory stores metric should match"
         );
     }
 

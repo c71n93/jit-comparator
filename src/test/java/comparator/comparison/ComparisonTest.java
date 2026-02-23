@@ -13,18 +13,18 @@ class ComparisonTest {
     void rendersCsvWithHeaderAndRows() {
         final CsvComparison comparison = new CsvComparison(
                 new StubAnalysis(
-                        List.of("Example::run", "1.23", "42", "100", "300", "64"),
+                        List.of("Example::run", "1.23", "42", "100", "300", "500", "64"),
                         new StubResults(0.25d)
                 ),
                 new StubAnalysis(
-                        List.of("Example, \"quoted\"", "3.21", "5", "200", "400", "6"),
+                        List.of("Example, \"quoted\"", "3.21", "5", "200", "400", "600", "6"),
                         new StubResults(0.0d)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
                 + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
-        final String rowOne = "Example::run,1.23,42,100,300,64,Original,Original";
-        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,6,0.25,0.25";
+        final String rowOne = "Example::run,1.23,42,100,300,500,64,Original,Original";
+        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,600,6,0.25,0.25";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(expected, comparison.asCsv(), "Comparison CSV output should match expected content");
     }
@@ -33,7 +33,7 @@ class ComparisonTest {
     void savesCsvToFile(@TempDir final Path tempDir) throws Exception {
         final CsvComparison comparison = new CsvComparison(
                 new StubAnalysis(
-                        List.of("Example::run", "1.23", "42", "100", "300", "64"),
+                        List.of("Example::run", "1.23", "42", "100", "300", "500", "64"),
                         new StubResults(0.0d)
                 )
         );

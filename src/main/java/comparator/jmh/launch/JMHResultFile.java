@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHMemoryLoads;
+import comparator.jmh.JMHMemoryStores;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.property.JvmSystemProperties;
@@ -26,6 +27,7 @@ public class JMHResultFile implements JvmSystemProperties {
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
     private static final String INSTRUCTIONS = "instructions:u";
     private static final String MEMORY_LOADS = "mem_inst_retired.all_loads:u";
+    private static final String MEMORY_STORES = "mem_inst_retired.all_stores:u";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
@@ -68,7 +70,8 @@ public class JMHResultFile implements JvmSystemProperties {
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(secondaryMetrics.path(GC_ALLOC_RATE_NORM));
             final Optional<JMHInstructions> instructions = this.instructionsFrom(secondaryMetrics);
             final Optional<JMHMemoryLoads> memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
-            return new JMHResults(score, allocRateNorm, instructions, memoryLoads);
+            final Optional<JMHMemoryStores> memoryStores = this.memoryStoresFrom(secondaryMetrics);
+            return new JMHResults(score, allocRateNorm, instructions, memoryLoads, memoryStores);
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -107,5 +110,15 @@ public class JMHResultFile implements JvmSystemProperties {
             return Optional.empty();
         }
         return Optional.of(new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText()));
+    }
+
+    private Optional<JMHMemoryStores> memoryStoresFrom(final JsonNode node) {
+        final JsonNode stores = node.path(MEMORY_STORES);
+        if (stores.isMissingNode() || !stores.hasNonNull(SCORE_FIELD) || !stores.hasNonNull(SCORE_UNIT_FIELD)) {
+            return Optional.empty();
+        }
+        return Optional.of(
+                new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText())
+        );
     }
 }

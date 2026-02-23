@@ -7,6 +7,7 @@ import comparator.jitlog.test.JITLogFixture;
 import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHMemoryLoads;
+import comparator.jmh.JMHMemoryStores;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.method.TargetMethod;
@@ -61,8 +62,8 @@ class JITResultsComparisonTest {
     @Test
     void returnsFalseWhenInstructionsDiffer(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(105.0d, 10.5d, 1200.0d, 2100.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(105.0d, 10.5d, 1200.0d, 2000.0d, 3000.0d), log);
         Assertions.assertFalse(
                 new JITResultsComparison(left, right).areSame(),
                 "Instructions difference should mark results as different"
@@ -72,7 +73,7 @@ class JITResultsComparisonTest {
     @Test
     void throwsWhenInstructionsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -84,8 +85,8 @@ class JITResultsComparisonTest {
     @Test
     void returnsFalseWhenMemoryLoadsDiffer(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(105.0d, 10.5d, 1005.0d, 2400.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(105.0d, 10.5d, 1005.0d, 2400.0d, 3000.0d), log);
         Assertions.assertFalse(
                 new JITResultsComparison(left, right).areSame(),
                 "Memory loads difference should mark results as different"
@@ -95,8 +96,31 @@ class JITResultsComparisonTest {
     @Test
     void throwsWhenMemoryLoadsPresenceDiffers(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
         final JITResults right = new JITResults(this.jmhWithInstructions(100.0d, 10.0d, 1000.0d), log);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new JITResultsComparison(left, right).areSame(),
+                JITResultsComparisonTest.DIFFERENT_METRIC_SETS_ERROR
+        );
+    }
+
+    @Test
+    void returnsFalseWhenMemoryStoresDiffer(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(105.0d, 10.5d, 1005.0d, 2005.0d, 3600.0d), log);
+        Assertions.assertFalse(
+                new JITResultsComparison(left, right).areSame(),
+                "Memory stores difference should mark results as different"
+        );
+    }
+
+    @Test
+    void throwsWhenMemoryStoresPresenceDiffers(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithInstructionsAndLoads(100.0d, 10.0d, 1000.0d, 2000.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> new JITResultsComparison(left, right).areSame(),
@@ -169,14 +193,15 @@ class JITResultsComparisonTest {
     @Test
     void calculatesRelDiffUsingAllMetricsWhenPerfPresent(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         final double expected = JITResultsComparisonTest.rms(
                 JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
                 JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
                 0.0d,
                 JITResultsComparisonTest.artifactRelDiff(1000.0d, 1200.0d),
-                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d)
+                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d),
+                JITResultsComparisonTest.artifactRelDiff(3000.0d, 3600.0d)
         );
         Assertions.assertEquals(
                 expected,
@@ -189,14 +214,15 @@ class JITResultsComparisonTest {
     @Test
     void calculatesMaxRelDiffUsingAllMetricsWhenPerfPresent(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         final double expected = JITResultsComparisonTest.max(
                 JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
                 JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
                 0.0d,
                 JITResultsComparisonTest.artifactRelDiff(1000.0d, 1200.0d),
-                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d)
+                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d),
+                JITResultsComparisonTest.artifactRelDiff(3000.0d, 3600.0d)
         );
         Assertions.assertEquals(
                 expected,
@@ -209,7 +235,7 @@ class JITResultsComparisonTest {
     @Test
     void throwsWhenOptionalMetricsPresenceDiffersForRelDiff(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d, 12000.0d), log);
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -221,7 +247,7 @@ class JITResultsComparisonTest {
     @Test
     void throwsWhenOptionalMetricsPresenceDiffersForMaxRelDiff(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d, 12000.0d), log);
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -233,8 +259,8 @@ class JITResultsComparisonTest {
     @Test
     void keepsRelDiffSymmetric(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         Assertions.assertEquals(
                 new JITResultsComparison(left, right).meanRelativeDifference(),
                 new JITResultsComparison(right, left).meanRelativeDifference(),
@@ -246,8 +272,8 @@ class JITResultsComparisonTest {
     @Test
     void keepsMaxRelDiffSymmetric(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         Assertions.assertEquals(
                 new JITResultsComparison(left, right).maxRelativeDifference(),
                 new JITResultsComparison(right, left).maxRelativeDifference(),
@@ -306,13 +332,24 @@ class JITResultsComparisonTest {
         );
     }
 
-    private JMHResults jmhWithPerf(final double score, final double alloc, final double instructions,
+    private JMHResults jmhWithInstructionsAndLoads(final double score, final double alloc, final double instructions,
             final double memoryLoads) {
         return new JMHResults(
                 new JMHPrimaryScore(score, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(alloc, JITResultsComparisonTest.ALLOC_RATE_UNIT),
                 Optional.of(new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT)),
                 Optional.of(new JMHMemoryLoads(memoryLoads, JITResultsComparisonTest.PERF_METRIC_UNIT))
+        );
+    }
+
+    private JMHResults jmhWithPerf(final double score, final double alloc, final double instructions,
+            final double memoryLoads, final double memoryStores) {
+        return new JMHResults(
+                new JMHPrimaryScore(score, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(alloc, JITResultsComparisonTest.ALLOC_RATE_UNIT),
+                Optional.of(new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT)),
+                Optional.of(new JMHMemoryLoads(memoryLoads, JITResultsComparisonTest.PERF_METRIC_UNIT)),
+                Optional.of(new JMHMemoryStores(memoryStores, JITResultsComparisonTest.PERF_METRIC_UNIT))
         );
     }
 

@@ -24,12 +24,18 @@ public final class JMHResults implements Results {
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
             final Optional<JMHInstructions> instructions) {
-        this(score, allocRateNorm, instructions, Optional.empty());
+        this(score, allocRateNorm, instructions, Optional.empty(), Optional.empty());
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
             final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads) {
-        this(score, allocRateNorm, JMHPerfResults.from(instructions, memoryLoads));
+        this(score, allocRateNorm, instructions, memoryLoads, Optional.empty());
+    }
+
+    public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
+            final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads,
+            final Optional<JMHMemoryStores> memoryStores) {
+        this(score, allocRateNorm, JMHPerfResults.from(instructions, memoryLoads, memoryStores));
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm, final JMHPerfResults perf) {

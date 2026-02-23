@@ -51,9 +51,10 @@ final class JMHCommandTest {
         ).run();
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
-        Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
+        Assertions.assertEquals(5, row.size(), "JMH row should contain five metrics");
         Assertions.assertFalse(row.get(2).isEmpty(), "Instructions should be present when perf profiler is enabled");
         Assertions.assertFalse(row.get(3).isEmpty(), "Memory loads should be present when perf profiler is enabled");
+        Assertions.assertFalse(row.get(4).isEmpty(), "Memory stores should be present when perf profiler is enabled");
     }
 
     @Test
@@ -81,7 +82,8 @@ final class JMHCommandTest {
     private static boolean perfAvailable() {
         try {
             final Process process = new ProcessBuilder(
-                    "perf", "stat", "-e", "instructions,mem_inst_retired.all_loads", "echo", "1"
+                    "perf", "stat", "-e",
+                    "instructions,mem_inst_retired.all_loads,mem_inst_retired.all_stores", "echo", "1"
             ).start();
             process.getInputStream().readAllBytes();
             process.getErrorStream().readAllBytes();

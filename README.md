@@ -10,11 +10,12 @@ Comparator currently tracks:
 - `Allocations, B` (`gc.alloc.rate.norm`)
 - `Instructions, #/op` (`instructions:u`, optional)
 - `Memory loads, #/op` (`mem_inst_retired.all_loads:u`, optional)
+- `Memory stores, #/op` (`mem_inst_retired.all_stores:u`, optional)
 - `Native code size, B`
 
-`Instructions` and `Memory loads` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support.
+`Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support.
 
-- If `perf` is unavailable (or disabled), these two metrics are omitted.
+- If `perf` is unavailable (or disabled), these three metrics are omitted.
 - Relative-difference aggregation then uses only available metrics.
 
 ## API usage
@@ -65,18 +66,18 @@ Example of `comparisons.csv` content in table form:
 
 Comparison 1
 
-| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| PlainForExample::run | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 2080 | Original | Original |
-| StreamBoxedExample::run | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 3616 | 0.274801543186 | 0.571492137425 |
-| PlainForIndexedExample::run | 23843.3428349999 | 3.999806482927127E7 | 1.25E8 | 8.56E7 | 1792 | 0.063402197511 | 0.148760330539 |
+| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| PlainForExample::run | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 5.62E7 | 2080 | Original | Original |
+| StreamBoxedExample::run | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 7.73E7 | 3616 | 0.274801543186 | 0.571492137425 |
+| PlainForIndexedExample::run | 23843.3428349999 | 3.999806482927127E7 | 1.25E8 | 8.56E7 | 5.81E7 | 1792 | 0.063402197511 | 0.148760330539 |
 
 Comparison 2
 
-| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| PlainForExample::run | 25020.38236669786 | 3.999806643324631E7 | 1.29E8 | 8.78E7 | 2080 | Original | Original |
-| PlainForReplaceAllExample::run | 34609.25680818749 | 7.199801608483697E7 | 1.83E8 | 1.17E8 | 2192 | 0.285114108902 | 0.571414983127 |
+| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| PlainForExample::run | 25020.38236669786 | 3.999806643324631E7 | 1.29E8 | 8.78E7 | 5.94E7 | 2080 | Original | Original |
+| PlainForReplaceAllExample::run | 34609.25680818749 | 7.199801608483697E7 | 1.83E8 | 1.17E8 | 8.01E7 | 2192 | 0.285114108902 | 0.571414983127 |
 
 ## Comparison metrics
 

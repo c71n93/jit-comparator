@@ -13,10 +13,10 @@ import org.openjdk.jmh.runner.options.TimeValue;
 public final class JMHConfig implements JvmSystemProperties {
     // TODO: to find parameters that will be suitable for our task. Noise in the
     // values of jit artifacts should be low.
-    private static final int DEFAULT_WARMUP_ITERATIONS = 3;
-    private static final TimeValue DEFAULT_WARMUP_TIME = TimeValue.seconds(5);
-    private static final int DEFAULT_MEASUREMENT_ITERATIONS = 3;
-    private static final TimeValue DEFAULT_MEASUREMENT_TIME = TimeValue.seconds(5);
+    private static final int DEFAULT_WARMUP_ITERATIONS = 10;
+    private static final TimeValue DEFAULT_WARMUP_TIME = TimeValue.seconds(2);
+    private static final int DEFAULT_MEASUREMENT_ITERATIONS = 10;
+    private static final TimeValue DEFAULT_MEASUREMENT_TIME = TimeValue.seconds(1);
     private static final boolean DEFAULT_PERF_ENABLED = true;
     private static final PropertyInt WARMUP_ITERATIONS_PROPERTY = new PropertyInt("jmh.warmupIterations");
     private static final PropertyString WARMUP_TIME_PROPERTY = new PropertyString("jmh.warmupTime");
