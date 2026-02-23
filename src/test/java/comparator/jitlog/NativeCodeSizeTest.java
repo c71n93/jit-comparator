@@ -48,7 +48,7 @@ class NativeCodeSizeTest {
     }
 
     @Test
-    void failsWhenMethodAbsentInLog(@TempDir final Path tempDir) throws Exception {
+    void returnsMinusOneWhenMethodAbsentInLog(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
                 this.testClasses(),
@@ -57,11 +57,13 @@ class NativeCodeSizeTest {
         );
         this.fixture.generate(target, logFile);
         final TargetMethod missing = new TargetMethod(this.testClasses(), NativeCodeSizeTest.TARGET_CLASS, "absent");
-        Assertions.assertThrows(IllegalStateException.class, () -> new NativeCodeSize(missing, logFile).value());
+        Assertions.assertEquals(
+                -1, new NativeCodeSize(missing, logFile).value(), "Missing method in JIT log should return -1"
+        );
     }
 
     @Test
-    void failsWithoutTierFour(@TempDir final Path tempDir) throws Exception {
+    void returnsMinusOneWithoutTierFour(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
                 this.testClasses(),
@@ -71,7 +73,9 @@ class NativeCodeSizeTest {
         final List<String> flags = new ArrayList<>();
         flags.add("-XX:TieredStopAtLevel=1");
         this.fixture.generate(target, logFile, flags);
-        Assertions.assertThrows(IllegalStateException.class, () -> new NativeCodeSize(target, logFile).value());
+        Assertions.assertEquals(
+                -1, new NativeCodeSize(target, logFile).value(), "No tier 4 compilation should return -1"
+        );
     }
 
     private Path testClasses() {

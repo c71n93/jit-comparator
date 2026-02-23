@@ -3,6 +3,8 @@ package comparator.jitlog.jitwatch.model;
 import comparator.jitlog.NativeCodeSize;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.adoptopenjdk.jitwatch.model.Compilation;
 import org.adoptopenjdk.jitwatch.model.IMetaMember;
 import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
@@ -159,18 +161,19 @@ public final class JWMetaMemberWrapper implements IMetaMember {
     }
 
     // TODO: implement enum for compilation tiers.
-    // TODO: Last compilation can be OSR. This means, that result code will
-    // definitely be different. We should not include OSR compilation into our
-    // analysis.
-    public Compilation getLastCompilationOfTier(final int tier) {
+    public Optional<Compilation> getLastCompilationOfTier(final int tier) {
         final List<Compilation> compilations = this.getCompilations();
         for (int i = compilations.size() - 1; i >= 0; i--) {
             final Compilation compilation = compilations.get(i);
             if (compilation.getLevel() == tier) {
-                return compilation;
+                // TODO: Currently we are not support OSR compilations.
+                if (compilation.isOSR()) {
+                    return Optional.empty();
+                }
+                return Optional.of(compilation);
             }
         }
-        throw new IllegalStateException(String.format("No tier %d compilations found for target method", tier));
+        return Optional.empty();
     }
 
     @Override

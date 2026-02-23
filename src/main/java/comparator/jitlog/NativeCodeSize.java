@@ -51,8 +51,9 @@ public final class NativeCodeSize implements Artifact<Integer> {
         final JWMetaMemberWrapper member = new JWMetaMemberWrapper(
                 model.findMetaMemberOrThrow(this.targetMethod.method())
         );
-        final Compilation compilation = member.getLastCompilationOfTier(NativeCodeSize.TIER_LEVEL_4);
-        return compilation.getNativeSize();
+        return member.getLastCompilationOfTier(NativeCodeSize.TIER_LEVEL_4)
+                .map(Compilation::getNativeSize)
+                .orElse(-1);
     }
 
     @Override
