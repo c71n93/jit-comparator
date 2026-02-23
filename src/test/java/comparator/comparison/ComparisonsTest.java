@@ -29,11 +29,11 @@ class ComparisonsTest {
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Native code size, B\","
-                + "JIT artifacts dissimilarity score";
-        final String rowOne = "One::run,1.00,2,10,100,3,Original";
-        final String rowTwo = "OneRef::run,1.10,2,11,110,3,0.1";
-        final String rowThree = "Two::run,2.00,4,20,200,6,Original";
-        final String rowFour = "TwoRef::run,2.10,4,21,210,6,0.2";
+                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
+        final String rowOne = "One::run,1.00,2,10,100,3,Original,Original";
+        final String rowTwo = "OneRef::run,1.10,2,11,110,3,0.1,0.1";
+        final String rowThree = "Two::run,2.00,4,20,200,6,Original,Original";
+        final String rowFour = "TwoRef::run,2.10,4,21,210,6,0.2,0.2";
         final String expected = String.join(
                 System.lineSeparator(),
                 header,
@@ -70,11 +70,11 @@ class ComparisonsTest {
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
-                + "JIT artifacts dissimilarity score";
-        final String rowOne = "One::run,1.00,2,3,Original";
-        final String rowTwo = "OneRef::run,1.10,2,3,0.1";
-        final String rowThree = "Two::run,2.00,4,6,Original";
-        final String rowFour = "TwoRef::run,2.10,4,6,0.2";
+                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
+        final String rowOne = "One::run,1.00,2,3,Original,Original";
+        final String rowTwo = "OneRef::run,1.10,2,3,0.1,0.1";
+        final String rowThree = "Two::run,2.00,4,6,Original,Original";
+        final String rowFour = "TwoRef::run,2.10,4,6,0.2,0.2";
         final String expected = String.join(
                 System.lineSeparator(),
                 header,

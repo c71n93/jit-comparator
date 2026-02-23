@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * CSV comparison table for the original analysis and its refactorings,
- * including the JIT artifacts dissimilarity score.
+ * including the JIT artifacts mean and max dissimilarity scores.
  */
 public class CsvComparison {
     private final Analysis original;
@@ -51,19 +51,18 @@ public class CsvComparison {
     public String asCsv() {
         final StringBuilder csv = new StringBuilder(this.rowToCsv(this.headerCsv()));
         csv.append(System.lineSeparator());
-        csv.append(this.rowToCsv(this.rowWith(this.original.asCsvRow(), "Original")));
+        csv.append(this.rowToCsv(this.rowWith(this.original.asCsvRow(), "Original", "Original")));
         for (final Analysis refactoring : this.refactorings) {
+            final JITResultsComparison comparison = new JITResultsComparison(
+                    this.original.results(), refactoring.results()
+            );
             csv.append(System.lineSeparator());
             csv.append(
                     this.rowToCsv(
                             this.rowWith(
                                     refactoring.asCsvRow(),
-                                    String.valueOf(
-                                            new JITResultsComparison(
-                                                    this.original.results(),
-                                                    refactoring.results()
-                                            ).relativeDifference()
-                                    )
+                                    String.valueOf(comparison.meanRelativeDifference()),
+                                    String.valueOf(comparison.maxRelativeDifference())
                             )
                     )
             );
@@ -99,12 +98,16 @@ public class CsvComparison {
     }
 
     private List<String> headerCsv() {
-        return this.rowWith(this.original.headerCsv(), "JIT artifacts dissimilarity score");
+        return this.rowWith(
+                this.original.headerCsv(),
+                "JIT artifacts mean dissimilarity score",
+                "JIT artifacts max dissimilarity score"
+        );
     }
 
-    private List<String> rowWith(final List<String> row, final String value) {
+    private List<String> rowWith(final List<String> row, final String... values) {
         final List<String> updated = new ArrayList<>(row);
-        updated.add(value);
+        updated.addAll(Arrays.asList(values));
         return updated;
     }
 }

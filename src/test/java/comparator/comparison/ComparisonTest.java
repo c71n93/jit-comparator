@@ -22,9 +22,9 @@ class ComparisonTest {
                 )
         );
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Native code size, B\","
-                + "JIT artifacts dissimilarity score";
-        final String rowOne = "Example::run,1.23,42,100,300,64,Original";
-        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,6,0.25";
+                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
+        final String rowOne = "Example::run,1.23,42,100,300,64,Original,Original";
+        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,6,0.25,0.25";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(expected, comparison.asCsv(), "Comparison CSV output should match expected content");
     }
@@ -56,9 +56,9 @@ class ComparisonTest {
                 )
         );
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
-                + "JIT artifacts dissimilarity score";
-        final String rowOne = "NoPerf::run,1.23,42,64,Original";
-        final String rowTwo = "NoPerfRef::run,3.21,5,6,0.25";
+                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
+        final String rowOne = "NoPerf::run,1.23,42,64,Original,Original";
+        final String rowTwo = "NoPerfRef::run,3.21,5,6,0.25,0.25";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(
                 expected,

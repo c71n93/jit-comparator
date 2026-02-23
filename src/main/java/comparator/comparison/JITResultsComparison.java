@@ -51,7 +51,7 @@ public final class JITResultsComparison {
      * @throws IllegalArgumentException
      *             if artifact rows have different sizes
      */
-    public double relativeDifference() {
+    public double meanRelativeDifference() {
         final List<Artifact<?>> leftArtifacts = this.left.asArtifactRow();
         final List<Artifact<?>> rightArtifacts = this.right.asArtifactRow();
         checkSizeCompatibility(leftArtifacts, rightArtifacts);
@@ -64,6 +64,30 @@ public final class JITResultsComparison {
             sumSquares += relDiff * relDiff;
         }
         return Math.sqrt(sumSquares / leftArtifacts.size());
+    }
+
+    /**
+     * Maximum aggregate of per-artifact relative differences. Artifact order
+     * follows {@link JITResults#asArtifactRow()}.
+     *
+     * @return maximum relative difference
+     * @throws IllegalArgumentException
+     *             if artifact rows have different sizes
+     */
+    // TODO: We can combine maxRelativeDifference and meanRelativeDifference in a
+    // single method, because they are making same computations twice.
+    public double maxRelativeDifference() {
+        final List<Artifact<?>> leftArtifacts = this.left.asArtifactRow();
+        final List<Artifact<?>> rightArtifacts = this.right.asArtifactRow();
+        checkSizeCompatibility(leftArtifacts, rightArtifacts);
+        double max = 0.0d;
+        for (int index = 0; index < leftArtifacts.size(); index += 1) {
+            final double relDiff = leftArtifacts.get(index).relativeDifference(rightArtifacts.get(index));
+            if (relDiff > max) {
+                max = relDiff;
+            }
+        }
+        return max;
     }
 
     private static void checkSizeCompatibility(final List<Artifact<?>> leftArtifacts,

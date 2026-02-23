@@ -22,6 +22,7 @@ class JITResultsComparisonTest {
     private static final String PRIMARY_SCORE_UNIT = "us/op";
     private static final String ALLOC_RATE_UNIT = "B";
     private static final String PERF_METRIC_UNIT = "#/op";
+    private static final String DIFFERENT_METRIC_SETS_ERROR = "Different metric sets should not be compared";
     private final JITLogFixture fixture = new JITLogFixture();
 
     @Test
@@ -76,7 +77,7 @@ class JITResultsComparisonTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> new JITResultsComparison(left, right).areSame(),
-                "Different metric sets should not be compared"
+                JITResultsComparisonTest.DIFFERENT_METRIC_SETS_ERROR
         );
     }
 
@@ -99,7 +100,7 @@ class JITResultsComparisonTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> new JITResultsComparison(left, right).areSame(),
-                "Different metric sets should not be compared"
+                JITResultsComparisonTest.DIFFERENT_METRIC_SETS_ERROR
         );
     }
 
@@ -110,9 +111,22 @@ class JITResultsComparisonTest {
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertEquals(
                 0.0d,
-                new JITResultsComparison(left, right).relativeDifference(),
+                new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
                 "Same metrics should produce zero relative difference"
+        );
+    }
+
+    @Test
+    void returnsZeroMaxRelDiffForSameValues(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmh(100.0d, 10.0d), log);
+        final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
+        Assertions.assertEquals(
+                0.0d,
+                new JITResultsComparison(left, right).maxRelativeDifference(),
+                1.0e-12,
+                "Same metrics should produce zero max relative difference"
         );
     }
 
@@ -128,9 +142,27 @@ class JITResultsComparisonTest {
         );
         Assertions.assertEquals(
                 expected,
-                new JITResultsComparison(left, right).relativeDifference(),
+                new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
                 "Mandatory metrics should be aggregated with RMS"
+        );
+    }
+
+    @Test
+    void calculatesMaxRelDiffUsingMandatoryMetricsOnly(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmh(100.0d, 10.0d), log);
+        final JITResults right = new JITResults(this.jmh(120.0d, 12.0d), log);
+        final double expected = JITResultsComparisonTest.max(
+                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                0.0d
+        );
+        Assertions.assertEquals(
+                expected,
+                new JITResultsComparison(left, right).maxRelativeDifference(),
+                1.0e-12,
+                "Mandatory metrics should be aggregated with max"
         );
     }
 
@@ -148,9 +180,29 @@ class JITResultsComparisonTest {
         );
         Assertions.assertEquals(
                 expected,
-                new JITResultsComparison(left, right).relativeDifference(),
+                new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
                 "All present artifacts should participate in RMS aggregation"
+        );
+    }
+
+    @Test
+    void calculatesMaxRelDiffUsingAllMetricsWhenPerfPresent(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        final double expected = JITResultsComparisonTest.max(
+                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                0.0d,
+                JITResultsComparisonTest.artifactRelDiff(1000.0d, 1200.0d),
+                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d)
+        );
+        Assertions.assertEquals(
+                expected,
+                new JITResultsComparison(left, right).maxRelativeDifference(),
+                1.0e-12,
+                "All present artifacts should participate in max aggregation"
         );
     }
 
@@ -161,8 +213,20 @@ class JITResultsComparisonTest {
         final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> new JITResultsComparison(left, right).relativeDifference(),
-                "Different metric sets should not be compared"
+                () -> new JITResultsComparison(left, right).meanRelativeDifference(),
+                JITResultsComparisonTest.DIFFERENT_METRIC_SETS_ERROR
+        );
+    }
+
+    @Test
+    void throwsWhenOptionalMetricsPresenceDiffersForMaxRelDiff(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 5000.0d, 9000.0d), log);
+        final JITResults right = new JITResults(this.jmh(100.0d, 10.0d), log);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new JITResultsComparison(left, right).maxRelativeDifference(),
+                JITResultsComparisonTest.DIFFERENT_METRIC_SETS_ERROR
         );
     }
 
@@ -172,10 +236,23 @@ class JITResultsComparisonTest {
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
         final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
         Assertions.assertEquals(
-                new JITResultsComparison(left, right).relativeDifference(),
-                new JITResultsComparison(right, left).relativeDifference(),
+                new JITResultsComparison(left, right).meanRelativeDifference(),
+                new JITResultsComparison(right, left).meanRelativeDifference(),
                 1.0e-12,
                 "relDiff should be symmetric"
+        );
+    }
+
+    @Test
+    void keepsMaxRelDiffSymmetric(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d), log);
+        Assertions.assertEquals(
+                new JITResultsComparison(left, right).maxRelativeDifference(),
+                new JITResultsComparison(right, left).maxRelativeDifference(),
+                1.0e-12,
+                "maxRelDiff should be symmetric"
         );
     }
 
@@ -186,9 +263,22 @@ class JITResultsComparisonTest {
         final JITResults right = new EmptyArtifactsJitResults(log);
         Assertions.assertEquals(
                 0.0d,
-                new JITResultsComparison(left, right).relativeDifference(),
+                new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
                 "Empty rows should produce zero relative difference"
+        );
+    }
+
+    @Test
+    void returnsZeroMaxForEmptyArtifactRows(@TempDir final Path tempDir) throws Exception {
+        final LogResults log = this.logResults(tempDir);
+        final JITResults left = new EmptyArtifactsJitResults(log);
+        final JITResults right = new EmptyArtifactsJitResults(log);
+        Assertions.assertEquals(
+                0.0d,
+                new JITResultsComparison(left, right).maxRelativeDifference(),
+                1.0e-12,
+                "Empty rows should produce zero max relative difference"
         );
     }
 
@@ -240,6 +330,16 @@ class JITResultsComparisonTest {
             sumSquares += value * value;
         }
         return Math.sqrt(sumSquares / values.length);
+    }
+
+    private static double max(final double... values) {
+        double maximum = 0.0d;
+        for (final double value : values) {
+            if (value > maximum) {
+                maximum = value;
+            }
+        }
+        return maximum;
     }
 
     private static final class EmptyArtifactsJitResults extends JITResults {
