@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * CSV comparison table for the original analysis and its refactorings,
  * including the JIT artifacts dissimilarity score.
  */
-public class Comparison {
+public class CsvComparison {
     private final Analysis original;
     private final List<Analysis> refactorings;
 
@@ -26,7 +26,7 @@ public class Comparison {
      * @param refactorings
      *            analyses for refactored variants
      */
-    public Comparison(final Analysis original, final Analysis... refactorings) {
+    public CsvComparison(final Analysis original, final Analysis... refactorings) {
         this(original, Arrays.asList(refactorings));
     }
 
@@ -38,7 +38,7 @@ public class Comparison {
      * @param refactorings
      *            analyses for refactored variants
      */
-    public Comparison(final Analysis original, final List<Analysis> refactorings) {
+    public CsvComparison(final Analysis original, final List<Analysis> refactorings) {
         this.original = original;
         this.refactorings = List.copyOf(refactorings);
     }
@@ -58,7 +58,12 @@ public class Comparison {
                     this.rowToCsv(
                             this.rowWith(
                                     refactoring.asCsvRow(),
-                                    String.valueOf(this.original.results().relativeDifference(refactoring.results()))
+                                    String.valueOf(
+                                            new JITResultsComparison(
+                                                    this.original.results(),
+                                                    refactoring.results()
+                                            ).relativeDifference()
+                                    )
                             )
                     )
             );

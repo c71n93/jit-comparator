@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * CSV table for multiple comparisons with concatenated rows.
  */
-public class Comparisons {
-    private final List<Comparison> tables;
+public class CsvComparisons {
+    private final List<CsvComparison> tables;
 
     /**
      * Ctor.
@@ -19,7 +19,7 @@ public class Comparisons {
      * @param comparisons
      *            comparison tables to concatenate
      */
-    public Comparisons(final Comparison... comparisons) {
+    public CsvComparisons(final CsvComparison... comparisons) {
         this(Arrays.asList(comparisons));
     }
 
@@ -29,7 +29,7 @@ public class Comparisons {
      * @param comparisons
      *            comparison tables to concatenate
      */
-    public Comparisons(final List<Comparison> comparisons) {
+    public CsvComparisons(final List<CsvComparison> comparisons) {
         this.tables = List.copyOf(comparisons);
     }
 
@@ -41,7 +41,7 @@ public class Comparisons {
     public String asCsv() {
         final String lineSeparator = System.lineSeparator();
         final StringBuilder csv = new StringBuilder();
-        for (final Comparison comparison : this.tables) {
+        for (final CsvComparison comparison : this.tables) {
             final String content = comparison.asCsv();
             if (!csv.isEmpty()) {
                 csv.append(lineSeparator);

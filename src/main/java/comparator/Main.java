@@ -1,7 +1,7 @@
 package comparator;
 
-import comparator.comparison.Comparison;
-import comparator.comparison.Comparisons;
+import comparator.comparison.CsvComparison;
+import comparator.comparison.CsvComparisons;
 import comparator.method.Classpath;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
@@ -11,8 +11,8 @@ public class Main {
 
     public static void main(final String[] args) {
         final Classpath loopComputationsClasspath = new Classpath(Path.of("examples", "loop-computations"));
-        new Comparisons(
-                new Comparison(
+        new CsvComparisons(
+                new CsvComparison(
                         new Analysis(new TargetMethod(loopComputationsClasspath, "PlainForExample", Main.RUN_METHOD)),
                         new Analysis(
                                 new TargetMethod(

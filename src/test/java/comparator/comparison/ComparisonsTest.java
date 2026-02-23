@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class ComparisonsTest {
     @Test
     void concatenatesComparisonsAsCsv() {
-        final Comparison first = new Comparison(
+        final CsvComparison first = new CsvComparison(
                 new StubAnalysis(
                         List.of("One::run", "1.00", "2", "10", "100", "3"),
                         new StubResults(0.1d)
@@ -17,7 +17,7 @@ class ComparisonsTest {
                         new StubResults(0.0d)
                 )
         );
-        final Comparison second = new Comparison(
+        final CsvComparison second = new CsvComparison(
                 new StubAnalysis(
                         List.of("Two::run", "2.00", "4", "20", "200", "6"),
                         new StubResults(0.2d)
@@ -27,7 +27,7 @@ class ComparisonsTest {
                         new StubResults(0.0d)
                 )
         );
-        final Comparisons comparisons = new Comparisons(first, second);
+        final CsvComparisons comparisons = new CsvComparisons(first, second);
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Native code size, B\","
                 + "JIT artifacts dissimilarity score";
         final String rowOne = "One::run,1.00,2,10,100,3,Original";
@@ -48,7 +48,7 @@ class ComparisonsTest {
 
     @Test
     void concatenatesComparisonsAsCsvWithoutPerfColumnsWhenPerfResultsAreMissing() {
-        final Comparison first = new Comparison(
+        final CsvComparison first = new CsvComparison(
                 new StubAnalysis(
                         List.of("One::run", "1.00", "2", "3"),
                         StubResults.withoutPerf(0.1d)
@@ -58,7 +58,7 @@ class ComparisonsTest {
                         StubResults.withoutPerf(0.0d)
                 )
         );
-        final Comparison second = new Comparison(
+        final CsvComparison second = new CsvComparison(
                 new StubAnalysis(
                         List.of("Two::run", "2.00", "4", "6"),
                         StubResults.withoutPerf(0.2d)
@@ -68,7 +68,7 @@ class ComparisonsTest {
                         StubResults.withoutPerf(0.0d)
                 )
         );
-        final Comparisons comparisons = new Comparisons(first, second);
+        final CsvComparisons comparisons = new CsvComparisons(first, second);
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
                 + "JIT artifacts dissimilarity score";
         final String rowOne = "One::run,1.00,2,3,Original";

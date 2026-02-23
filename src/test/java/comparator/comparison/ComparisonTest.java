@@ -11,7 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 class ComparisonTest {
     @Test
     void rendersCsvWithHeaderAndRows() {
-        final Comparison comparison = new Comparison(
+        final CsvComparison comparison = new CsvComparison(
                 new StubAnalysis(
                         List.of("Example::run", "1.23", "42", "100", "300", "64"),
                         new StubResults(0.25d)
@@ -31,7 +31,7 @@ class ComparisonTest {
 
     @Test
     void savesCsvToFile(@TempDir final Path tempDir) throws Exception {
-        final Comparison comparison = new Comparison(
+        final CsvComparison comparison = new CsvComparison(
                 new StubAnalysis(
                         List.of("Example::run", "1.23", "42", "100", "300", "64"),
                         new StubResults(0.0d)
@@ -45,7 +45,7 @@ class ComparisonTest {
 
     @Test
     void rendersCsvWithoutPerfColumnsWhenPerfResultsAreMissing() {
-        final Comparison comparison = new Comparison(
+        final CsvComparison comparison = new CsvComparison(
                 new StubAnalysis(
                         List.of("NoPerf::run", "1.23", "42", "64"),
                         StubResults.withoutPerf(0.25d)
