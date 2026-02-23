@@ -12,16 +12,21 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 final class JMHCommandTest {
     @Test
-    void returnsScoresFromJmhRun() {
+    void returnsScoresFromJmhRun(@TempDir final Path tempDir) {
         final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
         );
-        final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig(false)).run();
+        final JMHOutput output = new JMHCommand(
+                target,
+                tempDir.resolve("jit-log.xml"),
+                JMHCommandTest.fastConfig(false)
+        ).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
@@ -33,13 +38,17 @@ final class JMHCommandTest {
     }
 
     @Test
-    void returnsScoresFromJMHPerfRun() {
+    void returnsScoresFromJMHPerfRun(@TempDir final Path tempDir) {
         Assumptions.assumeTrue(JMHCommandTest.perfAvailable(), "perf is required for this test");
         final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
         );
-        final JMHOutput output = new JMHCommand(target, JMHCommandTest.fastConfig(true)).run();
+        final JMHOutput output = new JMHCommand(
+                target,
+                tempDir.resolve("jit-log.xml"),
+                JMHCommandTest.fastConfig(true)
+        ).run();
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
         Assertions.assertEquals(4, row.size(), "JMH row should contain four metrics");
@@ -48,7 +57,7 @@ final class JMHCommandTest {
     }
 
     @Test
-    void throwsOnJmhFailure() {
+    void throwsOnJmhFailure(@TempDir final Path tempDir) {
         final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "fail"
@@ -56,7 +65,11 @@ final class JMHCommandTest {
         Assertions
                 .assertThrows(
                         IllegalStateException.class,
-                        () -> new JMHCommand(target, JMHCommandTest.fastConfig(false)).run(),
+                        () -> new JMHCommand(
+                                target,
+                                tempDir.resolve("jit-log.xml"),
+                                JMHCommandTest.fastConfig(false)
+                        ).run(),
                         "JMH run should fail on target exception"
                 );
     }

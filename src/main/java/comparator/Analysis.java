@@ -5,6 +5,9 @@ import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
 import comparator.method.TargetMethod;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +18,7 @@ import java.util.Optional;
 public class Analysis implements AsCsvRow {
     private final TargetMethod targetMethod;
     private final JMHConfig config;
+    private final Path jitlog;
     private Optional<JITResults> cachedResults;
 
     /**
@@ -26,8 +30,35 @@ public class Analysis implements AsCsvRow {
      *            JMH execution parameters.
      */
     public Analysis(final TargetMethod targetMethod, final JMHConfig config) {
+        this(targetMethod, Analysis.tmpLogFile(), config);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog) {
+        this(targetMethod, jitlog, new JMHConfig());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     * @param config
+     *            JMH execution parameters.
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
         this.targetMethod = targetMethod;
         this.config = config;
+        this.jitlog = jitlog;
         this.cachedResults = Optional.empty();
     }
 
@@ -48,7 +79,7 @@ public class Analysis implements AsCsvRow {
      */
     public JITResults results() {
         if (this.cachedResults.isEmpty()) {
-            final JMHOutput output = new JMHCommand(this.targetMethod, this.config).run();
+            final JMHOutput output = new JMHCommand(this.targetMethod, this.jitlog, this.config).run();
             this.cachedResults = Optional.of(
                     new JITResults(output.results(), new LogResults(this.targetMethod, output.jitlog()))
             );
@@ -70,5 +101,13 @@ public class Analysis implements AsCsvRow {
         header.add("Target");
         header.addAll(this.results().headerCsv());
         return List.copyOf(header);
+    }
+
+    private static Path tmpLogFile() {
+        try {
+            return Files.createTempFile("jit-log-", ".xml");
+        } catch (final IOException e) {
+            throw new IllegalStateException("Unable to create JIT log file", e);
+        }
     }
 }

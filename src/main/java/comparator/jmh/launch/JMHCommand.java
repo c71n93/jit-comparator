@@ -23,29 +23,23 @@ public final class JMHCommand {
     private final JMHResultFile result;
     private final JMHConfig config;
 
-    public JMHCommand(final TargetMethod targetMethod) {
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
+        this(targetMethod, jitlog, new JMHConfig());
+    }
+
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
         this(
                 targetMethod,
                 Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
-                JMHCommand.tmpLogFile(),
+                jitlog,
                 new JMHResultFile(JMHCommand.tmpResultFile()),
-                new JMHConfig()
+                config
         );
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
             final JMHResultFile resultFile) {
         this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig());
-    }
-
-    public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
-        this(
-                targetMethod,
-                Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
-                JMHCommand.tmpLogFile(),
-                new JMHResultFile(JMHCommand.tmpResultFile()),
-                config
-        );
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
@@ -95,14 +89,6 @@ public final class JMHCommand {
         return this.targetMethod.classpath().with(
                 new Classpath(new PropertyString("java.class.path").requireValue())
         ).asString();
-    }
-
-    private static Path tmpLogFile() {
-        try {
-            return Files.createTempFile("jit-log-", ".xml");
-        } catch (final IOException e) {
-            throw new IllegalStateException("Unable to create JIT log file", e);
-        }
     }
 
     private static Path tmpResultFile() {
