@@ -24,15 +24,24 @@ public final class JMHCommand {
     private final JMHConfig config;
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
-        this(targetMethod, jitlog, new JMHConfig());
+        this(targetMethod, jitlog, new JMHResultFile(JMHCommand.tmpResultFile()), new JMHConfig());
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
+        this(targetMethod, jitlog, new JMHResultFile(JMHCommand.tmpResultFile()), config);
+    }
+
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile) {
+        this(targetMethod, jitlog, resultFile, new JMHConfig());
+    }
+
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile,
+            final JMHConfig config) {
         this(
                 targetMethod,
                 Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
                 jitlog,
-                new JMHResultFile(JMHCommand.tmpResultFile()),
+                resultFile,
                 config
         );
     }

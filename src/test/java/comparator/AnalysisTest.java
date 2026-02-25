@@ -2,6 +2,7 @@ package comparator;
 
 import comparator.jmh.fixtures.JMHTarget;
 import comparator.jmh.launch.JMHConfig;
+import comparator.jmh.launch.JMHResultFile;
 import comparator.method.TargetMethod;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +19,16 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve("provided-jit-log.xml");
         new Analysis(target, jitlog, AnalysisTest.fastConfig()).results();
         Assertions.assertTrue(Files.exists(jitlog), "Analysis should write JIT log to provided path");
+    }
+
+    @Test
+    void writesJmhResultToProvidedPath(@TempDir final Path tempDir) {
+        final Path classpath = Path.of("build", "classes", "java", "test").toAbsolutePath();
+        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
+        final Path jitlog = tempDir.resolve("provided-jit-log.xml");
+        final Path result = tempDir.resolve("provided-jmh-result.json");
+        new Analysis(target, jitlog, new JMHResultFile(result), AnalysisTest.fastConfig()).results();
+        Assertions.assertTrue(Files.exists(result), "Analysis should write JMH result to provided path");
     }
 
     private static JMHConfig fastConfig() {
