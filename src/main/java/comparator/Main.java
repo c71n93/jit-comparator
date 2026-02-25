@@ -11,31 +11,26 @@ public class Main {
 
     public static void main(final String[] args) {
         final Classpath loopComputationsClasspath = new Classpath(Path.of("examples", "loop-computations"));
-        final Path jitlog = Path.of("jit-log.xml");
         new CsvComparisons(
                 new CsvComparison(
                         new Analysis(
-                                new TargetMethod(loopComputationsClasspath, "PlainForExample", Main.RUN_METHOD), jitlog
+                                new TargetMethod(loopComputationsClasspath, "PlainForExample", Main.RUN_METHOD)
                         ),
                         new Analysis(
                                 new TargetMethod(
                                         loopComputationsClasspath, "PlainForPlainArrayExample", Main.RUN_METHOD
-                                ),
-                                jitlog
+                                )
                         ),
                         new Analysis(
-                                new TargetMethod(loopComputationsClasspath, "PlainForIndexedExample", Main.RUN_METHOD),
-                                jitlog
+                                new TargetMethod(loopComputationsClasspath, "PlainForIndexedExample", Main.RUN_METHOD)
                         ),
                         new Analysis(
                                 new TargetMethod(
                                         loopComputationsClasspath, "PlainForReplaceAllExample", Main.RUN_METHOD
-                                ),
-                                jitlog
+                                )
                         ),
                         new Analysis(
-                                new TargetMethod(loopComputationsClasspath, "StreamBoxedExample", Main.RUN_METHOD),
-                                jitlog
+                                new TargetMethod(loopComputationsClasspath, "StreamBoxedExample", Main.RUN_METHOD)
                         )
                 )
         ).saveAsCsv(Path.of("comparisons.csv"));

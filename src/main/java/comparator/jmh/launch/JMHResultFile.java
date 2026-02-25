@@ -77,6 +77,11 @@ public class JMHResultFile implements JvmSystemProperties {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.result.toString();
+    }
+
     private JMHPrimaryScore scoreFrom(final JsonNode node) {
         if (node.isMissingNode() || !node.hasNonNull(SCORE_FIELD) || !node.hasNonNull(SCORE_UNIT_FIELD)) {
             throw new IllegalStateException("Missing primary metric in JMH result file: " + this.result);

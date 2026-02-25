@@ -17,6 +17,9 @@ import java.util.Optional;
  * Analysis of the specified {@link TargetMethod}.
  */
 public class Analysis implements AsCsvRow {
+    // TODO: make it possible to pass entire JMHCommand here. It is necessary
+    // because we need to test against this class properly. Current StubAnalysis
+    // approach is bad.
     private final TargetMethod targetMethod;
     private final JMHConfig config;
     private final Path jitlog;
@@ -126,6 +129,8 @@ public class Analysis implements AsCsvRow {
         final List<String> row = new ArrayList<>();
         row.add(this.targetMethod.classMethodName());
         row.addAll(this.results().asCsvRow());
+        row.add(this.jitlog.toString());
+        row.add(this.result.toString());
         return row;
     }
 
@@ -134,6 +139,8 @@ public class Analysis implements AsCsvRow {
         final List<String> header = new ArrayList<>();
         header.add("Target");
         header.addAll(this.results().headerCsv());
+        header.add("JIT log file");
+        header.add("JMH result file");
         return List.copyOf(header);
     }
 
