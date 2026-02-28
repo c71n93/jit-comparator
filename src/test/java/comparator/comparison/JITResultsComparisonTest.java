@@ -21,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 class JITResultsComparisonTest {
     private static final String TARGET_CLASS = "comparator.jitlog.test.LogTarget";
     private static final String PRIMARY_SCORE_UNIT = "us/op";
-    private static final String ALLOC_RATE_UNIT = "B";
+    private static final String ALLOC_RATE_UNIT = "B/op";
     private static final String PERF_METRIC_UNIT = "#/op";
     private static final String DIFFERENT_METRIC_SETS_ERROR = "Different metric sets should not be compared";
     private final JITLogFixture fixture = new JITLogFixture();

@@ -16,7 +16,7 @@ import java.util.List;
  */
 final class StubResults {
     private static final String PRIMARY_SCORE_UNIT = "us/op";
-    private static final String ALLOC_RATE_UNIT = "B";
+    private static final String ALLOC_RATE_UNIT = "B/op";
     private final double relDiff;
 
     StubResults(final double relDiff) {

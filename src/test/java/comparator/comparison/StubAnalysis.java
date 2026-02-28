@@ -35,7 +35,7 @@ final class StubAnalysis extends Analysis {
             return List.of(
                     "Target",
                     "JMH primary score, us/op",
-                    "Allocations, B",
+                    "Allocations, B/op",
                     "Instructions, #/op",
                     "Memory loads, #/op",
                     "Memory stores, #/op",
@@ -46,7 +46,7 @@ final class StubAnalysis extends Analysis {
             return List.of(
                     "Target",
                     "JMH primary score, us/op",
-                    "Allocations, B",
+                    "Allocations, B/op",
                     "Native code size, B"
             );
         }

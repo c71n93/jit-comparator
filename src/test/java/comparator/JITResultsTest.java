@@ -23,7 +23,7 @@ class JITResultsTest {
         Assertions.assertEquals(
                 List.of(
                         "JMH primary score, us/op",
-                        "Allocations, B",
+                        "Allocations, B/op",
                         "Native code size, B"
                 ),
                 results.headerCsv(),
@@ -39,7 +39,7 @@ class JITResultsTest {
     }
 
     private JMHResults jmh(final double score, final double alloc) {
-        return new JMHResults(new JMHPrimaryScore(score, "us/op"), new JMHAllocRateNorm(alloc, "B"));
+        return new JMHResults(new JMHPrimaryScore(score, "us/op"), new JMHAllocRateNorm(alloc, "B/op"));
     }
 
     private Path testClasses() {

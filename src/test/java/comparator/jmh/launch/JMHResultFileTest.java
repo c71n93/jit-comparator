@@ -12,18 +12,18 @@ import org.junit.jupiter.api.io.TempDir;
 
 class JMHResultFileTest {
     private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
             + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
             + "\"mem_inst_retired.all_stores:u\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
     private static final String JSON_WITHOUT_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
     private static final String JSON_WITH_INCOMPLETE_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"},"
+            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
             + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
             + "\"mem_inst_retired.all_stores:p\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
-    private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B\"}}}]";
+    private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
     private static final String JSON_WITHOUT_ALLOC = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
 
     @Test

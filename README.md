@@ -7,7 +7,7 @@ Comparator is a research tool for comparing JVM JIT behavior on semantically equ
 Comparator currently tracks:
 
 - `JMH primary score, us/op`
-- `Allocations, B` (`gc.alloc.rate.norm`)
+- `Allocations, B/op` (`gc.alloc.rate.norm`)
 - `Instructions, #/op` (`instructions:u`, optional)
 - `Memory loads, #/op` (`mem_inst_retired.all_loads:u`, optional)
 - `Memory stores, #/op` (`mem_inst_retired.all_stores:u`, optional)
@@ -66,7 +66,7 @@ Example of `comparisons.csv` content in table form:
 
 Comparison 1
 
-| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
+| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | PlainForExample::run | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 5.62E7 | 2080 | Original | Original |
 | StreamBoxedExample::run | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 7.73E7 | 3616 | 0.274801543186 | 0.571492137425 |
@@ -74,7 +74,7 @@ Comparison 1
 
 Comparison 2
 
-| Target | JMH primary score, us/op | Allocations, B | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
+| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | PlainForExample::run | 25020.38236669786 | 3.999806643324631E7 | 1.29E8 | 8.78E7 | 5.94E7 | 2080 | Original | Original |
 | PlainForReplaceAllExample::run | 34609.25680818749 | 7.199801608483697E7 | 1.83E8 | 1.17E8 | 8.01E7 | 2192 | 0.285114108902 | 0.571414983127 |
@@ -84,7 +84,7 @@ Comparison 2
 For two result vectors $M_1$ and $M_2$, the per-component **symmetric relative difference** is
 
 $$
-d_i \;=\; \frac{2\,\lvert m_{1,i} - m_{2,i} \rvert}{\lvert m_{1,i} \rvert + \lvert m_{2,i} \rvert + \varepsilon},
+d_i = \frac{2\,\lvert m_{1,i} - m_{2,i} \rvert}{\lvert m_{1,i} \rvert + \lvert m_{2,i} \rvert + \varepsilon},
 $$
 
 where $\varepsilon > 0$ is a small constant that prevents the undefined case $m_{1,i} = m_{2,i} = 0$ (i.e., $0/0$).
@@ -92,13 +92,13 @@ where $\varepsilon > 0$ is a small constant that prevents the undefined case $m_
 Comparator reports the **mean dissimilarity score** as RMS (L2) over all $n$ components:
 
 $$
-D_{\mathrm{mean}} \;=\; \sqrt{\frac{1}{n}\sum_{i=1}^{n} d_i^2}.
+D_{\mathrm{mean}} = \sqrt{\frac{1}{n}\sum_{i=1}^{n} d_i^2}.
 $$
 
 Comparator also reports the **max dissimilarity score**:
 
 $$
-D_{\mathrm{max}} \;=\; \max_{i=1..n} d_i.
+D_{\mathrm{max}} = \max_{i=1..n} d_i.
 $$
 
 $D_{\mathrm{mean}} = 0$ and $D_{\mathrm{max}} = 0$ mean complete equality for all included metrics; larger values indicate stronger dissimilarity.

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class JMHResultsTest {
     private static final String PRIMARY_SCORE_UNIT = "us/op";
-    private static final String ALLOC_RATE_UNIT = "B";
+    private static final String ALLOC_RATE_UNIT = "B/op";
     private static final String PERF_METRIC_UNIT = "#/op";
 
     @Test

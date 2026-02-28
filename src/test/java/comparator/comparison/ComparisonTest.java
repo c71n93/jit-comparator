@@ -21,7 +21,7 @@ class ComparisonTest {
                         new StubResults(0.0d)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
                 + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
         final String rowOne = "Example::run,1.23,42,100,300,500,64,Original,Original";
         final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,5,200,400,600,6,0.25,0.25";
@@ -55,7 +55,7 @@ class ComparisonTest {
                         StubResults.withoutPerf(0.0d)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Native code size, B\","
                 + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
         final String rowOne = "NoPerf::run,1.23,42,64,Original,Original";
         final String rowTwo = "NoPerfRef::run,3.21,5,6,0.25,0.25";

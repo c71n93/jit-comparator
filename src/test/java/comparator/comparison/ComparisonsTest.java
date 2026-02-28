@@ -28,7 +28,7 @@ class ComparisonsTest {
                 )
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
                 + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
         final String rowOne = "One::run,1.00,2,10,100,1000,3,Original,Original";
         final String rowTwo = "OneRef::run,1.10,2,11,110,1100,3,0.1,0.1";
@@ -69,7 +69,7 @@ class ComparisonsTest {
                 )
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B\",\"Native code size, B\","
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Native code size, B\","
                 + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
         final String rowOne = "One::run,1.00,2,3,Original,Original";
         final String rowTwo = "OneRef::run,1.10,2,3,0.1,0.1";
