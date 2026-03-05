@@ -1,6 +1,8 @@
 package comparator.comparison;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,16 +41,13 @@ public class CsvComparisons {
      * @return CSV content
      */
     public String asCsv() {
-        final String lineSeparator = System.lineSeparator();
-        final StringBuilder csv = new StringBuilder();
-        for (final CsvComparison comparison : this.tables) {
-            final String content = comparison.asCsv();
-            if (!csv.isEmpty()) {
-                csv.append(lineSeparator);
-            }
-            csv.append(content);
+        final StringWriter buffer = new StringWriter();
+        try (BufferedWriter writer = new BufferedWriter(buffer)) {
+            this.writeCsvTo(writer);
+        } catch (final IOException exception) {
+            throw new IllegalStateException("Unable to build csv content", exception);
         }
-        return csv.toString();
+        return buffer.toString();
     }
 
     /**
@@ -58,10 +57,29 @@ public class CsvComparisons {
      *            output file path
      */
     public void saveAsCsv(final Path file) {
-        try {
-            Files.writeString(file, this.asCsv(), StandardCharsets.UTF_8);
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            this.writeCsvTo(writer);
         } catch (final IOException exception) {
             throw new IllegalStateException("Unable to write csv to " + file, exception);
+        }
+    }
+
+    /**
+     * CSV rows written to the provided writer.
+     *
+     * @param writer
+     *            output writer
+     * @throws IOException
+     *             if write fails
+     */
+    public void writeCsvTo(final BufferedWriter writer) throws IOException {
+        boolean first = true;
+        for (final CsvComparison comparison : this.tables) {
+            if (!first) {
+                writer.newLine();
+            }
+            comparison.writeCsvTo(writer);
+            first = false;
         }
     }
 }

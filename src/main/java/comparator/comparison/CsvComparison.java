@@ -1,7 +1,9 @@
 package comparator.comparison;
 
 import comparator.Analysis;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
  * including the JIT artifacts mean and max dissimilarity scores.
  */
 public class CsvComparison {
+    private static final String ORIGINAL = "Original";
     private final Analysis original;
     private final List<Analysis> refactorings;
 
@@ -49,25 +52,13 @@ public class CsvComparison {
      * @return CSV content
      */
     public String asCsv() {
-        final StringBuilder csv = new StringBuilder(this.rowToCsv(this.headerCsv()));
-        csv.append(System.lineSeparator());
-        csv.append(this.rowToCsv(this.rowWith(this.original.asCsvRow(), "Original", "Original")));
-        for (final Analysis refactoring : this.refactorings) {
-            final JITResultsComparison comparison = new JITResultsComparison(
-                    this.original.results(), refactoring.results()
-            );
-            csv.append(System.lineSeparator());
-            csv.append(
-                    this.rowToCsv(
-                            this.rowWith(
-                                    refactoring.asCsvRow(),
-                                    String.valueOf(comparison.meanRelativeDifference()),
-                                    String.valueOf(comparison.maxRelativeDifference())
-                            )
-                    )
-            );
+        final StringWriter buffer = new StringWriter();
+        try (BufferedWriter writer = new BufferedWriter(buffer)) {
+            this.writeCsvTo(writer);
+        } catch (final IOException exception) {
+            throw new IllegalStateException("Unable to build csv content", exception);
         }
-        return csv.toString();
+        return buffer.toString();
     }
 
     /**
@@ -77,11 +68,55 @@ public class CsvComparison {
      *            output file path
      */
     public void saveAsCsv(final Path file) {
-        try {
-            Files.writeString(file, this.asCsv(), StandardCharsets.UTF_8);
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            this.writeCsvTo(writer);
         } catch (final IOException exception) {
             throw new IllegalStateException("Unable to write csv to " + file, exception);
         }
+    }
+
+    /**
+     * CSV rows written to the provided writer.
+     *
+     * @param writer
+     *            output writer
+     * @throws IOException
+     *             if write fails
+     */
+    public void writeCsvTo(final BufferedWriter writer) throws IOException {
+        this.writeRow(writer, this.headerCsv());
+        this.writeNextRow(
+                writer,
+                this.rowWith(
+                        this.original.asCsvRow(),
+                        CsvComparison.ORIGINAL,
+                        CsvComparison.ORIGINAL
+                )
+        );
+        for (final Analysis refactoring : this.refactorings) {
+            final JITResultsComparison comparison = new JITResultsComparison(
+                    this.original.results(),
+                    refactoring.results()
+            );
+            this.writeNextRow(
+                    writer,
+                    this.rowWith(
+                            refactoring.asCsvRow(),
+                            String.valueOf(comparison.meanRelativeDifference()),
+                            String.valueOf(comparison.maxRelativeDifference())
+                    )
+            );
+        }
+    }
+
+    private void writeRow(final BufferedWriter writer, final List<String> row) throws IOException {
+        writer.write(this.rowToCsv(row));
+        writer.flush();
+    }
+
+    private void writeNextRow(final BufferedWriter writer, final List<String> row) throws IOException {
+        writer.newLine();
+        this.writeRow(writer, row);
     }
 
     private String rowToCsv(final List<String> row) {
