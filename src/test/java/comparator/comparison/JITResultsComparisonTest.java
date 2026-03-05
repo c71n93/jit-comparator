@@ -13,7 +13,6 @@ import comparator.jmh.JMHResults;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -120,7 +119,7 @@ class JITResultsComparisonTest {
     void throwsWhenMemoryStoresPresenceDiffers(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
-        final JITResults right = new JITResults(this.jmhWithInstructionsAndLoads(100.0d, 10.0d, 1000.0d, 2000.0d), log);
+        final JITResults right = new JITResults(this.jmhWithInstructions(100.0d, 10.0d, 1000.0d), log);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> new JITResultsComparison(left, right).areSame(),
@@ -328,17 +327,7 @@ class JITResultsComparisonTest {
         return new JMHResults(
                 new JMHPrimaryScore(score, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(alloc, JITResultsComparisonTest.ALLOC_RATE_UNIT),
-                Optional.of(new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT))
-        );
-    }
-
-    private JMHResults jmhWithInstructionsAndLoads(final double score, final double alloc, final double instructions,
-            final double memoryLoads) {
-        return new JMHResults(
-                new JMHPrimaryScore(score, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
-                new JMHAllocRateNorm(alloc, JITResultsComparisonTest.ALLOC_RATE_UNIT),
-                Optional.of(new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryLoads(memoryLoads, JITResultsComparisonTest.PERF_METRIC_UNIT))
+                new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT)
         );
     }
 
@@ -347,9 +336,9 @@ class JITResultsComparisonTest {
         return new JMHResults(
                 new JMHPrimaryScore(score, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(alloc, JITResultsComparisonTest.ALLOC_RATE_UNIT),
-                Optional.of(new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryLoads(memoryLoads, JITResultsComparisonTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryStores(memoryStores, JITResultsComparisonTest.PERF_METRIC_UNIT))
+                new JMHInstructions(instructions, JITResultsComparisonTest.PERF_METRIC_UNIT),
+                new JMHMemoryLoads(memoryLoads, JITResultsComparisonTest.PERF_METRIC_UNIT),
+                new JMHMemoryStores(memoryStores, JITResultsComparisonTest.PERF_METRIC_UNIT)
         );
     }
 

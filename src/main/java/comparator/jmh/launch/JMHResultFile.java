@@ -6,6 +6,7 @@ import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHMemoryLoads;
 import comparator.jmh.JMHMemoryStores;
+import comparator.jmh.JMHPerfResults;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.property.JvmSystemProperties;
@@ -15,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
@@ -33,7 +33,7 @@ public class JMHResultFile implements JvmSystemProperties {
     private final Path result;
     private final boolean perfEnabled;
 
-    public JMHResultFile(final Path result, boolean perfEnabled) {
+    public JMHResultFile(final Path result, final boolean perfEnabled) {
         this.result = result;
         this.perfEnabled = perfEnabled;
     }
@@ -70,27 +70,7 @@ public class JMHResultFile implements JvmSystemProperties {
             final JsonNode secondaryMetrics = node.path("secondaryMetrics");
             final JMHPrimaryScore score = this.scoreFrom(node.path("primaryMetric"));
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(secondaryMetrics.path(GC_ALLOC_RATE_NORM));
-            // TODO: refactor
-            if (this.perfEnabled) {
-                final JMHInstructions instructions = this.instructionsFrom(secondaryMetrics);
-                if (JMHResultFile.intelMemEventsAvailable()) {
-                    final JMHMemoryLoads memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
-                    final JMHMemoryStores memoryStores = this.memoryStoresFrom(secondaryMetrics);
-                    return new JMHResults(
-                        score,
-                        allocRateNorm,
-                        Optional.of(instructions),
-                        Optional.of(memoryLoads),
-                        Optional.of(memoryStores)
-                    );
-                }
-                return new JMHResults(
-                        score,
-                        allocRateNorm,
-                        Optional.of(instructions)
-                );
-            }
-            return new JMHResults(score, allocRateNorm);
+            return new JMHResults(score, allocRateNorm, this.perfResultsFrom(secondaryMetrics));
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -140,6 +120,24 @@ public class JMHResultFile implements JvmSystemProperties {
             throw new IllegalStateException("Missing mem_inst_retired.all_stores:u in JMH result file: " + this.result);
         }
         return new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText());
+    }
+
+    @SuppressWarnings("PMD.SystemPrintln")
+    private JMHPerfResults perfResultsFrom(final JsonNode secondaryMetrics) {
+        if (!this.perfEnabled) {
+            return JMHPerfResults.absent();
+        }
+        final JMHInstructions instructions = this.instructionsFrom(secondaryMetrics);
+        if (!JMHResultFile.intelMemEventsAvailable()) {
+            // TODO: Add logging to the project.
+            System.err.println(
+                    "WARNING: perf memory events mem_inst_retired.all_loads and mem_inst_retired.all_stores are unavailable on your CPU; memory metrics will be skipped."
+            );
+            return JMHPerfResults.from(instructions);
+        }
+        final JMHMemoryLoads memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
+        final JMHMemoryStores memoryStores = this.memoryStoresFrom(secondaryMetrics);
+        return JMHPerfResults.from(instructions, memoryLoads, memoryStores);
     }
 
     private static boolean intelMemEventsAvailable() {

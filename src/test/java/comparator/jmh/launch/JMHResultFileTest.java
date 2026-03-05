@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class JMHResultFileTest {
+    private static final String PERF_EVENTS_REQUIRED = "perf mem events are required";
     private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
@@ -30,7 +31,7 @@ class JMHResultFileTest {
 
     @Test
     void parsesMetricsAsCsvRowFromJson(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), "perf mem events are required");
+        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF, true);
         Assertions.assertEquals(
                 List.of("1.1", "2.2", "3.3", "4.4", "5.5"), parsed.asCsvRow(), "JMH result should parse metrics"
@@ -39,7 +40,7 @@ class JMHResultFileTest {
 
     @Test
     void parsesMetricsAsArtifactRowFromJson(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), "perf mem events are required");
+        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF, true);
         final List<Artifact<?>> artifacts = parsed.asArtifactRow();
         Assertions.assertEquals(5, artifacts.size(), "JMH result should expose five artifacts");
@@ -113,7 +114,7 @@ class JMHResultFileTest {
 
     @Test
     void failsWhenPerfMetricsMissingAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), "perf mem events are required");
+        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final Path result = this.writeJson(tempDir, "missing-perf.json", JMHResultFileTest.JSON_WITHOUT_PERF);
         Assertions.assertThrows(
                 IllegalStateException.class,
@@ -124,7 +125,7 @@ class JMHResultFileTest {
 
     @Test
     void failsWhenPerfMetricsIncompleteAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), "perf mem events are required");
+        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final Path result = this.writeJson(
                 tempDir,
                 "incomplete-perf.json",
