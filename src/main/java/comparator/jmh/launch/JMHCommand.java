@@ -23,6 +23,14 @@ public final class JMHCommand {
     private final JMHResultFile result;
     private final JMHConfig config;
 
+    public JMHCommand(final TargetMethod targetMethod) {
+        this(targetMethod, JMHCommand.tmpLogFile(), new JMHResultFile(JMHCommand.tmpResultFile()), new JMHConfig());
+    }
+
+    public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
+        this(targetMethod, JMHCommand.tmpLogFile(), new JMHResultFile(JMHCommand.tmpResultFile()), config);
+    }
+
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
         this(targetMethod, jitlog, new JMHResultFile(JMHCommand.tmpResultFile()), new JMHConfig());
     }
@@ -80,6 +88,18 @@ public final class JMHCommand {
         }
     }
 
+    public TargetMethod targetMethod() {
+        return this.targetMethod;
+    }
+
+    public Path jitlog() {
+        return this.jitlog;
+    }
+
+    public JMHResultFile result() {
+        return this.result;
+    }
+
     private List<String> asList() {
         final JMHJitLogFile jitlogFile = new JMHJitLogFile(this.jitlog);
         final List<String> args = new ArrayList<>();
@@ -98,6 +118,14 @@ public final class JMHCommand {
         return this.targetMethod.classpath().with(
                 new Classpath(new PropertyString("java.class.path").requireValue())
         ).asString();
+    }
+
+    private static Path tmpLogFile() {
+        try {
+            return Files.createTempFile("jit-log-", ".xml");
+        } catch (final IOException e) {
+            throw new IllegalStateException("Unable to create JIT log file", e);
+        }
     }
 
     private static Path tmpResultFile() {
