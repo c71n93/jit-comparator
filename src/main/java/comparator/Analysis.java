@@ -4,7 +4,6 @@ import comparator.jitlog.LogResults;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
-import comparator.jmh.launch.JMHResultFile;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class Analysis implements AsCsvRow {
      * @param resultFile
      *            JMH result output file
      */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile) {
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile) {
         this(new JMHCommand(targetMethod, jitlog, resultFile));
     }
 
@@ -93,7 +92,7 @@ public class Analysis implements AsCsvRow {
      * @param config
      *            JMH execution parameters.
      */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile,
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
             final JMHConfig config) {
         this(new JMHCommand(targetMethod, jitlog, resultFile, config));
     }
