@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Stores the results of the forked JMH run: benchmark metrics.
@@ -23,18 +22,13 @@ public final class JMHResults implements Results {
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
-            final Optional<JMHInstructions> instructions) {
-        this(score, allocRateNorm, instructions, Optional.empty(), Optional.empty());
+            final JMHInstructions instructions) {
+        this(score, allocRateNorm, JMHPerfResults.from(instructions));
     }
 
     public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
-            final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads) {
-        this(score, allocRateNorm, instructions, memoryLoads, Optional.empty());
-    }
-
-    public JMHResults(final JMHPrimaryScore score, final JMHAllocRateNorm allocRateNorm,
-            final Optional<JMHInstructions> instructions, final Optional<JMHMemoryLoads> memoryLoads,
-            final Optional<JMHMemoryStores> memoryStores) {
+            final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
+            final JMHMemoryStores memoryStores) {
         this(score, allocRateNorm, JMHPerfResults.from(instructions, memoryLoads, memoryStores));
     }
 

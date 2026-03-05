@@ -3,7 +3,6 @@ package comparator;
 import comparator.jmh.fixtures.JMHTarget;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
-import comparator.jmh.launch.JMHResultFile;
 import comparator.method.TargetMethod;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ final class AnalysisTest {
         final TargetMethod target = this.targetMethod();
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
-        new Analysis(target, jitlog, new JMHResultFile(result), AnalysisTest.fastConfig()).results();
+        new Analysis(target, jitlog, result, AnalysisTest.fastConfig()).results();
         Assertions.assertTrue(Files.exists(result), "Analysis should write JMH result to provided path");
     }
 
@@ -44,7 +43,7 @@ final class AnalysisTest {
         final JMHCommand command = new JMHCommand(
                 target,
                 jitlog,
-                new JMHResultFile(result),
+                result,
                 AnalysisTest.fastConfig()
         );
         new Analysis(command).results();
@@ -58,7 +57,7 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final List<String> row = new Analysis(
-                new JMHCommand(target, jitlog, new JMHResultFile(result), AnalysisTest.fastConfig())
+                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
         ).asCsvRow();
         Assertions.assertEquals(6, row.size(), "CSV row should contain target, metrics and output files");
         Assertions.assertEquals(target.classMethodName(), row.get(0), "Target method should be first");
@@ -75,7 +74,7 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final List<String> header = new Analysis(
-                new JMHCommand(target, jitlog, new JMHResultFile(result), AnalysisTest.fastConfig())
+                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
         ).headerCsv();
         Assertions.assertEquals(
                 List.of(

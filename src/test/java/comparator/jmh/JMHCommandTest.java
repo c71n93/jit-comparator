@@ -3,7 +3,6 @@ package comparator.jmh;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
-import comparator.jmh.launch.JMHResultFile;
 import comparator.jmh.fixtures.JMHTarget;
 import comparator.method.TargetMethod;
 import java.io.IOException;
@@ -25,11 +24,13 @@ final class JMHCommandTest {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
         final Path jitlog = tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME);
-        final JMHResultFile result = new JMHResultFile(tempDir.resolve("jmh-result.json"));
+        final Path result = tempDir.resolve("jmh-result.json");
         final JMHCommand command = new JMHCommand(target, jitlog, result, JMHCommandTest.fastConfig(false));
         Assertions.assertSame(target, command.targetMethod(), "JMH command should expose configured target");
         Assertions.assertEquals(jitlog, command.jitlog(), "JMH command should expose configured JIT log");
-        Assertions.assertSame(result, command.result(), "JMH command should expose configured result file");
+        Assertions.assertEquals(
+                result.toString(), command.result().toString(), "JMH command should expose configured result file"
+        );
     }
 
     @Test

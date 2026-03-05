@@ -2,7 +2,6 @@ package comparator.jmh;
 
 import comparator.Artifact;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,9 +15,9 @@ class JMHResultsTest {
         final JMHResults results = new JMHResults(
                 new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
-                Optional.of(new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryStores(5.5, JMHResultsTest.PERF_METRIC_UNIT))
+                new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT),
+                new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT),
+                new JMHMemoryStores(5.5, JMHResultsTest.PERF_METRIC_UNIT)
         );
         Assertions.assertEquals(
                 List.of("1.5", "2.5", "3.5", "4.5", "5.5"),
@@ -32,9 +31,9 @@ class JMHResultsTest {
         final JMHResults results = new JMHResults(
                 new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
                 new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
-                Optional.of(new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT)),
-                Optional.of(new JMHMemoryStores(5.5, JMHResultsTest.PERF_METRIC_UNIT))
+                new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT),
+                new JMHMemoryLoads(4.5, JMHResultsTest.PERF_METRIC_UNIT),
+                new JMHMemoryStores(5.5, JMHResultsTest.PERF_METRIC_UNIT)
         );
         final List<Artifact<?>> artifacts = results.asArtifactRow();
         Assertions.assertEquals(5, artifacts.size(), "JMH artifact row should contain five metrics");
@@ -55,6 +54,34 @@ class JMHResultsTest {
                 .assertEquals(
                         5.5d, artifacts.get(4).value().doubleValue(), 1.0e-12, "Memory stores value should match"
                 );
+    }
+
+    @Test
+    void exposesMetricsWithoutMemoryEventsAsCsvRow() {
+        final JMHResults results = new JMHResults(
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
+                new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)
+        );
+        Assertions.assertEquals(
+                List.of("1.5", "2.5", "3.5"),
+                results.asCsvRow(),
+                "Instructions-only perf state should expose three metrics"
+        );
+    }
+
+    @Test
+    void exposesMetricsWithoutMemoryEventsAsArtifactRow() {
+        final JMHResults results = new JMHResults(
+                new JMHPrimaryScore(1.5, JMHResultsTest.PRIMARY_SCORE_UNIT),
+                new JMHAllocRateNorm(2.5, JMHResultsTest.ALLOC_RATE_UNIT),
+                new JMHInstructions(3.5, JMHResultsTest.PERF_METRIC_UNIT)
+        );
+        final List<Artifact<?>> artifacts = results.asArtifactRow();
+        Assertions.assertEquals(3, artifacts.size(), "Instructions-only perf state should expose three artifacts");
+        Assertions.assertInstanceOf(JMHPrimaryScore.class, artifacts.get(0), "Primary score should be first");
+        Assertions.assertInstanceOf(JMHAllocRateNorm.class, artifacts.get(1), "Alloc rate norm should be second");
+        Assertions.assertInstanceOf(JMHInstructions.class, artifacts.get(2), "Instructions should be third");
     }
 
     @Test

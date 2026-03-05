@@ -24,26 +24,26 @@ public final class JMHCommand {
     private final JMHConfig config;
 
     public JMHCommand(final TargetMethod targetMethod) {
-        this(targetMethod, JMHCommand.tmpLogFile(), new JMHResultFile(JMHCommand.tmpResultFile()), new JMHConfig());
+        this(targetMethod, new JMHConfig());
     }
 
     public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
-        this(targetMethod, JMHCommand.tmpLogFile(), new JMHResultFile(JMHCommand.tmpResultFile()), config);
+        this(targetMethod, JMHCommand.tmpLogFile(), config);
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
-        this(targetMethod, jitlog, new JMHResultFile(JMHCommand.tmpResultFile()), new JMHConfig());
+        this(targetMethod, jitlog, new JMHConfig());
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
-        this(targetMethod, jitlog, new JMHResultFile(JMHCommand.tmpResultFile()), config);
+        this(targetMethod, jitlog, JMHCommand.tmpResultFile(), config);
     }
 
-    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile) {
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final Path resultFile) {
         this(targetMethod, jitlog, resultFile, new JMHConfig());
     }
 
-    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHResultFile resultFile,
+    public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
             final JMHConfig config) {
         this(
                 targetMethod,
@@ -55,16 +55,16 @@ public final class JMHCommand {
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
-            final JMHResultFile resultFile) {
+            final Path resultFile) {
         this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig());
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
-            final JMHResultFile resultFile, final JMHConfig config) {
+            final Path resultFile, final JMHConfig config) {
         this.targetMethod = targetMethod;
         this.javaExecutable = javaExecutable;
         this.jitlog = jitlog;
-        this.result = resultFile;
+        this.result = new JMHResultFile(resultFile, config.perfEnabled());
         this.config = config;
     }
 

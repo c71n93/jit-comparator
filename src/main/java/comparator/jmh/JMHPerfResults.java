@@ -17,12 +17,13 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
         return Absent.INSTANCE;
     }
 
-    static JMHPerfResults from(final Optional<JMHInstructions> instructions,
-            final Optional<JMHMemoryLoads> memoryLoads, final Optional<JMHMemoryStores> memoryStores) {
-        if (instructions.isPresent() && memoryLoads.isPresent() && memoryStores.isPresent()) {
-            return new Present(instructions.orElseThrow(), memoryLoads.orElseThrow(), memoryStores.orElseThrow());
-        }
-        return Absent.INSTANCE;
+    static JMHPerfResults from(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
+            final JMHMemoryStores memoryStores) {
+        return new Present(instructions, memoryLoads, memoryStores);
+    }
+
+    static JMHPerfResults from(final JMHInstructions instructions) {
+        return new Present(instructions);
     }
 
     @Override
@@ -36,27 +37,36 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
      */
     final class Present implements JMHPerfResults {
         private final JMHInstructions instructions;
-        private final JMHMemoryLoads memoryLoads;
-        private final JMHMemoryStores memoryStores;
+        private final Optional<JMHMemoryLoads> memoryLoads;
+        private final Optional<JMHMemoryStores> memoryStores;
+
+        Present(final JMHInstructions instructions) {
+            this.instructions = instructions;
+            this.memoryLoads = Optional.empty();
+            this.memoryStores = Optional.empty();
+        }
 
         Present(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
                 final JMHMemoryStores memoryStores) {
             this.instructions = instructions;
-            this.memoryLoads = memoryLoads;
-            this.memoryStores = memoryStores;
+            this.memoryLoads = Optional.of(memoryLoads);
+            this.memoryStores = Optional.of(memoryStores);
         }
 
         @Override
         public List<Artifact<?>> asArtifactRow() {
-            return List.of(this.instructions, this.memoryLoads, this.memoryStores);
+            if (this.memoryLoads.isPresent() && this.memoryStores.isPresent()) {
+                return List.of(this.instructions, this.memoryLoads.orElseThrow(), this.memoryStores.orElseThrow());
+            }
+            return List.of(this.instructions);
         }
 
         @Override
         public void print(final OutputStream out) {
             final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
             writer.println("- " + this.instructions.toString());
-            writer.println("- " + this.memoryLoads.toString());
-            writer.println("- " + this.memoryStores.toString());
+            this.memoryLoads.ifPresent(metric -> writer.println("- " + metric.toString()));
+            this.memoryStores.ifPresent(metric -> writer.println("- " + metric.toString()));
             writer.flush();
         }
     }

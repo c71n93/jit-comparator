@@ -6,6 +6,7 @@ import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHMemoryLoads;
 import comparator.jmh.JMHMemoryStores;
+import comparator.jmh.JMHPerfResults;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
 import comparator.property.JvmSystemProperties;
@@ -15,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
@@ -31,9 +31,11 @@ public class JMHResultFile implements JvmSystemProperties {
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
+    private final boolean perfEnabled;
 
-    public JMHResultFile(final Path result) {
+    public JMHResultFile(final Path result, final boolean perfEnabled) {
         this.result = result;
+        this.perfEnabled = perfEnabled;
     }
 
     @Override
@@ -68,10 +70,7 @@ public class JMHResultFile implements JvmSystemProperties {
             final JsonNode secondaryMetrics = node.path("secondaryMetrics");
             final JMHPrimaryScore score = this.scoreFrom(node.path("primaryMetric"));
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(secondaryMetrics.path(GC_ALLOC_RATE_NORM));
-            final Optional<JMHInstructions> instructions = this.instructionsFrom(secondaryMetrics);
-            final Optional<JMHMemoryLoads> memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
-            final Optional<JMHMemoryStores> memoryStores = this.memoryStoresFrom(secondaryMetrics);
-            return new JMHResults(score, allocRateNorm, instructions, memoryLoads, memoryStores);
+            return new JMHResults(score, allocRateNorm, this.perfResultsFrom(secondaryMetrics));
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -96,34 +95,65 @@ public class JMHResultFile implements JvmSystemProperties {
         return new JMHAllocRateNorm(node.get(SCORE_FIELD).asDouble(), node.get(SCORE_UNIT_FIELD).asText());
     }
 
-    private Optional<JMHInstructions> instructionsFrom(final JsonNode node) {
+    private JMHInstructions instructionsFrom(final JsonNode node) {
         final JsonNode instructions = node.path(INSTRUCTIONS);
         if (instructions.isMissingNode() || !instructions.hasNonNull(SCORE_FIELD)
                 || !instructions.hasNonNull(SCORE_UNIT_FIELD)) {
-            return Optional.empty();
+            throw new IllegalStateException("Missing instructions:u in JMH result file: " + this.result);
         }
-        return Optional.of(
-                new JMHInstructions(
-                        instructions.get(SCORE_FIELD).asDouble(), instructions.get(SCORE_UNIT_FIELD).asText()
-                )
+        return new JMHInstructions(
+                instructions.get(SCORE_FIELD).asDouble(), instructions.get(SCORE_UNIT_FIELD).asText()
         );
     }
 
-    private Optional<JMHMemoryLoads> memoryLoadsFrom(final JsonNode node) {
+    private JMHMemoryLoads memoryLoadsFrom(final JsonNode node) {
         final JsonNode loads = node.path(MEMORY_LOADS);
         if (loads.isMissingNode() || !loads.hasNonNull(SCORE_FIELD) || !loads.hasNonNull(SCORE_UNIT_FIELD)) {
-            return Optional.empty();
+            throw new IllegalStateException("Missing mem_inst_retired.all_loads:u in JMH result file: " + this.result);
         }
-        return Optional.of(new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText()));
+        return new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText());
     }
 
-    private Optional<JMHMemoryStores> memoryStoresFrom(final JsonNode node) {
+    private JMHMemoryStores memoryStoresFrom(final JsonNode node) {
         final JsonNode stores = node.path(MEMORY_STORES);
         if (stores.isMissingNode() || !stores.hasNonNull(SCORE_FIELD) || !stores.hasNonNull(SCORE_UNIT_FIELD)) {
-            return Optional.empty();
+            throw new IllegalStateException("Missing mem_inst_retired.all_stores:u in JMH result file: " + this.result);
         }
-        return Optional.of(
-                new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText())
-        );
+        return new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText());
+    }
+
+    @SuppressWarnings("PMD.SystemPrintln")
+    private JMHPerfResults perfResultsFrom(final JsonNode secondaryMetrics) {
+        if (!this.perfEnabled) {
+            return JMHPerfResults.absent();
+        }
+        final JMHInstructions instructions = this.instructionsFrom(secondaryMetrics);
+        if (!JMHResultFile.intelMemEventsAvailable()) {
+            // TODO: Add logging to the project.
+            System.err.println(
+                    "WARNING: perf memory events mem_inst_retired.all_loads and mem_inst_retired.all_stores are unavailable on your CPU; memory metrics will be skipped."
+            );
+            return JMHPerfResults.from(instructions);
+        }
+        final JMHMemoryLoads memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
+        final JMHMemoryStores memoryStores = this.memoryStoresFrom(secondaryMetrics);
+        return JMHPerfResults.from(instructions, memoryLoads, memoryStores);
+    }
+
+    private static boolean intelMemEventsAvailable() {
+        try {
+            final Process process = new ProcessBuilder(
+                    "perf", "stat", "-e", "mem_inst_retired.all_loads,mem_inst_retired.all_stores", "echo", "1"
+            )
+                    .start();
+            process.getInputStream().readAllBytes();
+            process.getErrorStream().readAllBytes();
+            return process.waitFor() == 0;
+        } catch (final InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (final IOException exception) {
+            return false;
+        }
     }
 }
