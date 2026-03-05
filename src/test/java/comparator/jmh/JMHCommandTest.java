@@ -3,6 +3,7 @@ package comparator.jmh;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
+import comparator.jmh.launch.JMHResultFile;
 import comparator.jmh.fixtures.JMHTarget;
 import comparator.method.TargetMethod;
 import java.io.IOException;
@@ -16,15 +17,30 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 final class JMHCommandTest {
+    private static final String TEST_CLASSPATH = "build/classes/java/test";
+    private static final String JIT_LOG_FILE_NAME = "jit-log.xml";
+
+    @Test
+    void exposesConfiguredArtifacts(@TempDir final Path tempDir) {
+        final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
+        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
+        final Path jitlog = tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME);
+        final JMHResultFile result = new JMHResultFile(tempDir.resolve("jmh-result.json"));
+        final JMHCommand command = new JMHCommand(target, jitlog, result, JMHCommandTest.fastConfig(false));
+        Assertions.assertSame(target, command.targetMethod(), "JMH command should expose configured target");
+        Assertions.assertEquals(jitlog, command.jitlog(), "JMH command should expose configured JIT log");
+        Assertions.assertSame(result, command.result(), "JMH command should expose configured result file");
+    }
+
     @Test
     void returnsScoresFromJmhRun(@TempDir final Path tempDir) {
-        final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
+        final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
         );
         final JMHOutput output = new JMHCommand(
                 target,
-                tempDir.resolve("jit-log.xml"),
+                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
                 JMHCommandTest.fastConfig(false)
         ).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
@@ -40,13 +56,13 @@ final class JMHCommandTest {
     @Test
     void returnsScoresFromJMHPerfRun(@TempDir final Path tempDir) {
         Assumptions.assumeTrue(JMHCommandTest.perfAvailable(), "perf is required for this test");
-        final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
+        final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
         );
         final JMHOutput output = new JMHCommand(
                 target,
-                tempDir.resolve("jit-log.xml"),
+                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
                 JMHCommandTest.fastConfig(true)
         ).run();
         final JMHResults results = output.results();
@@ -59,7 +75,7 @@ final class JMHCommandTest {
 
     @Test
     void throwsOnJmhFailure(@TempDir final Path tempDir) {
-        final Path classpath = Path.of("build/classes/java/test").toAbsolutePath();
+        final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "fail"
         );
@@ -68,7 +84,7 @@ final class JMHCommandTest {
                         IllegalStateException.class,
                         () -> new JMHCommand(
                                 target,
-                                tempDir.resolve("jit-log.xml"),
+                                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
                                 JMHCommandTest.fastConfig(false)
                         ).run(),
                         "JMH run should fail on target exception"
