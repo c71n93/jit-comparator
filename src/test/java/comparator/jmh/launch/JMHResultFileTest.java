@@ -2,7 +2,7 @@ package comparator.jmh.launch;
 
 import comparator.Artifact;
 import comparator.jmh.JMHResults;
-import java.io.IOException;
+import comparator.jmh.perf.PerfMemoryEvents;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,24 +14,27 @@ import org.junit.jupiter.api.io.TempDir;
 
 class JMHResultFileTest {
     private static final String PERF_EVENTS_REQUIRED = "perf mem events are required";
+    private static final String MEM_LOADS_METRIC = PerfMemoryEvents.events().loadEventName() + ":u";
+    private static final String MEM_STORES_METRIC = PerfMemoryEvents.events().storeEventName() + ":u";
+    private static final String MEM_STORES_INVALID_METRIC = PerfMemoryEvents.events().storeEventName() + ":p";
     private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_stores:u\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
+            + "\"" + JMHResultFileTest.MEM_LOADS_METRIC + "\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
+            + "\"" + JMHResultFileTest.MEM_STORES_METRIC + "\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
     private static final String JSON_WITHOUT_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
     private static final String JSON_WITH_INCOMPLETE_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
             + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
             + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_loads:u\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
-            + "\"mem_inst_retired.all_stores:p\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
+            + "\"" + JMHResultFileTest.MEM_LOADS_METRIC + "\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
+            + "\"" + JMHResultFileTest.MEM_STORES_INVALID_METRIC + "\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
     private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
     private static final String JSON_WITHOUT_ALLOC = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
 
     @Test
     void parsesMetricsAsCsvRowFromJson(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF, true);
         Assertions.assertEquals(
                 List.of("1.1", "2.2", "3.3", "4.4", "5.5"), parsed.asCsvRow(), "JMH result should parse metrics"
@@ -40,7 +43,7 @@ class JMHResultFileTest {
 
     @Test
     void parsesMetricsAsArtifactRowFromJson(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF, true);
         final List<Artifact<?>> artifacts = parsed.asArtifactRow();
         Assertions.assertEquals(5, artifacts.size(), "JMH result should expose five artifacts");
@@ -114,7 +117,7 @@ class JMHResultFileTest {
 
     @Test
     void failsWhenPerfMetricsMissingAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final Path result = this.writeJson(tempDir, "missing-perf.json", JMHResultFileTest.JSON_WITHOUT_PERF);
         Assertions.assertThrows(
                 IllegalStateException.class,
@@ -125,7 +128,7 @@ class JMHResultFileTest {
 
     @Test
     void failsWhenPerfMetricsIncompleteAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(JMHResultFileTest.intelMemEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final Path result = this.writeJson(
                 tempDir,
                 "incomplete-perf.json",
@@ -172,22 +175,5 @@ class JMHResultFileTest {
         final Path result = tempDir.resolve(fileName);
         Files.writeString(result, json, StandardCharsets.UTF_8);
         return result;
-    }
-
-    private static boolean intelMemEventsAvailable() {
-        try {
-            final Process process = new ProcessBuilder(
-                    "perf", "stat", "-e",
-                    "mem_inst_retired.all_loads,mem_inst_retired.all_stores", "echo", "1"
-            ).start();
-            process.getInputStream().readAllBytes();
-            process.getErrorStream().readAllBytes();
-            return process.waitFor() == 0;
-        } catch (final InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            return false;
-        } catch (final IOException exception) {
-            return false;
-        }
     }
 }

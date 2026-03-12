@@ -3,6 +3,7 @@ package comparator.jmh.launch.benchmark;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHJitLogFile;
 import comparator.jmh.launch.JMHResultFile;
+import comparator.jmh.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -42,9 +43,11 @@ public final class JMHEntryPoint {
                 .result(JMHResultFile.resultFileFromProperty())
                 .resultFormat(ResultFormatType.JSON);
         if (config.perfEnabled()) {
+            final String memEvents = PerfMemoryEvents.events().eventNames();
+            final String events = memEvents.isEmpty() ? "events=instructions" : "events=instructions," + memEvents;
             builder.addProfiler(
                     LinuxPerfNormProfiler.class,
-                    "events=instructions,mem_inst_retired.all_loads,mem_inst_retired.all_stores"
+                    events
             );
         }
         final Options options = builder.build();

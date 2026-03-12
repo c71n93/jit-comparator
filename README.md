@@ -9,11 +9,11 @@ Comparator currently tracks:
 - `JMH primary score, us/op`
 - `Allocations, B/op` (`gc.alloc.rate.norm`)
 - `Instructions, #/op` (`instructions:u`, optional)
-- `Memory loads, #/op` (`mem_inst_retired.all_loads:u`, optional)
-- `Memory stores, #/op` (`mem_inst_retired.all_stores:u`, optional)
+- `Memory loads, #/op` (`mem_inst_retired.all_loads:u` on Intel, `ls_dispatch.ld_dispatch:u` on AMD, optional)
+- `Memory stores, #/op` (`mem_inst_retired.all_stores:u` on Intel, `ls_dispatch.store_dispatch:u` on AMD, optional)
 - `Native code size, B`
 
-`Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support.
+`Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support. Comparator selects Intel or AMD load/store perf events automatically.
 
 - If `perf` is unavailable (or disabled), these three metrics are omitted.
 - Relative-difference aggregation then uses only available metrics.

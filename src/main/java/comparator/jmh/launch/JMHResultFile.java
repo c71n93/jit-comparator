@@ -9,6 +9,7 @@ import comparator.jmh.JMHMemoryStores;
 import comparator.jmh.JMHPerfResults;
 import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
+import comparator.jmh.perf.PerfMemoryEvents;
 import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
 import java.io.IOException;
@@ -26,8 +27,6 @@ public class JMHResultFile implements JvmSystemProperties {
     private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
     private static final String INSTRUCTIONS = "instructions:u";
-    private static final String MEMORY_LOADS = "mem_inst_retired.all_loads:u";
-    private static final String MEMORY_STORES = "mem_inst_retired.all_stores:u";
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
@@ -81,6 +80,7 @@ public class JMHResultFile implements JvmSystemProperties {
         return this.result.toString();
     }
 
+    // TODO: fix the copy-paste in this set of methods.
     private JMHPrimaryScore scoreFrom(final JsonNode node) {
         if (node.isMissingNode() || !node.hasNonNull(SCORE_FIELD) || !node.hasNonNull(SCORE_UNIT_FIELD)) {
             throw new IllegalStateException("Missing primary metric in JMH result file: " + this.result);
@@ -107,17 +107,19 @@ public class JMHResultFile implements JvmSystemProperties {
     }
 
     private JMHMemoryLoads memoryLoadsFrom(final JsonNode node) {
-        final JsonNode loads = node.path(MEMORY_LOADS);
+        final String memoryLoads = PerfMemoryEvents.events().loadMetricName();
+        final JsonNode loads = node.path(memoryLoads);
         if (loads.isMissingNode() || !loads.hasNonNull(SCORE_FIELD) || !loads.hasNonNull(SCORE_UNIT_FIELD)) {
-            throw new IllegalStateException("Missing mem_inst_retired.all_loads:u in JMH result file: " + this.result);
+            throw new IllegalStateException("Missing " + memoryLoads + " in JMH result file: " + this.result);
         }
         return new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText());
     }
 
     private JMHMemoryStores memoryStoresFrom(final JsonNode node) {
-        final JsonNode stores = node.path(MEMORY_STORES);
+        final String memoryStores = PerfMemoryEvents.events().storeMetricName();
+        final JsonNode stores = node.path(memoryStores);
         if (stores.isMissingNode() || !stores.hasNonNull(SCORE_FIELD) || !stores.hasNonNull(SCORE_UNIT_FIELD)) {
-            throw new IllegalStateException("Missing mem_inst_retired.all_stores:u in JMH result file: " + this.result);
+            throw new IllegalStateException("Missing " + memoryStores + " in JMH result file: " + this.result);
         }
         return new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText());
     }
@@ -128,32 +130,15 @@ public class JMHResultFile implements JvmSystemProperties {
             return JMHPerfResults.absent();
         }
         final JMHInstructions instructions = this.instructionsFrom(secondaryMetrics);
-        if (!JMHResultFile.intelMemEventsAvailable()) {
+        if (!PerfMemoryEvents.memEventsAvailable()) {
             // TODO: Add logging to the project.
             System.err.println(
-                    "WARNING: perf memory events mem_inst_retired.all_loads and mem_inst_retired.all_stores are unavailable on your CPU; memory metrics will be skipped."
+                    "WARNING: perf memory events for memory loads and stores counting are unavailable on your CPU; memory metrics will be skipped."
             );
             return JMHPerfResults.from(instructions);
         }
         final JMHMemoryLoads memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
         final JMHMemoryStores memoryStores = this.memoryStoresFrom(secondaryMetrics);
         return JMHPerfResults.from(instructions, memoryLoads, memoryStores);
-    }
-
-    private static boolean intelMemEventsAvailable() {
-        try {
-            final Process process = new ProcessBuilder(
-                    "perf", "stat", "-e", "mem_inst_retired.all_loads,mem_inst_retired.all_stores", "echo", "1"
-            )
-                    .start();
-            process.getInputStream().readAllBytes();
-            process.getErrorStream().readAllBytes();
-            return process.waitFor() == 0;
-        } catch (final InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            return false;
-        } catch (final IOException exception) {
-            return false;
-        }
     }
 }

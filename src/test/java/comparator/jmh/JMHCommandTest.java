@@ -4,8 +4,8 @@ import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.JMHOutput;
 import comparator.jmh.fixtures.JMHTarget;
+import comparator.jmh.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -56,7 +56,7 @@ final class JMHCommandTest {
 
     @Test
     void returnsScoresFromJMHPerfRun(@TempDir final Path tempDir) {
-        Assumptions.assumeTrue(JMHCommandTest.perfAvailable(), "perf is required for this test");
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), "perf memory events are required for this test");
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
                 classpath, JMHTarget.class.getName(), "succeed"
@@ -94,22 +94,5 @@ final class JMHCommandTest {
 
     private static JMHConfig fastConfig(final boolean perfEnabled) {
         return new JMHConfig(1, TimeValue.milliseconds(50), 1, TimeValue.milliseconds(50), perfEnabled);
-    }
-
-    private static boolean perfAvailable() {
-        try {
-            final Process process = new ProcessBuilder(
-                    "perf", "stat", "-e",
-                    "instructions,mem_inst_retired.all_loads,mem_inst_retired.all_stores", "echo", "1"
-            ).start();
-            process.getInputStream().readAllBytes();
-            process.getErrorStream().readAllBytes();
-            return process.waitFor() == 0;
-        } catch (final InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            return false;
-        } catch (final IOException exception) {
-            return false;
-        }
     }
 }
