@@ -14,30 +14,74 @@ import org.junit.jupiter.api.io.TempDir;
 
 class JMHResultFileTest {
     private static final String PERF_EVENTS_REQUIRED = "perf mem events are required";
-    private static final String MEM_LOADS_METRIC = PerfMemoryEvents.events().loadEventName() + ":u";
-    private static final String MEM_STORES_METRIC = PerfMemoryEvents.events().storeEventName() + ":u";
-    private static final String MEM_STORES_INVALID_METRIC = PerfMemoryEvents.events().storeEventName() + ":p";
-    private static final String JSON_WITH_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
-            + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"" + JMHResultFileTest.MEM_LOADS_METRIC + "\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
-            + "\"" + JMHResultFileTest.MEM_STORES_METRIC + "\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
-    private static final String JSON_WITHOUT_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
-    private static final String JSON_WITH_INCOMPLETE_PERF = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"},"
-            + "\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"},"
-            + "\"instructions:u\":{\"score\":3.3,\"scoreUnit\":\"#/op\"},"
-            + "\"" + JMHResultFileTest.MEM_LOADS_METRIC + "\":{\"score\":4.4,\"scoreUnit\":\"#/op\"},"
-            + "\"" + JMHResultFileTest.MEM_STORES_INVALID_METRIC + "\":{\"score\":5.5,\"scoreUnit\":\"#/op\"}}}]";
-    private static final String JSON_WITHOUT_PRIMARY = "[{\"secondaryMetrics\":{\"gc.alloc.rate.norm\":{\"score\":2.2,\"scoreUnit\":\"B/op\"}}}]";
-    private static final String JSON_WITHOUT_ALLOC = "[{\"primaryMetric\":{\"score\":1.1,\"scoreUnit\":\"us/op\"}}]";
+    private static final String PRIMARY_SCORE_CSV = "1.1";
+    private static final String ALLOC_SCORE_CSV = "2.2";
+    private static final String INSTRUCTIONS_SCORE_CSV = "3.3";
+    private static final String LOADS_SCORE_CSV = "4.4";
+    private static final String STORES_SCORE_CSV = "5.5";
+    private static final String USER_SUFFIX = ":u";
+    private static final String KERNEL_SUFFIX = ":k";
+    private static final String JSON_PRIMARY_PREFIX = "[{\"primaryMetric\":{\"score\":";
+    private static final String JSON_PRIMARY_SUFFIX = ",\"scoreUnit\":\"us/op\"},";
+    private static final String JSON_PRIMARY_END = ",\"scoreUnit\":\"us/op\"}";
+    private static final String JSON_SECONDARY_PREFIX = "\"secondaryMetrics\":{";
+    private static final String JSON_ALLOC_PREFIX = "\"gc.alloc.rate.norm\":{\"score\":";
+    private static final String JSON_ALLOC_SUFFIX = ",\"scoreUnit\":\"B/op\"}";
+    private static final String JSON_OBJECT_SUFFIX = "}}]";
+    private static final String JSON_METRIC_SCORE_PREFIX = "\":{\"score\":";
+    private static final String JSON_OP_UNIT_SUFFIX = ",\"scoreUnit\":\"#/op\"}";
+    private static final String JSON_OP_UNIT_SUFFIX_WITH_COMMA = JMHResultFileTest.JSON_OP_UNIT_SUFFIX + ",";
+    private static final String INSTRUCTIONS_EVENT = "instructions";
+    private static final String MEM_LOADS_EVENT = PerfMemoryEvents.events().loadEventName();
+    private static final String MEM_STORES_EVENT = PerfMemoryEvents.events().storeEventName();
+    private static final String MEM_LOADS_METRIC = JMHResultFileTest.MEM_LOADS_EVENT + JMHResultFileTest.USER_SUFFIX;
+    private static final String MEM_STORES_INVALID_METRIC = JMHResultFileTest.MEM_STORES_EVENT + ".invalid"
+            + JMHResultFileTest.USER_SUFFIX;
+    private static final List<String> CSV_WITH_PERF = List.of(
+            JMHResultFileTest.PRIMARY_SCORE_CSV,
+            JMHResultFileTest.ALLOC_SCORE_CSV,
+            JMHResultFileTest.INSTRUCTIONS_SCORE_CSV,
+            JMHResultFileTest.LOADS_SCORE_CSV,
+            JMHResultFileTest.STORES_SCORE_CSV
+    );
+    private static final List<String> CSV_WITHOUT_PERF = List.of(
+            JMHResultFileTest.PRIMARY_SCORE_CSV, JMHResultFileTest.ALLOC_SCORE_CSV
+    );
+    private static final String JSON_WITH_PERF = JMHResultFileTest.jsonWithPerfMetrics(
+            JMHResultFileTest.USER_SUFFIX, JMHResultFileTest.USER_SUFFIX, JMHResultFileTest.USER_SUFFIX
+    );
+    private static final String JSON_WITH_PERF_KERNEL_SUFFIX = JMHResultFileTest.jsonWithPerfMetrics(
+            JMHResultFileTest.KERNEL_SUFFIX, JMHResultFileTest.KERNEL_SUFFIX, JMHResultFileTest.KERNEL_SUFFIX
+    );
+    private static final String JSON_WITH_PERF_NO_SUFFIX = JMHResultFileTest.jsonWithPerfMetrics("", "", "");
+    private static final String JSON_WITHOUT_PERF = JMHResultFileTest.JSON_PRIMARY_PREFIX
+            + JMHResultFileTest.PRIMARY_SCORE_CSV + JMHResultFileTest.JSON_PRIMARY_SUFFIX
+            + JMHResultFileTest.JSON_SECONDARY_PREFIX + JMHResultFileTest.JSON_ALLOC_PREFIX
+            + JMHResultFileTest.ALLOC_SCORE_CSV + JMHResultFileTest.JSON_ALLOC_SUFFIX
+            + JMHResultFileTest.JSON_OBJECT_SUFFIX;
+    private static final String JSON_WITH_INCOMPLETE_PERF = JMHResultFileTest.JSON_PRIMARY_PREFIX
+            + JMHResultFileTest.PRIMARY_SCORE_CSV + JMHResultFileTest.JSON_PRIMARY_SUFFIX
+            + JMHResultFileTest.JSON_SECONDARY_PREFIX + JMHResultFileTest.JSON_ALLOC_PREFIX
+            + JMHResultFileTest.ALLOC_SCORE_CSV + JMHResultFileTest.JSON_ALLOC_SUFFIX + ","
+            + "\"" + JMHResultFileTest.INSTRUCTIONS_EVENT + JMHResultFileTest.USER_SUFFIX
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.INSTRUCTIONS_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA + "\"" + JMHResultFileTest.MEM_LOADS_METRIC
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.LOADS_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA + "\"" + JMHResultFileTest.MEM_STORES_INVALID_METRIC
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.STORES_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX + JMHResultFileTest.JSON_OBJECT_SUFFIX;
+    private static final String JSON_WITHOUT_PRIMARY = "[{" + JMHResultFileTest.JSON_SECONDARY_PREFIX
+            + JMHResultFileTest.JSON_ALLOC_PREFIX + JMHResultFileTest.ALLOC_SCORE_CSV
+            + JMHResultFileTest.JSON_ALLOC_SUFFIX + JMHResultFileTest.JSON_OBJECT_SUFFIX;
+    private static final String JSON_WITHOUT_ALLOC = JMHResultFileTest.JSON_PRIMARY_PREFIX
+            + JMHResultFileTest.PRIMARY_SCORE_CSV + JMHResultFileTest.JSON_PRIMARY_END + "}]";
 
     @Test
     void parsesMetricsAsCsvRowFromJson(@TempDir final Path tempDir) throws Exception {
         Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
         final JMHResults parsed = this.parsedResult(tempDir, "result.json", JMHResultFileTest.JSON_WITH_PERF, true);
         Assertions.assertEquals(
-                List.of("1.1", "2.2", "3.3", "4.4", "5.5"), parsed.asCsvRow(), "JMH result should parse metrics"
+                JMHResultFileTest.CSV_WITH_PERF, parsed.asCsvRow(), "JMH result should parse metrics"
         );
     }
 
@@ -63,13 +107,45 @@ class JMHResultFileTest {
     }
 
     @Test
+    void parsesPerfMetricsWithKernelSuffixes(@TempDir final Path tempDir) throws Exception {
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-kernel-suffix.json",
+                JMHResultFileTest.JSON_WITH_PERF_KERNEL_SUFFIX,
+                true
+        );
+        Assertions.assertEquals(
+                JMHResultFileTest.CSV_WITH_PERF, parsed.asCsvRow(),
+                "Perf metrics with :k suffix should parse correctly"
+        );
+    }
+
+    @Test
+    void parsesPerfMetricsWithoutSuffixes(@TempDir final Path tempDir) throws Exception {
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-no-suffix.json",
+                JMHResultFileTest.JSON_WITH_PERF_NO_SUFFIX,
+                true
+        );
+        Assertions.assertEquals(
+                JMHResultFileTest.CSV_WITH_PERF, parsed.asCsvRow(),
+                "Perf metrics without suffix should parse correctly"
+        );
+    }
+
+    @Test
     void parsesMetricsWithoutPerfMetricsAsCsvRow(@TempDir final Path tempDir) throws Exception {
         final JMHResults parsed = this.parsedResult(
                 tempDir,
                 "result-without-perf.json",
                 JMHResultFileTest.JSON_WITHOUT_PERF
         );
-        Assertions.assertEquals(List.of("1.1", "2.2"), parsed.asCsvRow(), "Missing perf metrics should be omitted");
+        Assertions.assertEquals(
+                JMHResultFileTest.CSV_WITHOUT_PERF, parsed.asCsvRow(), "Missing perf metrics should be omitted"
+        );
     }
 
     @Test
@@ -95,7 +171,7 @@ class JMHResultFileTest {
                 JMHResultFileTest.JSON_WITH_INCOMPLETE_PERF
         );
         Assertions.assertEquals(
-                List.of("1.1", "2.2"), parsed.asCsvRow(),
+                JMHResultFileTest.CSV_WITHOUT_PERF, parsed.asCsvRow(),
                 "Incomplete perf metric set should be ignored"
         );
     }
@@ -175,5 +251,21 @@ class JMHResultFileTest {
         final Path result = tempDir.resolve(fileName);
         Files.writeString(result, json, StandardCharsets.UTF_8);
         return result;
+    }
+
+    private static String jsonWithPerfMetrics(final String instructionsSuffix, final String loadSuffix,
+            final String storeSuffix) {
+        return JMHResultFileTest.JSON_PRIMARY_PREFIX + JMHResultFileTest.PRIMARY_SCORE_CSV
+                + JMHResultFileTest.JSON_PRIMARY_SUFFIX + JMHResultFileTest.JSON_SECONDARY_PREFIX
+                + JMHResultFileTest.JSON_ALLOC_PREFIX + JMHResultFileTest.ALLOC_SCORE_CSV
+                + JMHResultFileTest.JSON_ALLOC_SUFFIX + ","
+                + "\"" + JMHResultFileTest.INSTRUCTIONS_EVENT + instructionsSuffix
+                + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.INSTRUCTIONS_SCORE_CSV
+                + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA + "\"" + JMHResultFileTest.MEM_LOADS_EVENT
+                + loadSuffix + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.LOADS_SCORE_CSV
+                + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA
+                + "\"" + JMHResultFileTest.MEM_STORES_EVENT + storeSuffix
+                + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.STORES_SCORE_CSV
+                + JMHResultFileTest.JSON_OP_UNIT_SUFFIX + JMHResultFileTest.JSON_OBJECT_SUFFIX;
     }
 }

@@ -2,6 +2,7 @@ package comparator.jmh.launch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import comparator.jmh.JMHAllocRateNorm;
 import comparator.jmh.JMHInstructions;
 import comparator.jmh.JMHMemoryLoads;
@@ -16,7 +17,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
@@ -26,7 +29,8 @@ import java.util.List;
 public class JMHResultFile implements JvmSystemProperties {
     private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
     private static final String GC_ALLOC_RATE_NORM = "gc.alloc.rate.norm";
-    private static final String INSTRUCTIONS = "instructions:u";
+    private static final String INSTRUCTIONS = "instructions";
+    private static final char PERF_METRIC_SUFFIX_SEPARATOR = ':';
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
     private final Path result;
@@ -96,10 +100,9 @@ public class JMHResultFile implements JvmSystemProperties {
     }
 
     private JMHInstructions instructionsFrom(final JsonNode node) {
-        final JsonNode instructions = node.path(INSTRUCTIONS);
-        if (instructions.isMissingNode() || !instructions.hasNonNull(SCORE_FIELD)
-                || !instructions.hasNonNull(SCORE_UNIT_FIELD)) {
-            throw new IllegalStateException("Missing instructions:u in JMH result file: " + this.result);
+        final JsonNode instructions = this.metricFrom(node, JMHResultFile.INSTRUCTIONS);
+        if (this.missingMetric(instructions)) {
+            throw new IllegalStateException("Missing instructions metric in JMH result file: " + this.result);
         }
         return new JMHInstructions(
                 instructions.get(SCORE_FIELD).asDouble(), instructions.get(SCORE_UNIT_FIELD).asText()
@@ -107,21 +110,45 @@ public class JMHResultFile implements JvmSystemProperties {
     }
 
     private JMHMemoryLoads memoryLoadsFrom(final JsonNode node) {
-        final String memoryLoads = PerfMemoryEvents.events().loadMetricName();
-        final JsonNode loads = node.path(memoryLoads);
-        if (loads.isMissingNode() || !loads.hasNonNull(SCORE_FIELD) || !loads.hasNonNull(SCORE_UNIT_FIELD)) {
-            throw new IllegalStateException("Missing " + memoryLoads + " in JMH result file: " + this.result);
+        final String memoryLoads = PerfMemoryEvents.events().loadEventName();
+        final JsonNode loads = this.metricFrom(node, memoryLoads);
+        if (this.missingMetric(loads)) {
+            throw new IllegalStateException("Missing " + memoryLoads + " metric in JMH result file: " + this.result);
         }
         return new JMHMemoryLoads(loads.get(SCORE_FIELD).asDouble(), loads.get(SCORE_UNIT_FIELD).asText());
     }
 
     private JMHMemoryStores memoryStoresFrom(final JsonNode node) {
-        final String memoryStores = PerfMemoryEvents.events().storeMetricName();
-        final JsonNode stores = node.path(memoryStores);
-        if (stores.isMissingNode() || !stores.hasNonNull(SCORE_FIELD) || !stores.hasNonNull(SCORE_UNIT_FIELD)) {
-            throw new IllegalStateException("Missing " + memoryStores + " in JMH result file: " + this.result);
+        final String memoryStores = PerfMemoryEvents.events().storeEventName();
+        final JsonNode stores = this.metricFrom(node, memoryStores);
+        if (this.missingMetric(stores)) {
+            throw new IllegalStateException("Missing " + memoryStores + " metric in JMH result file: " + this.result);
         }
         return new JMHMemoryStores(stores.get(SCORE_FIELD).asDouble(), stores.get(SCORE_UNIT_FIELD).asText());
+    }
+
+    private JsonNode metricFrom(final JsonNode secondaryMetrics, final String eventName) {
+        final JsonNode exactMetric = secondaryMetrics.path(eventName);
+        if (!exactMetric.isMissingNode()) {
+            return exactMetric;
+        }
+        final Iterator<Map.Entry<String, JsonNode>> fields = secondaryMetrics.fields();
+        while (fields.hasNext()) {
+            final Map.Entry<String, JsonNode> field = fields.next();
+            if (this.sameMetricBase(field.getKey(), eventName)) {
+                return field.getValue();
+            }
+        }
+        return MissingNode.getInstance();
+    }
+
+    private boolean sameMetricBase(final String metricName, final String eventName) {
+        final int separator = metricName.indexOf(JMHResultFile.PERF_METRIC_SUFFIX_SEPARATOR);
+        return separator > 0 && eventName.equals(metricName.substring(0, separator));
+    }
+
+    private boolean missingMetric(final JsonNode metric) {
+        return metric.isMissingNode() || !metric.hasNonNull(SCORE_FIELD) || !metric.hasNonNull(SCORE_UNIT_FIELD);
     }
 
     @SuppressWarnings("PMD.SystemPrintln")
