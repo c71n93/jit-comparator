@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public class Analysis implements AsCsvRow {
     private final JMHCommand command;
+    private final String label;
     private Optional<JITResults> cachedResults;
 
     /**
@@ -24,7 +25,20 @@ public class Analysis implements AsCsvRow {
      *            JMH command
      */
     public Analysis(final JMHCommand command) {
+        this(command, command.targetMethod().classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param command
+     *            JMH command
+     * @param label
+     *            row label
+     */
+    public Analysis(final JMHCommand command, final String label) {
         this.command = command;
+        this.label = label;
         this.cachedResults = Optional.empty();
     }
 
@@ -37,7 +51,21 @@ public class Analysis implements AsCsvRow {
      *            JMH execution parameters.
      */
     public Analysis(final TargetMethod targetMethod, final JMHConfig config) {
-        this(new JMHCommand(targetMethod, config));
+        this(targetMethod, config, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param config
+     *            JMH execution parameters.
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final JMHConfig config, final String label) {
+        this(new JMHCommand(targetMethod, config), label);
     }
 
     /**
@@ -49,7 +77,21 @@ public class Analysis implements AsCsvRow {
      *            JIT log output file
      */
     public Analysis(final TargetMethod targetMethod, final Path jitlog) {
-        this(new JMHCommand(targetMethod, jitlog));
+        this(targetMethod, jitlog, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final String label) {
+        this(new JMHCommand(targetMethod, jitlog), label);
     }
 
     /**
@@ -63,7 +105,23 @@ public class Analysis implements AsCsvRow {
      *            JMH execution parameters.
      */
     public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
-        this(new JMHCommand(targetMethod, jitlog, config));
+        this(targetMethod, jitlog, config, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     * @param config
+     *            JMH execution parameters.
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config, final String label) {
+        this(new JMHCommand(targetMethod, jitlog, config), label);
     }
 
     /**
@@ -77,7 +135,23 @@ public class Analysis implements AsCsvRow {
      *            JMH result output file
      */
     public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile) {
-        this(new JMHCommand(targetMethod, jitlog, resultFile));
+        this(targetMethod, jitlog, resultFile, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     * @param resultFile
+     *            JMH result output file
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile, final String label) {
+        this(new JMHCommand(targetMethod, jitlog, resultFile), label);
     }
 
     /**
@@ -94,7 +168,26 @@ public class Analysis implements AsCsvRow {
      */
     public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
             final JMHConfig config) {
-        this(new JMHCommand(targetMethod, jitlog, resultFile, config));
+        this(targetMethod, jitlog, resultFile, config, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param jitlog
+     *            JIT log output file
+     * @param resultFile
+     *            JMH result output file
+     * @param config
+     *            JMH execution parameters.
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
+            final JMHConfig config, final String label) {
+        this(new JMHCommand(targetMethod, jitlog, resultFile, config), label);
     }
 
     /**
@@ -104,7 +197,19 @@ public class Analysis implements AsCsvRow {
      *            target method
      */
     public Analysis(final TargetMethod targetMethod) {
-        this(new JMHCommand(targetMethod));
+        this(targetMethod, targetMethod.classMethodName());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param targetMethod
+     *            target method
+     * @param label
+     *            row label
+     */
+    public Analysis(final TargetMethod targetMethod, final String label) {
+        this(new JMHCommand(targetMethod), label);
     }
 
     /**
@@ -125,7 +230,7 @@ public class Analysis implements AsCsvRow {
     @Override
     public List<String> asCsvRow() {
         final List<String> row = new ArrayList<>();
-        row.add(this.command.targetMethod().classMethodName());
+        row.add(this.label);
         row.addAll(this.results().asCsvRow());
         row.add(this.command.jitlog().toString());
         row.add(this.command.result().toString());

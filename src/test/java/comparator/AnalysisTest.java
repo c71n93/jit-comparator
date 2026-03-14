@@ -69,6 +69,19 @@ final class AnalysisTest {
     }
 
     @Test
+    void returnsProvidedLabelInAnalysisCsvRow(@TempDir final Path tempDir) {
+        final TargetMethod target = this.targetMethod();
+        final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
+        final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
+        final String label = "Original loop";
+        final List<String> row = new Analysis(
+                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig()),
+                label
+        ).asCsvRow();
+        Assertions.assertEquals(label, row.get(0), "Provided label should be first");
+    }
+
+    @Test
     void returnsAnalysisCsvHeader(@TempDir final Path tempDir) {
         final TargetMethod target = this.targetMethod();
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
