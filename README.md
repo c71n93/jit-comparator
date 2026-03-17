@@ -18,6 +18,13 @@ Comparator currently tracks:
 - If `perf` is unavailable (or disabled), these three metrics are omitted.
 - Relative-difference aggregation then uses only available metrics.
 
+## Target method limitations
+
+- The target method should be `static`.
+- The target method should not accept arguments.
+- The target method should preferably return a value. `void` methods are more likely to be removed by JIT optimization as dead code.
+- The target method should preferably execute at least `1000` instructions. Around `50-100` instructions may come from non-optimized JMH wrapper overhead (`Method.invoke()`). By default this optimization should work and overhead will be around `10-20` instructions.
+
 ## API usage
 
 ### Run an analysis
@@ -36,6 +43,22 @@ new Analysis(new TargetMethod(classpath, "PlainForExample", "run"))
 The classpath argument must point to a directory or JAR that contains compiled classes.
 
 The `examples/` folders do not include `.class` files, so compile them before running the examples.
+
+### Run an analysis with label
+
+```java
+import comparator.Analysis;
+import comparator.method.TargetMethod;
+import java.nio.file.Path;
+
+final Path classpath = Path.of("examples", "loop-computations");
+new Analysis(
+        new TargetMethod(classpath, "PlainForExample", "run"),
+        "baseline-for-loop"
+).results().print(System.out);
+```
+
+The label is used as the `Target` value in CSV output.
 
 ### Run comparisons and save CSV
 
@@ -78,6 +101,24 @@ Comparison 2
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | PlainForExample::run | 25020.38236669786 | 3.999806643324631E7 | 1.29E8 | 8.78E7 | 5.94E7 | 2080 | Original | Original |
 | PlainForReplaceAllExample::run | 34609.25680818749 | 7.199801608483697E7 | 1.83E8 | 1.17E8 | 8.01E7 | 2192 | 0.285114108902 | 0.571414983127 |
+
+### Labeled comparison example
+
+```java
+new CsvComparisons(
+        new CsvComparison(
+                new Analysis(new TargetMethod(classpath, "PlainForExample", "run"), "Baseline"),
+                new Analysis(new TargetMethod(classpath, "StreamBoxedExample", "run"), "Stream")
+        )
+).saveAsCsv(Path.of("labels-demo.csv"));
+```
+
+Example of `labels-demo.csv` content in table form:
+
+| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| Baseline | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 5.62E7 | 2080 | Original | Original |
+| Stream | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 7.73E7 | 3616 | 0.274801543186 | 0.571492137425 |
 
 ## Comparison metrics
 
