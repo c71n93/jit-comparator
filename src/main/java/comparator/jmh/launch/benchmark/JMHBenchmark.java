@@ -1,12 +1,12 @@
 package comparator.jmh.launch.benchmark;
 
+import comparator.method.TargetMethod;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
-import comparator.method.TargetMethod;
 
 /**
  * The benchmark simply calls the reflection helper. JMH takes care of warmup

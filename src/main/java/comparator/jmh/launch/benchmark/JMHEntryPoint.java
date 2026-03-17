@@ -5,7 +5,6 @@ import comparator.jmh.launch.JMHJitLogFile;
 import comparator.jmh.launch.JMHResultFile;
 import comparator.jmh.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
-import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.LinuxPerfNormProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -18,8 +17,6 @@ import org.openjdk.jmh.results.format.ResultFormatType;
  * to execute the benchmarks inside a clean JVM that has JIT logging enabled.
  */
 public final class JMHEntryPoint {
-    private static final long LOG_FLUSH_DELAY_MS = 500L;
-
     private JMHEntryPoint() {
     }
 
@@ -52,7 +49,5 @@ public final class JMHEntryPoint {
         }
         final Options options = builder.build();
         new Runner(options).run();
-        // TODO: This delay is needed to flush jit log. Find more elegant solution.
-        TimeUnit.MILLISECONDS.sleep(JMHEntryPoint.LOG_FLUSH_DELAY_MS);
     }
 }

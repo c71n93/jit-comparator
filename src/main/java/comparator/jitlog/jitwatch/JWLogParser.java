@@ -12,6 +12,8 @@ import org.adoptopenjdk.jitwatch.parser.ILogParseErrorListener;
 import org.adoptopenjdk.jitwatch.parser.ILogParser;
 import org.adoptopenjdk.jitwatch.parser.ParserFactory;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
+import com.chrisnewland.freelogj.Logger;
+import com.chrisnewland.freelogj.LoggerFactory;
 
 public final class JWLogParser implements ILogParser {
     private final ILogParser origin;
@@ -86,6 +88,7 @@ public final class JWLogParser implements ILogParser {
 
     private static ILogParser init(final ParserType type, final IJITListener listener,
             final JITWatchConfig config) {
+        LoggerFactory.initialise(Logger.LogLevel.FATAL);
         final ILogParser parser = ParserFactory.getParser(type, listener);
         parser.setConfig(config);
         return parser;
