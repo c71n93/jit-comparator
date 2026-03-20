@@ -9,11 +9,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Analysis of the specified {@link TargetMethod}.
  */
 public class Analysis implements AsCsvRow {
+    private static final Logger LOG = LoggerFactory.getLogger(Analysis.class);
     private final JMHCommand command;
     private final String label;
     private Optional<JITResults> cachedResults;
@@ -217,8 +220,10 @@ public class Analysis implements AsCsvRow {
      *
      * @return combined JIT and log results for the target method
      */
+    @SuppressWarnings("PMD.GuardLogStatement")
     public JITResults results() {
         if (this.cachedResults.isEmpty()) {
+            Analysis.LOG.info("Starting analysis on target: {}", this.label);
             final JMHOutput output = this.command.run();
             this.cachedResults = Optional.of(
                     new JITResults(output.results(), new LogResults(this.command.targetMethod(), output.jitlog()))

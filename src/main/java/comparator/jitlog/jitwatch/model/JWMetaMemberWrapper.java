@@ -1,10 +1,8 @@
 package comparator.jitlog.jitwatch.model;
 
-import comparator.jitlog.NativeCodeSize;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.adoptopenjdk.jitwatch.model.Compilation;
 import org.adoptopenjdk.jitwatch.model.IMetaMember;
 import org.adoptopenjdk.jitwatch.model.MemberSignatureParts;
@@ -12,9 +10,12 @@ import org.adoptopenjdk.jitwatch.model.MetaClass;
 import org.adoptopenjdk.jitwatch.model.assembly.AssemblyMethod;
 import org.adoptopenjdk.jitwatch.model.bytecode.BytecodeInstruction;
 import org.adoptopenjdk.jitwatch.model.bytecode.MemberBytecode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class JWMetaMemberWrapper implements IMetaMember {
     private final IMetaMember origin;
+    private static final Logger LOG = LoggerFactory.getLogger(JWMetaMemberWrapper.class);
 
     public JWMetaMemberWrapper(final IMetaMember origin) {
         this.origin = origin;
@@ -168,11 +169,13 @@ public final class JWMetaMemberWrapper implements IMetaMember {
             if (compilation.getLevel() == tier) {
                 // TODO: Currently we are not support OSR compilations.
                 if (compilation.isOSR()) {
+                    JWMetaMemberWrapper.LOG.warn("OSR compilation was encountered.");
                     return Optional.empty();
                 }
                 return Optional.of(compilation);
             }
         }
+        JWMetaMemberWrapper.LOG.warn("There is no tier 4 compilations in the JIT log.");
         return Optional.empty();
     }
 

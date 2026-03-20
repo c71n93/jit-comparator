@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CSV comparison table for the original analysis and its refactorings,
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
  */
 public class CsvComparison {
     private static final String ORIGINAL = "Original";
+    private static final Logger LOG = LoggerFactory.getLogger(CsvComparison.class);
     private final Analysis original;
     private final List<Analysis> refactorings;
 
@@ -84,15 +87,21 @@ public class CsvComparison {
      *             if write fails
      */
     public void writeCsvTo(final BufferedWriter writer) throws IOException {
-        this.writeRow(writer, this.headerCsv());
+        final int total = 1 + this.refactorings.size();
+        int index = 1;
+        CsvComparison.LOG.info("Start writing CSV rows, total: {}", total);
+        this.writeRow(writer, this.headerCsv(), 0, total);
         this.writeNextRow(
                 writer,
                 this.rowWith(
                         this.original.asCsvRow(),
                         CsvComparison.ORIGINAL,
                         CsvComparison.ORIGINAL
-                )
+                ),
+                index,
+                total
         );
+        index += 1;
         for (final Analysis refactoring : this.refactorings) {
             final JITResultsComparison comparison = new JITResultsComparison(
                     this.original.results(),
@@ -104,19 +113,27 @@ public class CsvComparison {
                             refactoring.asCsvRow(),
                             String.valueOf(comparison.meanRelativeDifference()),
                             String.valueOf(comparison.maxRelativeDifference())
-                    )
+                    ),
+                    index,
+                    total
             );
+            index += 1;
         }
     }
 
-    private void writeRow(final BufferedWriter writer, final List<String> row) throws IOException {
+    private void writeRow(final BufferedWriter writer, final List<String> row, final int index,
+            final int total) throws IOException {
+        if (index > 0) {
+            CsvComparison.LOG.info("Writing row {}/{}", index, total);
+        }
         writer.write(this.rowToCsv(row));
         writer.flush();
     }
 
-    private void writeNextRow(final BufferedWriter writer, final List<String> row) throws IOException {
+    private void writeNextRow(final BufferedWriter writer, final List<String> row, final int index,
+            final int total) throws IOException {
         writer.newLine();
-        this.writeRow(writer, row);
+        this.writeRow(writer, row, index, total);
     }
 
     private String rowToCsv(final List<String> row) {
