@@ -20,6 +20,8 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a JMH result file produced by the JMH JVM. It builds the JVM
@@ -33,6 +35,7 @@ public class JMHResultFile implements JvmSystemProperties {
     private static final char PERF_METRIC_SUFFIX_SEPARATOR = ':';
     private static final String SCORE_FIELD = "score";
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
+    private static final Logger LOG = LoggerFactory.getLogger(JMHResultFile.class);
     private final Path result;
     private final boolean perfEnabled;
 
@@ -151,16 +154,14 @@ public class JMHResultFile implements JvmSystemProperties {
         return metric.isMissingNode() || !metric.hasNonNull(SCORE_FIELD) || !metric.hasNonNull(SCORE_UNIT_FIELD);
     }
 
-    @SuppressWarnings("PMD.SystemPrintln")
     private JMHPerfResults perfResultsFrom(final JsonNode secondaryMetrics) {
         if (!this.perfEnabled) {
             return JMHPerfResults.absent();
         }
         final JMHInstructions instructions = this.instructionsFrom(secondaryMetrics);
         if (!PerfMemoryEvents.memEventsAvailable()) {
-            // TODO: Add logging to the project.
-            System.err.println(
-                    "WARNING: perf memory events for memory loads and stores counting are unavailable on your CPU; memory metrics will be skipped."
+            JMHResultFile.LOG.warn(
+                    "Perf memory events for memory loads and stores are unavailable on this CPU; memory metrics are skipped."
             );
             return JMHPerfResults.from(instructions);
         }
