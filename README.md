@@ -145,8 +145,31 @@ $$
 $D_{\mathrm{mean}} = 0$ and $D_{\mathrm{max}} = 0$ mean complete equality for all included metrics; larger values indicate stronger dissimilarity.
 
 
-## Build
+## How to Contribute
 
+**Before submitting changes, make sure the project passes verification:**
+
+```bash
+./gradlew check
 ```
+
+**If you prefer to run the steps separately, use:**
+
+```bash
+./gradlew test
+./gradlew unifycodeCheck
+```
+
+`test` runs the JUnit test suite. `unifycodeCheck` runs static verification without tests, including Spotless, PMD, and Checkstyle.
+
+**Format the code with:**
+
+```bash
+./gradlew format
+```
+
+**Build the project with:**
+
+```bash
 ./gradlew build
 ```
