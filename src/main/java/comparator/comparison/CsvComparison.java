@@ -85,6 +85,10 @@ public class CsvComparison {
      */
     public void writeCsvTo(final BufferedWriter writer) throws IOException {
         this.writeRow(writer, this.headerCsv());
+        System.out.println("");
+        System.out.println("[Comparator] Start writing, in total:" + this.refactorings.size());
+        int i = 0;
+        System.out.println("[Comparator] writing " + i++ + "/" + this.refactorings.size());
         this.writeNextRow(
                 writer,
                 this.rowWith(
@@ -94,6 +98,7 @@ public class CsvComparison {
                 )
         );
         for (final Analysis refactoring : this.refactorings) {
+            System.out.println("[Comparator] writing " + i++ + "/" + (1 + this.refactorings.size()));
             final JITResultsComparison comparison = new JITResultsComparison(
                     this.original.results(),
                     refactoring.results()
