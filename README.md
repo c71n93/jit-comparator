@@ -13,7 +13,7 @@ Comparator currently tracks:
 - `Memory stores, #/op` (`mem_inst_retired.all_stores:u` on Intel, `ls_dispatch.store_dispatch:u` on AMD, optional)
 - `Native code size, B`
 
-`Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support. Comparator selects Intel or AMD load/store perf events automatically.
+`Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support. Comparator selects Intel or AMD load/store perf events automatically and aggregates split hybrid-CPU instruction counters such as `cpu_core/instructions` and `cpu_atom/instructions`.
 
 - If `perf` is unavailable (or disabled), these three metrics are omitted.
 - Relative-difference aggregation then uses only available metrics.
