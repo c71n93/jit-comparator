@@ -2,9 +2,9 @@ package comparator.jmh;
 
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
-import comparator.jmh.launch.JMHOutput;
+import comparator.jmh.launch.output.JMHOutput;
+import comparator.jmh.launch.output.perf.PerfMemoryEvents;
 import comparator.jmh.fixtures.JMHTarget;
-import comparator.jmh.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +23,9 @@ final class JMHCommandTest {
     @Test
     void exposesConfiguredArtifacts(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
-        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD);
+        final TargetMethod target = new TargetMethod(
+                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+        );
         final Path jitlog = tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME);
         final Path result = tempDir.resolve("jmh-result.json");
         final JMHCommand command = new JMHCommand(target, jitlog, result, JMHCommandTest.fastConfig(false));
@@ -37,7 +39,9 @@ final class JMHCommandTest {
     @Test
     void keepsDefaultArtifactsNearTargetClassWithoutPrecreatingFiles() {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
-        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD);
+        final TargetMethod target = new TargetMethod(
+                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+        );
         final JMHCommand command = new JMHCommand(target, JMHCommandTest.fastConfig(false));
         final Path expected = classpath.resolve(JMHTarget.class.getName().replace('.', '/')).getParent();
         final Path result = Path.of(command.result().toString());

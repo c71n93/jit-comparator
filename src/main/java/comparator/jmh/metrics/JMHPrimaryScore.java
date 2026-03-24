@@ -1,4 +1,4 @@
-package comparator.jmh;
+package comparator.jmh.metrics;
 
 /**
  * Primary JMH metric for the benchmark score.

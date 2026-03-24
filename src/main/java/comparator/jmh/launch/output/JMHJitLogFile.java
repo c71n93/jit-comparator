@@ -1,4 +1,4 @@
-package comparator.jmh.launch;
+package comparator.jmh.launch.output;
 
 import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;

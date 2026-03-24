@@ -3,6 +3,8 @@ package comparator.jmh;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import comparator.jmh.metrics.JMHPrimaryScore;
+
 class JMHPrimaryScoreTest {
     private static final String UNIT = "us/op";
 

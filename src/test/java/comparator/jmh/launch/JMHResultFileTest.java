@@ -2,7 +2,9 @@ package comparator.jmh.launch;
 
 import comparator.Artifact;
 import comparator.jmh.JMHResults;
-import comparator.jmh.perf.PerfMemoryEvents;
+import comparator.jmh.launch.output.JMHResultFile;
+import comparator.jmh.launch.output.perf.PerfMemoryEvents;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +19,9 @@ class JMHResultFileTest {
     private static final String PRIMARY_SCORE_CSV = "1.1";
     private static final String ALLOC_SCORE_CSV = "2.2";
     private static final String INSTRUCTIONS_SCORE_CSV = "3.3";
+    private static final String HYBRID_CORE_INSTRUCTIONS_SCORE_CSV = "1.0";
+    private static final String HYBRID_ATOM_INSTRUCTIONS_SCORE_CSV = "2.0";
+    private static final String HYBRID_INSTRUCTIONS_SCORE_CSV = "3.0";
     private static final String LOADS_SCORE_CSV = "4.4";
     private static final String STORES_SCORE_CSV = "5.5";
     private static final String USER_SUFFIX = ":u";
@@ -32,6 +37,8 @@ class JMHResultFileTest {
     private static final String JSON_OP_UNIT_SUFFIX = ",\"scoreUnit\":\"#/op\"}";
     private static final String JSON_OP_UNIT_SUFFIX_WITH_COMMA = JMHResultFileTest.JSON_OP_UNIT_SUFFIX + ",";
     private static final String INSTRUCTIONS_EVENT = "instructions";
+    private static final String HYBRID_CORE_INSTRUCTIONS_EVENT = "cpu_core/instructions";
+    private static final String HYBRID_ATOM_INSTRUCTIONS_EVENT = "cpu_atom/instructions";
     private static final String MEM_LOADS_EVENT = PerfMemoryEvents.events().loadEventName();
     private static final String MEM_STORES_EVENT = PerfMemoryEvents.events().storeEventName();
     private static final String MEM_LOADS_METRIC = JMHResultFileTest.MEM_LOADS_EVENT + JMHResultFileTest.USER_SUFFIX;
@@ -47,6 +54,13 @@ class JMHResultFileTest {
     private static final List<String> CSV_WITHOUT_PERF = List.of(
             JMHResultFileTest.PRIMARY_SCORE_CSV, JMHResultFileTest.ALLOC_SCORE_CSV
     );
+    private static final List<String> CSV_WITH_HYBRID_INSTRUCTIONS = List.of(
+            JMHResultFileTest.PRIMARY_SCORE_CSV,
+            JMHResultFileTest.ALLOC_SCORE_CSV,
+            JMHResultFileTest.HYBRID_INSTRUCTIONS_SCORE_CSV,
+            JMHResultFileTest.LOADS_SCORE_CSV,
+            JMHResultFileTest.STORES_SCORE_CSV
+    );
     private static final String JSON_WITH_PERF = JMHResultFileTest.jsonWithPerfMetrics(
             JMHResultFileTest.USER_SUFFIX, JMHResultFileTest.USER_SUFFIX, JMHResultFileTest.USER_SUFFIX
     );
@@ -54,6 +68,21 @@ class JMHResultFileTest {
             JMHResultFileTest.KERNEL_SUFFIX, JMHResultFileTest.KERNEL_SUFFIX, JMHResultFileTest.KERNEL_SUFFIX
     );
     private static final String JSON_WITH_PERF_NO_SUFFIX = JMHResultFileTest.jsonWithPerfMetrics("", "", "");
+    private static final String JSON_WITH_HYBRID_INSTRUCTIONS = JMHResultFileTest.JSON_PRIMARY_PREFIX
+            + JMHResultFileTest.PRIMARY_SCORE_CSV + JMHResultFileTest.JSON_PRIMARY_SUFFIX
+            + JMHResultFileTest.JSON_SECONDARY_PREFIX + JMHResultFileTest.JSON_ALLOC_PREFIX
+            + JMHResultFileTest.ALLOC_SCORE_CSV + JMHResultFileTest.JSON_ALLOC_SUFFIX + ","
+            + "\"" + JMHResultFileTest.HYBRID_CORE_INSTRUCTIONS_EVENT + JMHResultFileTest.USER_SUFFIX
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.HYBRID_CORE_INSTRUCTIONS_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA + "\""
+            + JMHResultFileTest.HYBRID_ATOM_INSTRUCTIONS_EVENT + JMHResultFileTest.USER_SUFFIX
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.HYBRID_ATOM_INSTRUCTIONS_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA + "\"" + JMHResultFileTest.MEM_LOADS_EVENT
+            + JMHResultFileTest.USER_SUFFIX + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX
+            + JMHResultFileTest.LOADS_SCORE_CSV + JMHResultFileTest.JSON_OP_UNIT_SUFFIX_WITH_COMMA
+            + "\"" + JMHResultFileTest.MEM_STORES_EVENT + JMHResultFileTest.USER_SUFFIX
+            + JMHResultFileTest.JSON_METRIC_SCORE_PREFIX + JMHResultFileTest.STORES_SCORE_CSV
+            + JMHResultFileTest.JSON_OP_UNIT_SUFFIX + JMHResultFileTest.JSON_OBJECT_SUFFIX;
     private static final String JSON_WITHOUT_PERF = JMHResultFileTest.JSON_PRIMARY_PREFIX
             + JMHResultFileTest.PRIMARY_SCORE_CSV + JMHResultFileTest.JSON_PRIMARY_SUFFIX
             + JMHResultFileTest.JSON_SECONDARY_PREFIX + JMHResultFileTest.JSON_ALLOC_PREFIX
@@ -137,6 +166,22 @@ class JMHResultFileTest {
     }
 
     @Test
+    void parsesHybridInstructionMetrics(@TempDir final Path tempDir) throws Exception {
+        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "result-hybrid-instructions.json",
+                JMHResultFileTest.JSON_WITH_HYBRID_INSTRUCTIONS,
+                true
+        );
+        Assertions.assertEquals(
+                JMHResultFileTest.CSV_WITH_HYBRID_INSTRUCTIONS,
+                parsed.asCsvRow(),
+                "Hybrid instruction counters should be aggregated into the instructions metric"
+        );
+    }
+
+    @Test
     void parsesMetricsWithoutPerfMetricsAsCsvRow(@TempDir final Path tempDir) throws Exception {
         final JMHResults parsed = this.parsedResult(
                 tempDir,
@@ -192,13 +237,17 @@ class JMHResultFileTest {
     }
 
     @Test
-    void failsWhenPerfMetricsMissingAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
-        Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), JMHResultFileTest.PERF_EVENTS_REQUIRED);
-        final Path result = this.writeJson(tempDir, "missing-perf.json", JMHResultFileTest.JSON_WITHOUT_PERF);
-        Assertions.assertThrows(
-                IllegalStateException.class,
-                () -> new JMHResultFile(result, true).parsedResult(),
-                "Missing perf metrics should fail parsing when perf is enabled"
+    void omitsPerfMetricsWhenInstructionsMissingAndPerfEnabled(@TempDir final Path tempDir) throws Exception {
+        final JMHResults parsed = this.parsedResult(
+                tempDir,
+                "missing-perf.json",
+                JMHResultFileTest.JSON_WITHOUT_PERF,
+                true
+        );
+        Assertions.assertEquals(
+                JMHResultFileTest.CSV_WITHOUT_PERF,
+                parsed.asCsvRow(),
+                "Missing instruction counters should skip perf metrics when perf is enabled"
         );
     }
 

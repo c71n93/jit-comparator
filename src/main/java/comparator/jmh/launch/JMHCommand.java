@@ -1,12 +1,14 @@
 package comparator.jmh.launch;
 
 import comparator.jmh.launch.benchmark.JMHEntryPoint;
+import comparator.jmh.launch.output.JMHJitLogFile;
+import comparator.jmh.launch.output.JMHOutput;
+import comparator.jmh.launch.output.JMHResultFile;
 import comparator.method.Classpath;
 import comparator.method.TargetMethod;
 import comparator.property.PropertyString;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;

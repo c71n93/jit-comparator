@@ -1,4 +1,4 @@
-package comparator.jmh.launch;
+package comparator.jmh.launch.output;
 
 import java.nio.file.Path;
 import comparator.jmh.JMHResults;

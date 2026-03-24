@@ -3,6 +3,8 @@ package comparator.jmh;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import comparator.jmh.metrics.JMHMemoryStores;
+
 class JMHMemoryStoresTest {
     @Test
     void comparesMemoryStoresUsingAccuracy() {
