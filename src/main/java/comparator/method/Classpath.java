@@ -46,6 +46,13 @@ public final class Classpath {
     }
 
     /**
+     * @return classpath entries
+     */
+    public List<Path> entries() {
+        return this.entries;
+    }
+
+    /**
      * @return classpath entries as strings
      */
     public List<String> strings() {

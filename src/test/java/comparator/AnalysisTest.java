@@ -22,7 +22,8 @@ final class AnalysisTest {
     void writesJitLogToProvidedPath(@TempDir final Path tempDir) {
         final TargetMethod target = this.targetMethod();
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
-        new Analysis(target, jitlog, AnalysisTest.fastConfig()).results();
+        final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
+        new Analysis(target, jitlog, result, AnalysisTest.fastConfig()).results();
         Assertions.assertTrue(Files.exists(jitlog), "Analysis should write JIT log to provided path");
     }
 

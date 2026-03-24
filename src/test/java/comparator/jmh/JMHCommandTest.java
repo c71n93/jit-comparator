@@ -18,11 +18,12 @@ import org.openjdk.jmh.runner.options.TimeValue;
 final class JMHCommandTest {
     private static final String TEST_CLASSPATH = "build/classes/java/test";
     private static final String JIT_LOG_FILE_NAME = "jit-log.xml";
+    private static final String TARGET_METHOD = "succeed";
 
     @Test
     void exposesConfiguredArtifacts(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
-        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
+        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD);
         final Path jitlog = tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME);
         final Path result = tempDir.resolve("jmh-result.json");
         final JMHCommand command = new JMHCommand(target, jitlog, result, JMHCommandTest.fastConfig(false));
@@ -34,10 +35,31 @@ final class JMHCommandTest {
     }
 
     @Test
+    void keepsDefaultArtifactsNearTargetClassWithoutPrecreatingFiles() {
+        final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
+        final TargetMethod target = new TargetMethod(classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD);
+        final JMHCommand command = new JMHCommand(target, JMHCommandTest.fastConfig(false));
+        final Path expected = classpath.resolve(JMHTarget.class.getName().replace('.', '/')).getParent();
+        final Path result = Path.of(command.result().toString());
+        Assertions.assertEquals(expected, command.jitlog().getParent(), "Default JIT log should be near target class");
+        Assertions.assertEquals(expected, result.getParent(), "Default JMH result should be near target class");
+        Assertions.assertTrue(
+                command.jitlog().getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jit-log-"),
+                "Default JIT log should include target class name"
+        );
+        Assertions.assertTrue(
+                result.getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jmh-result-"),
+                "Default JMH result should include target class name"
+        );
+        Assertions.assertFalse(Files.exists(command.jitlog()), "Default JIT log should not be created before JMH runs");
+        Assertions.assertFalse(Files.exists(result), "Default JMH result should not be created before JMH runs");
+    }
+
+    @Test
     void returnsScoresFromJmhRun(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), "succeed"
+                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final JMHOutput output = new JMHCommand(
                 target,
@@ -59,7 +81,7 @@ final class JMHCommandTest {
         Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), "perf memory events are required for this test");
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), "succeed"
+                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final JMHOutput output = new JMHCommand(
                 target,

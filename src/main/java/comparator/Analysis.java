@@ -78,62 +78,6 @@ public class Analysis implements AsCsvRow {
      *            target method
      * @param jitlog
      *            JIT log output file
-     */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog) {
-        this(targetMethod, jitlog, targetMethod.classMethodName());
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param targetMethod
-     *            target method
-     * @param jitlog
-     *            JIT log output file
-     * @param label
-     *            row label
-     */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog, final String label) {
-        this(new JMHCommand(targetMethod, jitlog), label);
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param targetMethod
-     *            target method
-     * @param jitlog
-     *            JIT log output file
-     * @param config
-     *            JMH execution parameters.
-     */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
-        this(targetMethod, jitlog, config, targetMethod.classMethodName());
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param targetMethod
-     *            target method
-     * @param jitlog
-     *            JIT log output file
-     * @param config
-     *            JMH execution parameters.
-     * @param label
-     *            row label
-     */
-    public Analysis(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config, final String label) {
-        this(new JMHCommand(targetMethod, jitlog, config), label);
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param targetMethod
-     *            target method
-     * @param jitlog
-     *            JIT log output file
      * @param resultFile
      *            JMH result output file
      */
@@ -220,7 +164,6 @@ public class Analysis implements AsCsvRow {
      *
      * @return combined JIT and log results for the target method
      */
-    @SuppressWarnings("PMD.GuardLogStatement")
     public JITResults results() {
         if (this.cachedResults.isEmpty()) {
             Analysis.LOG.info("Starting analysis on target: {}", this.label);

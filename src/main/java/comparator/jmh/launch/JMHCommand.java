@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Launcher that spawns a separate JVM with JIT logging enabled and executes a
@@ -28,7 +29,7 @@ public final class JMHCommand {
     }
 
     public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
-        this(targetMethod, JMHCommand.tmpLogFile(), config);
+        this(targetMethod, JMHCommand.defaultLogFile(targetMethod), config);
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
@@ -36,7 +37,7 @@ public final class JMHCommand {
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
-        this(targetMethod, jitlog, JMHCommand.tmpResultFile(), config);
+        this(targetMethod, jitlog, JMHCommand.defaultResultFile(targetMethod), config);
     }
 
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final Path resultFile) {
@@ -120,19 +121,35 @@ public final class JMHCommand {
         ).asString();
     }
 
-    private static Path tmpLogFile() {
-        try {
-            return Files.createTempFile("jit-log-", ".xml");
-        } catch (final IOException e) {
-            throw new IllegalStateException("Unable to create JIT log file", e);
-        }
+    private static Path defaultLogFile(final TargetMethod targetMethod) {
+        return JMHCommand.defaultArtifactDirectory(targetMethod)
+                .resolve(JMHCommand.targetClassName(targetMethod) + "-jit-log-" + UUID.randomUUID() + ".xml");
     }
 
-    private static Path tmpResultFile() {
-        try {
-            return Files.createTempFile("jmh-result-", ".json");
-        } catch (final IOException e) {
-            throw new IllegalStateException("Unable to create JMH result file", e);
+    private static Path defaultResultFile(final TargetMethod targetMethod) {
+        return JMHCommand.defaultArtifactDirectory(targetMethod)
+                .resolve(JMHCommand.targetClassName(targetMethod) + "-jmh-result-" + UUID.randomUUID() + ".json");
+    }
+
+    private static Path defaultArtifactDirectory(final TargetMethod targetMethod) {
+        final Path classpath = JMHCommand.firstClasspathEntry(targetMethod);
+        final Path directory = classpath.resolve(targetMethod.className().replace('.', '/')).getParent();
+        if (directory == null) {
+            throw new IllegalStateException(
+                    "Unable to determine default artifact directory for " + targetMethod.className()
+            );
         }
+        return directory;
+    }
+
+    private static Path firstClasspathEntry(final TargetMethod targetMethod) {
+        return targetMethod.classpath().entries().stream().findFirst().orElseThrow(
+                () -> new IllegalStateException("Target classpath is empty")
+        );
+    }
+
+    private static String targetClassName(final TargetMethod targetMethod) {
+        final String className = targetMethod.className();
+        return className.substring(className.lastIndexOf('.') + 1).replace('$', '-');
     }
 }
