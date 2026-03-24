@@ -1,4 +1,4 @@
-package comparator.jmh;
+package comparator.jmh.metrics;
 
 /**
  * Normalized CPU instructions metric reported by the perf profiler.

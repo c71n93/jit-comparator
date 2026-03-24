@@ -1,4 +1,4 @@
-package comparator.jmh;
+package comparator.jmh.metrics;
 
 /**
  * Normalized CPU memory loads metric reported by the perf profiler.

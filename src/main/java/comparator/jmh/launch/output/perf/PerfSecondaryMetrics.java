@@ -1,4 +1,4 @@
-package comparator.jmh.perf;
+package comparator.jmh.launch.output.perf;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Iterator;

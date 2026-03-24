@@ -1,10 +1,10 @@
 package comparator.jmh.launch.benchmark;
 
 import comparator.jmh.launch.JMHConfig;
-import comparator.jmh.launch.JMHJitLogFile;
-import comparator.jmh.launch.JMHResultFile;
-import comparator.jmh.perf.PerfInstructionsEvent;
-import comparator.jmh.perf.PerfMemoryEvents;
+import comparator.jmh.launch.output.JMHJitLogFile;
+import comparator.jmh.launch.output.JMHResultFile;
+import comparator.jmh.launch.output.perf.PerfInstructionsEvent;
+import comparator.jmh.launch.output.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.LinuxPerfNormProfiler;

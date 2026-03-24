@@ -1,4 +1,4 @@
-package comparator.jmh;
+package comparator.jmh.metrics;
 
 import comparator.Artifact;
 import comparator.Results;

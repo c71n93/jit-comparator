@@ -2,9 +2,9 @@ package comparator;
 
 import comparator.jitlog.LogResults;
 import comparator.jitlog.test.JITLogFixture;
-import comparator.jmh.JMHAllocRateNorm;
-import comparator.jmh.JMHPrimaryScore;
 import comparator.jmh.JMHResults;
+import comparator.jmh.metrics.JMHAllocRateNorm;
+import comparator.jmh.metrics.JMHPrimaryScore;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.List;

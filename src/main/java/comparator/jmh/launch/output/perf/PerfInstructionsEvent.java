@@ -1,7 +1,8 @@
-package comparator.jmh.perf;
+package comparator.jmh.launch.output.perf;
 
-import comparator.jmh.JMHInstructions;
 import java.util.Optional;
+
+import comparator.jmh.metrics.JMHInstructions;
 
 /**
  * Instruction-counter variants emitted by the perf profiler.

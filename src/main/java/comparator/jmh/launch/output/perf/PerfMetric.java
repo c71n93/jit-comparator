@@ -1,4 +1,4 @@
-package comparator.jmh.perf;
+package comparator.jmh.launch.output.perf;
 
 /**
  * Parsed perf-profiler metric value.

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import comparator.jmh.launch.output.JMHJitLogFile;
+
 class JMHJitLogFileTest {
     @Test
     void rendersJvmPropertyArgs(@TempDir final Path tempDir) {

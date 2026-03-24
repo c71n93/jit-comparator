@@ -1,7 +1,11 @@
 package comparator.jmh.perf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comparator.jmh.JMHInstructions;
+
+import comparator.jmh.launch.output.perf.PerfInstructionsEvent;
+import comparator.jmh.launch.output.perf.PerfSecondaryMetrics;
+import comparator.jmh.metrics.JMHInstructions;
+
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,18 +1,19 @@
-package comparator.jmh.launch;
+package comparator.jmh.launch.output;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comparator.jmh.JMHAllocRateNorm;
-import comparator.jmh.JMHInstructions;
-import comparator.jmh.JMHMemoryLoads;
-import comparator.jmh.JMHMemoryStores;
-import comparator.jmh.JMHPerfResults;
-import comparator.jmh.JMHPrimaryScore;
+
 import comparator.jmh.JMHResults;
-import comparator.jmh.perf.PerfInstructionsEvent;
-import comparator.jmh.perf.PerfMetric;
-import comparator.jmh.perf.PerfMemoryEvents;
-import comparator.jmh.perf.PerfSecondaryMetrics;
+import comparator.jmh.launch.output.perf.PerfInstructionsEvent;
+import comparator.jmh.launch.output.perf.PerfMemoryEvents;
+import comparator.jmh.launch.output.perf.PerfMetric;
+import comparator.jmh.launch.output.perf.PerfSecondaryMetrics;
+import comparator.jmh.metrics.JMHAllocRateNorm;
+import comparator.jmh.metrics.JMHInstructions;
+import comparator.jmh.metrics.JMHMemoryLoads;
+import comparator.jmh.metrics.JMHMemoryStores;
+import comparator.jmh.metrics.JMHPerfResults;
+import comparator.jmh.metrics.JMHPrimaryScore;
 import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
 import java.io.IOException;
@@ -72,13 +73,14 @@ public class JMHResultFile implements JvmSystemProperties {
                 throw new IllegalStateException("JMH result file is empty: " + this.result);
             }
             final JsonNode node = root.get(0);
-            final JsonNode secondaryMetricsNode = node.path("secondaryMetrics");
-            final PerfSecondaryMetrics secondaryMetrics = new PerfSecondaryMetrics(secondaryMetricsNode);
             final JMHPrimaryScore score = this.scoreFrom(node.path("primaryMetric"));
+            final JsonNode secondaryMetricsNode = node.path("secondaryMetrics");
             final JMHAllocRateNorm allocRateNorm = this.allocRateNormFrom(
                     secondaryMetricsNode.path(JMHResultFile.GC_ALLOC_RATE_NORM)
             );
-            return new JMHResults(score, allocRateNorm, this.perfResultsFrom(secondaryMetrics));
+            return new JMHResults(
+                    score, allocRateNorm, this.perfResultsFrom(new PerfSecondaryMetrics(secondaryMetricsNode))
+            );
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to read JMH result file", e);
         }
@@ -104,24 +106,6 @@ public class JMHResultFile implements JvmSystemProperties {
         return new JMHAllocRateNorm(node.get(SCORE_FIELD).asDouble(), node.get(SCORE_UNIT_FIELD).asText());
     }
 
-    private JMHMemoryLoads memoryLoadsFrom(final PerfSecondaryMetrics node) {
-        final String memoryLoads = PerfMemoryEvents.events().loadEventName();
-        final PerfMetric loads = node.metric(memoryLoads).orElseThrow(
-                () -> new IllegalStateException("Missing " + memoryLoads + " metric in JMH result file: " + this.result)
-        );
-        return new JMHMemoryLoads(loads.score(), loads.unit());
-    }
-
-    private JMHMemoryStores memoryStoresFrom(final PerfSecondaryMetrics node) {
-        final String memoryStores = PerfMemoryEvents.events().storeEventName();
-        final PerfMetric stores = node.metric(memoryStores).orElseThrow(
-                () -> new IllegalStateException(
-                        "Missing " + memoryStores + " metric in JMH result file: " + this.result
-                )
-        );
-        return new JMHMemoryStores(stores.score(), stores.unit());
-    }
-
     private JMHPerfResults perfResultsFrom(final PerfSecondaryMetrics secondaryMetrics) {
         if (!this.perfEnabled) {
             return JMHPerfResults.absent();
@@ -143,5 +127,23 @@ public class JMHResultFile implements JvmSystemProperties {
         final JMHMemoryLoads memoryLoads = this.memoryLoadsFrom(secondaryMetrics);
         final JMHMemoryStores memoryStores = this.memoryStoresFrom(secondaryMetrics);
         return JMHPerfResults.from(presentInstructions, memoryLoads, memoryStores);
+    }
+
+    private JMHMemoryLoads memoryLoadsFrom(final PerfSecondaryMetrics node) {
+        final String memoryLoads = PerfMemoryEvents.events().loadEventName();
+        final PerfMetric loads = node.metric(memoryLoads).orElseThrow(
+                () -> new IllegalStateException("Missing " + memoryLoads + " metric in JMH result file: " + this.result)
+        );
+        return new JMHMemoryLoads(loads.score(), loads.unit());
+    }
+
+    private JMHMemoryStores memoryStoresFrom(final PerfSecondaryMetrics node) {
+        final String memoryStores = PerfMemoryEvents.events().storeEventName();
+        final PerfMetric stores = node.metric(memoryStores).orElseThrow(
+                () -> new IllegalStateException(
+                        "Missing " + memoryStores + " metric in JMH result file: " + this.result
+                )
+        );
+        return new JMHMemoryStores(stores.score(), stores.unit());
     }
 }

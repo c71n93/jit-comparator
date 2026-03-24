@@ -2,7 +2,9 @@ package comparator.jmh.launch;
 
 import comparator.Artifact;
 import comparator.jmh.JMHResults;
-import comparator.jmh.perf.PerfMemoryEvents;
+import comparator.jmh.launch.output.JMHResultFile;
+import comparator.jmh.launch.output.perf.PerfMemoryEvents;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

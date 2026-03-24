@@ -3,7 +3,7 @@ package comparator;
 import comparator.jitlog.LogResults;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
-import comparator.jmh.launch.JMHOutput;
+import comparator.jmh.launch.output.JMHOutput;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -164,6 +164,7 @@ public class Analysis implements AsCsvRow {
      *
      * @return combined JIT and log results for the target method
      */
+    @SuppressWarnings("PMD.GuardLogStatement")
     public JITResults results() {
         if (this.cachedResults.isEmpty()) {
             Analysis.LOG.info("Starting analysis on target: {}", this.label);
