@@ -3,7 +3,6 @@ package comparator.jmh.launch.benchmark;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.output.JMHJitLogFile;
 import comparator.jmh.launch.output.JMHResultFile;
-import comparator.jmh.launch.output.perf.PerfInstructionsEvent;
 import comparator.jmh.launch.output.perf.PerfMemoryEvents;
 import comparator.method.TargetMethod;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -18,6 +17,8 @@ import org.openjdk.jmh.results.format.ResultFormatType;
  * to execute the benchmarks inside a clean JVM that has JIT logging enabled.
  */
 public final class JMHEntryPoint {
+    private static final String INSTRUCTIONS_EVENT = "instructions";
+
     private JMHEntryPoint() {
     }
 
@@ -42,10 +43,9 @@ public final class JMHEntryPoint {
                 .resultFormat(ResultFormatType.JSON);
         if (config.perfEnabled()) {
             final String memEvents = PerfMemoryEvents.events().eventNames();
-            final String instructions = PerfInstructionsEvent.eventName();
             final String events = memEvents.isEmpty()
-                    ? "events=" + instructions
-                    : "events=" + instructions + "," + memEvents;
+                    ? "events=" + JMHEntryPoint.INSTRUCTIONS_EVENT
+                    : "events=" + JMHEntryPoint.INSTRUCTIONS_EVENT + "," + memEvents;
             builder.addProfiler(
                     LinuxPerfNormProfiler.class,
                     events
