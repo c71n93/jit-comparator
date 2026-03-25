@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public final class PerfMemoryEvents {
     private static final MemoryEvents INTEL = new AvailableMemoryEvents(
-            "mem_inst_retired.all_loads", "mem_inst_retired.all_stores"
+            "cpu_core/mem_inst_retired.all_loads/", "cpu_core/mem_inst_retired.all_stores/"
     );
     private static final MemoryEvents AMD = new AvailableMemoryEvents(
             "ls_dispatch.ld_dispatch", "ls_dispatch.store_dispatch"
