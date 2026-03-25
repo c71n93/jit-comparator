@@ -12,6 +12,12 @@ class PerfResultFromJSONTest {
     private static final PerfMemoryEvents.MemoryEvents MEMORY_EVENTS = new PerfMemoryEvents.AvailableMemoryEvents(
             "loads", "stores"
     );
+    private static final PerfMemoryEvents.MemoryEvents INTEL_MEMORY_EVENTS = new PerfMemoryEvents.AvailableMemoryEvents(
+            "mem_inst_retired.all_loads",
+            "mem_inst_retired.all_stores",
+            List.of("mem_inst_retired.all_loads", "cpu_core/mem_inst_retired.all_loads"),
+            List.of("mem_inst_retired.all_stores", "cpu_core/mem_inst_retired.all_stores")
+    );
     private static final Path SOURCE = Path.of("result.json");
 
     @Test
@@ -67,6 +73,23 @@ class PerfResultFromJSONTest {
     }
 
     @Test
+    void parsesCpuCorePrefixedIntelMemoryMetrics() throws Exception {
+        final JMHPerfResults parsed = this.parsedResult(
+                "{\"instructions:u\":{\"score\":3.0,\"scoreUnit\":\"#/op\"},"
+                        + "\"cpu_core/mem_inst_retired.all_loads/:u\":{\"score\":4.0,\"scoreUnit\":\"#/op\"},"
+                        + "\"cpu_core/mem_inst_retired.all_stores/:u\":{\"score\":5.0,\"scoreUnit\":\"#/op\"}}",
+                true,
+                true,
+                PerfResultFromJSONTest.INTEL_MEMORY_EVENTS
+        );
+        final List<Artifact<?>> artifacts = parsed.asArtifactRow();
+        Assertions.assertEquals(3, artifacts.size(), "All perf metrics should be present");
+        Assertions.assertEquals(3.0d, artifacts.get(0).value().doubleValue(), 1.0e-12, "Instructions should match");
+        Assertions.assertEquals(4.0d, artifacts.get(1).value().doubleValue(), 1.0e-12, "Loads should match");
+        Assertions.assertEquals(5.0d, artifacts.get(2).value().doubleValue(), 1.0e-12, "Stores should match");
+    }
+
+    @Test
     void omitsPerfMetricsWhenDisabled() throws Exception {
         final JMHPerfResults parsed = this.parsedResult(
                 "{\"instructions:u\":{\"score\":3.0,\"scoreUnit\":\"#/op\"}}",
@@ -119,11 +142,21 @@ class PerfResultFromJSONTest {
 
     private JMHPerfResults parsedResult(final String json, final boolean perfEnabled,
             final boolean memoryMetricsAvailable) throws Exception {
+        return this.parsedResult(
+                json,
+                perfEnabled,
+                memoryMetricsAvailable,
+                PerfResultFromJSONTest.MEMORY_EVENTS
+        );
+    }
+
+    private JMHPerfResults parsedResult(final String json, final boolean perfEnabled,
+            final boolean memoryMetricsAvailable, final PerfMemoryEvents.MemoryEvents memoryEvents) throws Exception {
         return new PerfResultFromJSON(
                 new PerfSecondaryMetrics(new ObjectMapper().readTree(json)),
                 PerfResultFromJSONTest.SOURCE,
                 perfEnabled,
-                PerfResultFromJSONTest.MEMORY_EVENTS,
+                memoryEvents,
                 memoryMetricsAvailable
         ).parsedResult();
     }

@@ -1,10 +1,14 @@
 package comparator.jmh.launch.output.perf;
 
 import java.io.IOException;
+import java.util.List;
 
 public final class PerfMemoryEvents {
     private static final MemoryEvents INTEL = new AvailableMemoryEvents(
-            "cpu_core/mem_inst_retired.all_loads/", "cpu_core/mem_inst_retired.all_stores/"
+            "mem_inst_retired.all_loads",
+            "mem_inst_retired.all_stores",
+            List.of("mem_inst_retired.all_loads", "cpu_core/mem_inst_retired.all_loads"),
+            List.of("mem_inst_retired.all_stores", "cpu_core/mem_inst_retired.all_stores")
     );
     private static final MemoryEvents AMD = new AvailableMemoryEvents(
             "ls_dispatch.ld_dispatch", "ls_dispatch.store_dispatch"
@@ -64,18 +68,27 @@ public final class PerfMemoryEvents {
 
         String storeEventName();
 
+        List<String> loadMetricNames();
+
+        List<String> storeMetricNames();
+
         public String eventNames();
-
-        default String loadMetricName() {
-            return this.loadEventName() + ":u";
-        }
-
-        default String storeMetricName() {
-            return this.storeEventName() + ":u";
-        }
     }
 
-    public record AvailableMemoryEvents(String loadEventName, String storeEventName) implements MemoryEvents {
+    public record AvailableMemoryEvents(
+            String loadEventName,
+            String storeEventName,
+            List<String> loadMetricNames,
+            List<String> storeMetricNames) implements MemoryEvents {
+        public AvailableMemoryEvents {
+            loadMetricNames = List.copyOf(loadMetricNames);
+            storeMetricNames = List.copyOf(storeMetricNames);
+        }
+
+        public AvailableMemoryEvents(final String loadEventName, final String storeEventName) {
+            this(loadEventName, storeEventName, List.of(loadEventName), List.of(storeEventName));
+        }
+
         @Override
         public String eventNames() {
             return this.loadEventName + "," + this.storeEventName;
@@ -94,18 +107,18 @@ public final class PerfMemoryEvents {
         }
 
         @Override
+        public List<String> loadMetricNames() {
+            return List.of();
+        }
+
+        @Override
+        public List<String> storeMetricNames() {
+            return List.of();
+        }
+
+        @Override
         public String eventNames() {
             return "";
-        }
-
-        @Override
-        public String loadMetricName() {
-            throw new IllegalStateException("Load metric name is unavailable because memory events are unavailable.");
-        }
-
-        @Override
-        public String storeMetricName() {
-            throw new IllegalStateException("Store metric name is unavailable because memory events are unavailable.");
         }
     }
 }
