@@ -36,6 +36,16 @@ public final class PerfSecondaryMetrics {
         return Optional.empty();
     }
 
+    public Optional<PerfMetric> metric(final Iterable<String> eventNames) {
+        for (final String eventName : eventNames) {
+            final Optional<PerfMetric> metric = this.metric(eventName);
+            if (metric.isPresent()) {
+                return metric;
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<PerfMetric> summedMetric(final Predicate<String> matcher) {
         double score = 0.0d;
         Optional<String> unit = Optional.empty();

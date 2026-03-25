@@ -6,6 +6,7 @@ import comparator.jmh.metrics.JMHMemoryLoads;
 import comparator.jmh.metrics.JMHMemoryStores;
 import comparator.jmh.metrics.JMHPerfResults;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
@@ -75,17 +76,23 @@ public final class PerfResultFromJSON {
     }
 
     private JMHMemoryLoads memoryLoads() {
-        final PerfMetric metric = this.requiredMetric(this.memoryEvents.loadEventName());
+        final PerfMetric metric = this.requiredMetric(
+                this.memoryEvents.loadMetricNames(),
+                this.memoryEvents.loadEventName()
+        );
         return new JMHMemoryLoads(metric.score(), metric.unit());
     }
 
     private JMHMemoryStores memoryStores() {
-        final PerfMetric metric = this.requiredMetric(this.memoryEvents.storeEventName());
+        final PerfMetric metric = this.requiredMetric(
+                this.memoryEvents.storeMetricNames(),
+                this.memoryEvents.storeEventName()
+        );
         return new JMHMemoryStores(metric.score(), metric.unit());
     }
 
-    private PerfMetric requiredMetric(final String name) {
-        return this.secondaryMetrics.metric(name).orElseThrow(
+    private PerfMetric requiredMetric(final List<String> names, final String name) {
+        return this.secondaryMetrics.metric(names).orElseThrow(
                 () -> new IllegalStateException("Missing " + name + " metric in JMH result file: " + this.source)
         );
     }
