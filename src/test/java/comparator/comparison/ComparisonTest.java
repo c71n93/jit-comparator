@@ -68,7 +68,7 @@ class ComparisonTest {
                 )
         );
         final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
-                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
+                + "JIT metrics mean dissimilarity score,JIT metrics max dissimilarity score";
         final String rowOne = ComparisonTest.TARGET + "," + ComparisonTest.PRIMARY_SCORE + ",42,"
                 + ComparisonTest.INSTRUCTIONS + "," + ComparisonTest.MEMORY_LOADS + ","
                 + ComparisonTest.MEMORY_STORES + ",64,Original,Original";

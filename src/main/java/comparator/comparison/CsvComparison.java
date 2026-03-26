@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * CSV comparison table for the original analysis and its refactorings,
- * optionally including the JIT artifacts mean and max dissimilarity scores.
+ * optionally including the JIT metrics mean and max dissimilarity scores.
  */
 public class CsvComparison {
     private static final String ORIGINAL = "Original";
@@ -174,8 +174,8 @@ public class CsvComparison {
         }
         return this.rowWith(
                 this.original.headerCsv(),
-                "JIT artifacts mean dissimilarity score",
-                "JIT artifacts max dissimilarity score"
+                "JIT metrics mean dissimilarity score",
+                "JIT metrics max dissimilarity score"
         );
     }
 

@@ -1,12 +1,12 @@
 package comparator.jmh.metrics;
 
-import comparator.Artifact;
+import comparator.Metric;
 
 /**
  * Shared base for JMH metric value objects, providing printing and value
  * access.
  */
-public abstract class JMHMetric implements Artifact<Double> {
+public abstract class JMHMetric implements Metric<Double> {
     private final String name;
     private final double score;
     private final String unit;

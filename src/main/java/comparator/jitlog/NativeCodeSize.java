@@ -1,6 +1,6 @@
 package comparator.jitlog;
 
-import comparator.Artifact;
+import comparator.Metric;
 import comparator.jitlog.jitwatch.JWConfig;
 import comparator.jitlog.jitwatch.model.JWJITDataModelWrapper;
 import comparator.jitlog.jitwatch.JWParsedLog;
@@ -14,7 +14,7 @@ import org.adoptopenjdk.jitwatch.parser.ParserType;
 /**
  * Native code size metric for a target method extracted from a JIT log.
  */
-public final class NativeCodeSize implements Artifact<Integer> {
+public final class NativeCodeSize implements Metric<Integer> {
     private final TargetMethod targetMethod;
     private final Path jitlog;
     private Optional<Integer> cached;

@@ -2,6 +2,7 @@ package comparator.comparison;
 
 import comparator.Artifact;
 import comparator.JITResults;
+import comparator.Metric;
 import comparator.jitlog.LogResults;
 import comparator.jmh.JMHResults;
 import comparator.jmh.fixtures.JMHTarget;
@@ -38,7 +39,7 @@ final class StubResults {
         ) {
             @Override
             public List<Artifact<?>> asArtifactRow() {
-                return List.of(new ConstantRelDiffArtifact(StubResults.this.relDiff));
+                return List.of(new ConstantRelDiffMetric(StubResults.this.relDiff));
             }
         };
     }
@@ -48,10 +49,10 @@ final class StubResults {
         return new TargetMethod(classpath, JMHTarget.class.getName(), "succeed");
     }
 
-    private static final class ConstantRelDiffArtifact implements Artifact<Double> {
+    private static final class ConstantRelDiffMetric implements Metric<Double> {
         private final double relDiff;
 
-        ConstantRelDiffArtifact(final double relDiff) {
+        ConstantRelDiffMetric(final double relDiff) {
             this.relDiff = relDiff;
         }
 
@@ -66,7 +67,7 @@ final class StubResults {
         }
 
         @Override
-        public double relativeDifference(final Artifact<?> other) {
+        public double relativeDifference(final Metric<?> other) {
             return this.relDiff;
         }
     }
