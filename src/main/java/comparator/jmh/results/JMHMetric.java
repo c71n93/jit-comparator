@@ -1,4 +1,4 @@
-package comparator.jmh.metrics;
+package comparator.jmh.results;
 
 import comparator.Metric;
 

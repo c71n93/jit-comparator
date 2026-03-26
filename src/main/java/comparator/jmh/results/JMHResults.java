@@ -1,13 +1,7 @@
-package comparator.jmh;
+package comparator.jmh.results;
 
 import comparator.Artifact;
 import comparator.Results;
-import comparator.jmh.metrics.JMHAllocRateNorm;
-import comparator.jmh.metrics.JMHInstructions;
-import comparator.jmh.metrics.JMHMemoryLoads;
-import comparator.jmh.metrics.JMHMemoryStores;
-import comparator.jmh.metrics.JMHPerfResults;
-import comparator.jmh.metrics.JMHPrimaryScore;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;

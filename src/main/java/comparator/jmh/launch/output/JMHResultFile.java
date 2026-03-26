@@ -2,7 +2,8 @@ package comparator.jmh.launch.output;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comparator.jmh.JMHResults;
+
+import comparator.jmh.results.JMHResults;
 import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
 import java.io.IOException;

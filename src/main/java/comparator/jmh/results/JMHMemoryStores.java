@@ -1,4 +1,4 @@
-package comparator.jmh.metrics;
+package comparator.jmh.results;
 
 /**
  * Normalized CPU memory stores metric reported by the perf profiler.

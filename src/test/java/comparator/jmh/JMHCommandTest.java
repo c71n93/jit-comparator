@@ -4,6 +4,7 @@ import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.output.JMHOutput;
 import comparator.jmh.launch.output.perf.PerfMemoryEvents;
+import comparator.jmh.results.JMHResults;
 import comparator.jmh.fixtures.JMHTarget;
 import comparator.method.TargetMethod;
 import java.nio.file.Files;

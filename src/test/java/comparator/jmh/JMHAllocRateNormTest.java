@@ -3,7 +3,7 @@ package comparator.jmh;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.metrics.JMHAllocRateNorm;
+import comparator.jmh.results.JMHAllocRateNorm;
 
 class JMHAllocRateNormTest {
     @Test

@@ -3,7 +3,7 @@ package comparator.jmh;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.metrics.JMHMemoryStores;
+import comparator.jmh.results.JMHMemoryStores;
 
 class JMHMemoryStoresTest {
     @Test

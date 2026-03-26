@@ -1,11 +1,12 @@
 package comparator.jmh;
 
 import comparator.Artifact;
-import comparator.jmh.metrics.JMHAllocRateNorm;
-import comparator.jmh.metrics.JMHInstructions;
-import comparator.jmh.metrics.JMHMemoryLoads;
-import comparator.jmh.metrics.JMHMemoryStores;
-import comparator.jmh.metrics.JMHPrimaryScore;
+import comparator.jmh.results.JMHAllocRateNorm;
+import comparator.jmh.results.JMHInstructions;
+import comparator.jmh.results.JMHMemoryLoads;
+import comparator.jmh.results.JMHMemoryStores;
+import comparator.jmh.results.JMHPrimaryScore;
+import comparator.jmh.results.JMHResults;
 
 import java.util.List;
 import org.junit.jupiter.api.Assertions;

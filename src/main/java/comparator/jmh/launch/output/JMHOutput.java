@@ -1,7 +1,8 @@
 package comparator.jmh.launch.output;
 
 import java.nio.file.Path;
-import comparator.jmh.JMHResults;
+
+import comparator.jmh.results.JMHResults;
 
 public final class JMHOutput {
     private final Path jitlog;
