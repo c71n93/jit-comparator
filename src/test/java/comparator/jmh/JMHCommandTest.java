@@ -74,11 +74,19 @@ final class JMHCommandTest {
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
-        Assertions.assertEquals(2, row.size(), "JMH row should contain only mandatory metrics");
+        Assertions.assertEquals(4, row.size(), "JMH row should contain mandatory metrics and relative errors");
         final double score = Double.parseDouble(row.get(0));
-        final double allocRateNorm = Double.parseDouble(row.get(1));
+        final double allocRateNorm = Double.parseDouble(row.get(2));
         Assertions.assertTrue(Double.isFinite(score), "JMH run should produce primary score");
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(1)),
+                "JMH run should produce a parseable primary-score relative error"
+        );
         Assertions.assertTrue(Double.isFinite(allocRateNorm), "JMH run should produce alloc rate norm");
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(3)),
+                "JMH run should produce a parseable allocation-rate relative error"
+        );
     }
 
     @Test
@@ -95,10 +103,18 @@ final class JMHCommandTest {
         ).run();
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
-        Assertions.assertEquals(5, row.size(), "JMH row should contain five metrics");
-        Assertions.assertFalse(row.get(2).isEmpty(), "Instructions should be present when perf profiler is enabled");
-        Assertions.assertFalse(row.get(3).isEmpty(), "Memory loads should be present when perf profiler is enabled");
-        Assertions.assertFalse(row.get(4).isEmpty(), "Memory stores should be present when perf profiler is enabled");
+        Assertions.assertEquals(7, row.size(), "JMH row should contain metrics, relative errors and perf data");
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(1)),
+                "Primary-score error should be parseable as a double"
+        );
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(3)),
+                "Allocation-rate error should be parseable as a double"
+        );
+        Assertions.assertFalse(row.get(4).isEmpty(), "Instructions should be present when perf profiler is enabled");
+        Assertions.assertFalse(row.get(5).isEmpty(), "Memory loads should be present when perf profiler is enabled");
+        Assertions.assertFalse(row.get(6).isEmpty(), "Memory stores should be present when perf profiler is enabled");
     }
 
     @Test

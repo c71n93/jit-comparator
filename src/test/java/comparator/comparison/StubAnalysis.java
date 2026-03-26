@@ -8,8 +8,8 @@ import java.util.List;
  * Analysis row with predefined CSV values and stubbed JIT results.
  */
 final class StubAnalysis extends Analysis {
-    private static final int WIDTH_WITH_PERF = 7;
-    private static final int WIDTH_WITHOUT_PERF = 4;
+    private static final int WIDTH_WITH_PERF = 9;
+    private static final int WIDTH_WITHOUT_PERF = 6;
     private final List<String> row;
     private final JITResults results;
 
@@ -35,7 +35,9 @@ final class StubAnalysis extends Analysis {
             return List.of(
                     "Target",
                     "JMH primary score, us/op",
+                    "JMH primary score relative error, ratio",
                     "Allocations, B/op",
+                    "Allocations relative error, ratio",
                     "Instructions, #/op",
                     "Memory loads, #/op",
                     "Memory stores, #/op",
@@ -46,7 +48,9 @@ final class StubAnalysis extends Analysis {
             return List.of(
                     "Target",
                     "JMH primary score, us/op",
+                    "JMH primary score relative error, ratio",
                     "Allocations, B/op",
+                    "Allocations relative error, ratio",
                     "Native code size, B"
             );
         }

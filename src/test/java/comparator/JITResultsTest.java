@@ -23,7 +23,9 @@ class JITResultsTest {
         Assertions.assertEquals(
                 List.of(
                         "JMH primary score, us/op",
+                        "JMH primary score relative error, ratio",
                         "Allocations, B/op",
+                        "Allocations relative error, ratio",
                         "Native code size, B"
                 ),
                 results.headerCsv(),

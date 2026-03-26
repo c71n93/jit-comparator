@@ -60,13 +60,21 @@ final class AnalysisTest {
         final List<String> row = new Analysis(
                 new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
         ).asCsvRow();
-        Assertions.assertEquals(6, row.size(), "CSV row should contain target, metrics and output files");
+        Assertions.assertEquals(8, row.size(), "CSV row should contain target, metrics, errors and output files");
         Assertions.assertEquals(target.classMethodName(), row.get(0), "Target method should be first");
         Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(1))), "Primary score should be numeric");
-        Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(2))), "Alloc rate should be numeric");
-        Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(3))), "Code size should be numeric");
-        Assertions.assertEquals(jitlog.toString(), row.get(4), "JIT log file should be last metrics-adjacent column");
-        Assertions.assertEquals(result.toString(), row.get(5), "JMH result file should be final column");
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(2)),
+                "Primary relative error should be parseable as a double"
+        );
+        Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(3))), "Alloc rate should be numeric");
+        Assertions.assertDoesNotThrow(
+                () -> Double.parseDouble(row.get(4)),
+                "Alloc relative error should be parseable as a double"
+        );
+        Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(5))), "Code size should be numeric");
+        Assertions.assertEquals(jitlog.toString(), row.get(6), "JIT log file should be last metrics-adjacent column");
+        Assertions.assertEquals(result.toString(), row.get(7), "JMH result file should be final column");
     }
 
     @Test
@@ -94,7 +102,9 @@ final class AnalysisTest {
                 List.of(
                         "Target",
                         "JMH primary score, us/op",
+                        "JMH primary score relative error, ratio",
                         "Allocations, B/op",
+                        "Allocations relative error, ratio",
                         "Native code size, B",
                         "JIT log file",
                         "JMH result file"
