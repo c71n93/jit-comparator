@@ -1,13 +1,15 @@
 # Comparator
 
-Comparator is a research tool for comparing JVM JIT behavior on semantically equivalent code variants. It runs JMH benchmarks, extracts JIT artifacts (for example native code size), and builds CSV reports with per-variant metrics and scalar dissimilarity scores.
+Comparator is a research tool for comparing JVM JIT behavior on semantically equivalent code variants. It runs JMH benchmarks, extracts JIT artifacts (for example native code size), and builds CSV reports with per-variant metrics, metric-error columns, and scalar dissimilarity scores.
 
 ## Metrics
 
 Comparator currently tracks:
 
 - `JMH primary score, us/op`
+- `JMH primary score relative error, ratio`
 - `Allocations, B/op` (`gc.alloc.rate.norm`)
+- `Allocations relative error, ratio`
 - `Instructions, #/op` (`instructions:u`, optional)
 - `Memory loads, #/op` (`mem_inst_retired.all_loads:u` on Intel, `ls_dispatch.ld_dispatch:u` on AMD, optional)
 - `Memory stores, #/op` (`mem_inst_retired.all_stores:u` on Intel, `ls_dispatch.store_dispatch:u` on AMD, optional)
@@ -15,8 +17,13 @@ Comparator currently tracks:
 
 `Instructions`, `Memory loads`, and `Memory stores` are collected via JMH `LinuxPerfNormProfiler`, so they are available only on systems with Linux `perf` support. Comparator selects Intel or AMD load/store perf events automatically and aggregates split hybrid-CPU instruction counters such as `cpu_core/instructions` and `cpu_atom/instructions`.
 
+CSV rows also include `JIT log file` and `JMH result file` path columns.
+
+- The two `...relative error, ratio` columns are derived from JMH `scoreError / score`.
+- These columns are reporting-only metric errors. They are written to CSV, but they are not used in mean/max dissimilarity calculations.
+- If JMH cannot estimate `scoreError` for a metric, the corresponding relative-error value may be `NaN`.
 - If `perf` is unavailable (or disabled), these three metrics are omitted.
-- Relative-difference aggregation then uses only available metrics.
+- Relative-difference aggregation then uses only available comparable metrics.
 
 ## Target method limitations
 
@@ -85,22 +92,24 @@ new CsvComparisons(
 ).saveAsCsv(Path.of("comparisons.csv"));
 ```
 
-Example of `comparisons.csv` content in table form:
+`CsvComparison` enables JIT metric comparison columns by default. To omit them, use `new CsvComparison(false, original, refactoring1, refactoring2, ...)`.
+
+Example of `comparisons.csv` content in table form. File path columns are shortened for readability:
 
 Comparison 1
 
-| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| PlainForExample::run | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 5.62E7 | 2080 | Original | Original |
-| StreamBoxedExample::run | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 7.73E7 | 3616 | 0.274801543186 | 0.571492137425 |
-| PlainForIndexedExample::run | 23843.3428349999 | 3.999806482927127E7 | 1.25E8 | 8.56E7 | 5.81E7 | 1792 | 0.063402197511 | 0.148760330539 |
+| Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| PlainForExample::run | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
+| PlainForPlainArrayExample::run | 4.55 | 0.11 | 8040.03 | 0.00 | 25719.34 | 3281.44 | 1151.00 | 1552.00 | `.../PlainForPlainArrayExample-jit-log-...xml` | `.../PlainForPlainArrayExample-jmh-result-...json` | 1.40 | 1.79 |
+| PlainForIndexedExample::run | 25.64 | 0.12 | 38016.18 | 0.00 | 149624.24 | 41981.45 | 19787.82 | 1960.00 | `.../PlainForIndexedExample-jit-log-...xml` | `.../PlainForIndexedExample-jmh-result-...json` | 0.09 | 0.15 |
 
 Comparison 2
 
-| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| PlainForExample::run | 25020.38236669786 | 3.999806643324631E7 | 1.29E8 | 8.78E7 | 5.94E7 | 2080 | Original | Original |
-| PlainForReplaceAllExample::run | 34609.25680818749 | 7.199801608483697E7 | 1.83E8 | 1.17E8 | 8.01E7 | 2192 | 0.285114108902 | 0.571414983127 |
+| Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| PlainForExample::run | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
+| PlainForReplaceAllExample::run | 36.08 | 0.11 | 69952.25 | 0.00 | 240191.93 | 65149.11 | 32818.88 | 2336.00 | `.../PlainForReplaceAllExample-jit-log-...xml` | `.../PlainForReplaceAllExample-jmh-result-...json` | 0.44 | 0.59 |
 
 ### Labeled comparison example
 
@@ -115,10 +124,10 @@ new CsvComparisons(
 
 Example of `labels-demo.csv` content in table form:
 
-| Target | JMH primary score, us/op | Allocations, B/op | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT artifacts mean dissimilarity score | JIT artifacts max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| Baseline | 23257.22528255636 | 3.999806395979417E7 | 1.23E8 | 8.41E7 | 5.62E7 | 2080 | Original | Original |
-| Stream | 31427.46728332885 | 7.199834751770295E7 | 1.74E8 | 1.12E8 | 7.73E7 | 3616 | 0.274801543186 | 0.571492137425 |
+| Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| Baseline | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
+| Stream | 46.05 | 0.10 | 70232.32 | 0.00 | 243005.89 | 74453.67 | 32071.86 | 3528.00 | `.../StreamBoxedExample-jit-log-...xml` | `.../StreamBoxedExample-jmh-result-...json` | 0.54 | 0.70 |
 
 ## Comparison metrics
 
@@ -129,6 +138,8 @@ d_i = \frac{2\,\lvert m_{1,i} - m_{2,i} \rvert}{\lvert m_{1,i} \rvert + \lvert m
 $$
 
 where $\varepsilon > 0$ is a small constant that prevents the undefined case $m_{1,i} = m_{2,i} = 0$ (i.e., $0/0$).
+
+Only comparable `Metric` values participate in this calculation. CSV-only `MetricError` columns such as `JMH primary score relative error, ratio` and `Allocations relative error, ratio` are excluded.
 
 Comparator reports the **mean dissimilarity score** as RMS (L2) over all $n$ components:
 
