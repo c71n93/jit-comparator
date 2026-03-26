@@ -34,12 +34,11 @@ class ComparisonsTest {
                 )
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
-                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
-        final String rowOne = "One::run,1.00,2,10,100,1000,3,Original,Original";
-        final String rowTwo = "OneRef::run,1.10,2,11,110,1100,3,0.1,0.1";
-        final String rowThree = "Two::run,2.00,4,20,200,2000,6,Original,Original";
-        final String rowFour = "TwoRef::run,2.10,4,21,210,2100,6,0.2,0.2";
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\"";
+        final String rowOne = "One::run,1.00,2,10,100,1000,3";
+        final String rowTwo = "OneRef::run,1.10,2,11,110,1100,3";
+        final String rowThree = "Two::run,2.00,4,20,200,2000,6";
+        final String rowFour = "TwoRef::run,2.10,4,21,210,2100,6";
         final String expected = String.join(
                 System.lineSeparator(),
                 header,
@@ -75,12 +74,11 @@ class ComparisonsTest {
                 )
         );
         final CsvComparisons comparisons = new CsvComparisons(first, second);
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Native code size, B\","
-                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
-        final String rowOne = "One::run,1.00,2,3,Original,Original";
-        final String rowTwo = "OneRef::run,1.10,2,3,0.1,0.1";
-        final String rowThree = "Two::run,2.00,4,6,Original,Original";
-        final String rowFour = "TwoRef::run,2.10,4,6,0.2,0.2";
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Native code size, B\"";
+        final String rowOne = "One::run,1.00,2,3";
+        final String rowTwo = "OneRef::run,1.10,2,3";
+        final String rowThree = "Two::run,2.00,4,6";
+        final String rowFour = "TwoRef::run,2.10,4,6";
         final String expected = String.join(
                 System.lineSeparator(),
                 header,
@@ -118,11 +116,10 @@ class ComparisonsTest {
         final CsvComparisons comparisons = new CsvComparisons(first, second);
         final Path output = tempDir.resolve("results.csv");
         Assertions.assertThrows(IllegalStateException.class, () -> comparisons.saveAsCsv(output));
-        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
-                + "JIT artifacts mean dissimilarity score,JIT artifacts max dissimilarity score";
-        final String rowOne = "One::run,1.00,2,10,100,1000,3,Original,Original";
-        final String rowTwo = "OneRef::run,1.10,2,11,110,1100,3,0.1,0.1";
-        final String rowThree = "Two::run,2.00,4,20,200,2000,6,Original,Original";
+        final String header = "Target,\"JMH primary score, us/op\",\"Allocations, B/op\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\"";
+        final String rowOne = "One::run,1.00,2,10,100,1000,3";
+        final String rowTwo = "OneRef::run,1.10,2,11,110,1100,3";
+        final String rowThree = "Two::run,2.00,4,20,200,2000,6";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo, header, rowThree);
         final String content = Files.readString(output, StandardCharsets.UTF_8);
         Assertions.assertEquals(

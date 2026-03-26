@@ -16,13 +16,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * CSV comparison table for the original analysis and its refactorings,
- * including the JIT artifacts mean and max dissimilarity scores.
+ * optionally including the JIT artifacts mean and max dissimilarity scores.
  */
 public class CsvComparison {
     private static final String ORIGINAL = "Original";
     private static final Logger LOG = LoggerFactory.getLogger(CsvComparison.class);
     private final Analysis original;
     private final List<Analysis> refactorings;
+    private final boolean compareJitResults;
 
     /**
      * Ctor.
@@ -33,7 +34,21 @@ public class CsvComparison {
      *            analyses for refactored variants
      */
     public CsvComparison(final Analysis original, final Analysis... refactorings) {
-        this(original, Arrays.asList(refactorings));
+        this(false, original, refactorings);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param compareJitResults
+     *            JIT results comparison enabled flag
+     * @param original
+     *            original analysis
+     * @param refactorings
+     *            analyses for refactored variants
+     */
+    public CsvComparison(final boolean compareJitResults, final Analysis original, final Analysis... refactorings) {
+        this(compareJitResults, original, Arrays.asList(refactorings));
     }
 
     /**
@@ -45,8 +60,24 @@ public class CsvComparison {
      *            analyses for refactored variants
      */
     public CsvComparison(final Analysis original, final List<Analysis> refactorings) {
+        this(false, original, refactorings);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param compareJitResults
+     *            JIT results comparison enabled flag
+     * @param original
+     *            original analysis
+     * @param refactorings
+     *            analyses for refactored variants
+     */
+    public CsvComparison(final boolean compareJitResults, final Analysis original,
+            final List<Analysis> refactorings) {
         this.original = original;
         this.refactorings = List.copyOf(refactorings);
+        this.compareJitResults = compareJitResults;
     }
 
     /**
@@ -93,27 +124,15 @@ public class CsvComparison {
         this.writeRow(writer, this.headerCsv(), 0, total);
         this.writeNextRow(
                 writer,
-                this.rowWith(
-                        this.original.asCsvRow(),
-                        CsvComparison.ORIGINAL,
-                        CsvComparison.ORIGINAL
-                ),
+                this.originalRow(),
                 index,
                 total
         );
         index += 1;
         for (final Analysis refactoring : this.refactorings) {
-            final JITResultsComparison comparison = new JITResultsComparison(
-                    this.original.results(),
-                    refactoring.results()
-            );
             this.writeNextRow(
                     writer,
-                    this.rowWith(
-                            refactoring.asCsvRow(),
-                            String.valueOf(comparison.meanRelativeDifference()),
-                            String.valueOf(comparison.maxRelativeDifference())
-                    ),
+                    this.refactoringRow(refactoring),
                     index,
                     total
             );
@@ -150,10 +169,39 @@ public class CsvComparison {
     }
 
     private List<String> headerCsv() {
+        if (!this.compareJitResults) {
+            return this.original.headerCsv();
+        }
         return this.rowWith(
                 this.original.headerCsv(),
                 "JIT artifacts mean dissimilarity score",
                 "JIT artifacts max dissimilarity score"
+        );
+    }
+
+    private List<String> originalRow() {
+        if (!this.compareJitResults) {
+            return this.original.asCsvRow();
+        }
+        return this.rowWith(
+                this.original.asCsvRow(),
+                CsvComparison.ORIGINAL,
+                CsvComparison.ORIGINAL
+        );
+    }
+
+    private List<String> refactoringRow(final Analysis refactoring) {
+        if (!this.compareJitResults) {
+            return refactoring.asCsvRow();
+        }
+        final JITResultsComparison comparison = new JITResultsComparison(
+                this.original.results(),
+                refactoring.results()
+        );
+        return this.rowWith(
+                refactoring.asCsvRow(),
+                String.valueOf(comparison.meanRelativeDifference()),
+                String.valueOf(comparison.maxRelativeDifference())
         );
     }
 
