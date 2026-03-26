@@ -1,7 +1,8 @@
 package comparator;
 
 import comparator.jitlog.LogResults;
-import comparator.jmh.JMHResults;
+import comparator.jmh.results.JMHResults;
+
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;

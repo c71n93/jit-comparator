@@ -1,15 +1,15 @@
 package comparator.comparison;
 
-import comparator.Artifact;
 import comparator.JITResults;
+import comparator.Metric;
 import comparator.jitlog.LogResults;
 import comparator.jitlog.test.JITLogFixture;
-import comparator.jmh.JMHResults;
-import comparator.jmh.metrics.JMHAllocRateNorm;
-import comparator.jmh.metrics.JMHInstructions;
-import comparator.jmh.metrics.JMHMemoryLoads;
-import comparator.jmh.metrics.JMHMemoryStores;
-import comparator.jmh.metrics.JMHPrimaryScore;
+import comparator.jmh.results.JMHAllocRateNorm;
+import comparator.jmh.results.JMHInstructions;
+import comparator.jmh.results.JMHMemoryLoads;
+import comparator.jmh.results.JMHMemoryStores;
+import comparator.jmh.results.JMHPrimaryScore;
+import comparator.jmh.results.JMHResults;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.List;
@@ -26,7 +26,7 @@ class JITResultsComparisonTest {
     private final JITLogFixture fixture = new JITLogFixture();
 
     @Test
-    void returnsTrueWhenArtifactsWithinAccuracy(@TempDir final Path tempDir) throws Exception {
+    void returnsTrueWhenMetricsWithinAccuracy(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
         final JITResults left = new JITResults(this.jmh(100.0d, 10.0d), log);
         final JITResults right = new JITResults(this.jmh(105.0d, 10.5d), log);
@@ -159,8 +159,8 @@ class JITResultsComparisonTest {
         final JITResults left = new JITResults(this.jmh(100.0d, 10.0d), log);
         final JITResults right = new JITResults(this.jmh(120.0d, 12.0d), log);
         final double expected = JITResultsComparisonTest.rms(
-                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
-                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                JITResultsComparisonTest.metricRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.metricRelDiff(10.0d, 12.0d),
                 0.0d
         );
         Assertions.assertEquals(
@@ -177,8 +177,8 @@ class JITResultsComparisonTest {
         final JITResults left = new JITResults(this.jmh(100.0d, 10.0d), log);
         final JITResults right = new JITResults(this.jmh(120.0d, 12.0d), log);
         final double expected = JITResultsComparisonTest.max(
-                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
-                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                JITResultsComparisonTest.metricRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.metricRelDiff(10.0d, 12.0d),
                 0.0d
         );
         Assertions.assertEquals(
@@ -195,18 +195,18 @@ class JITResultsComparisonTest {
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
         final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         final double expected = JITResultsComparisonTest.rms(
-                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
-                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                JITResultsComparisonTest.metricRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.metricRelDiff(10.0d, 12.0d),
                 0.0d,
-                JITResultsComparisonTest.artifactRelDiff(1000.0d, 1200.0d),
-                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d),
-                JITResultsComparisonTest.artifactRelDiff(3000.0d, 3600.0d)
+                JITResultsComparisonTest.metricRelDiff(1000.0d, 1200.0d),
+                JITResultsComparisonTest.metricRelDiff(2000.0d, 2400.0d),
+                JITResultsComparisonTest.metricRelDiff(3000.0d, 3600.0d)
         );
         Assertions.assertEquals(
                 expected,
                 new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
-                "All present artifacts should participate in RMS aggregation"
+                "All present metrics should participate in RMS aggregation"
         );
     }
 
@@ -216,18 +216,18 @@ class JITResultsComparisonTest {
         final JITResults left = new JITResults(this.jmhWithPerf(100.0d, 10.0d, 1000.0d, 2000.0d, 3000.0d), log);
         final JITResults right = new JITResults(this.jmhWithPerf(120.0d, 12.0d, 1200.0d, 2400.0d, 3600.0d), log);
         final double expected = JITResultsComparisonTest.max(
-                JITResultsComparisonTest.artifactRelDiff(100.0d, 120.0d),
-                JITResultsComparisonTest.artifactRelDiff(10.0d, 12.0d),
+                JITResultsComparisonTest.metricRelDiff(100.0d, 120.0d),
+                JITResultsComparisonTest.metricRelDiff(10.0d, 12.0d),
                 0.0d,
-                JITResultsComparisonTest.artifactRelDiff(1000.0d, 1200.0d),
-                JITResultsComparisonTest.artifactRelDiff(2000.0d, 2400.0d),
-                JITResultsComparisonTest.artifactRelDiff(3000.0d, 3600.0d)
+                JITResultsComparisonTest.metricRelDiff(1000.0d, 1200.0d),
+                JITResultsComparisonTest.metricRelDiff(2000.0d, 2400.0d),
+                JITResultsComparisonTest.metricRelDiff(3000.0d, 3600.0d)
         );
         Assertions.assertEquals(
                 expected,
                 new JITResultsComparison(left, right).maxRelativeDifference(),
                 1.0e-12,
-                "All present artifacts should participate in max aggregation"
+                "All present metrics should participate in max aggregation"
         );
     }
 
@@ -282,28 +282,28 @@ class JITResultsComparisonTest {
     }
 
     @Test
-    void returnsZeroForEmptyArtifactRows(@TempDir final Path tempDir) throws Exception {
+    void returnsZeroForEmptyMetricRows(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new EmptyArtifactsJitResults(log);
-        final JITResults right = new EmptyArtifactsJitResults(log);
+        final JITResults left = new EmptyMetricsJitResults(log);
+        final JITResults right = new EmptyMetricsJitResults(log);
         Assertions.assertEquals(
                 0.0d,
                 new JITResultsComparison(left, right).meanRelativeDifference(),
                 1.0e-12,
-                "Empty rows should produce zero relative difference"
+                "Empty metric rows should produce zero relative difference"
         );
     }
 
     @Test
-    void returnsZeroMaxForEmptyArtifactRows(@TempDir final Path tempDir) throws Exception {
+    void returnsZeroMaxForEmptyMetricRows(@TempDir final Path tempDir) throws Exception {
         final LogResults log = this.logResults(tempDir);
-        final JITResults left = new EmptyArtifactsJitResults(log);
-        final JITResults right = new EmptyArtifactsJitResults(log);
+        final JITResults left = new EmptyMetricsJitResults(log);
+        final JITResults right = new EmptyMetricsJitResults(log);
         Assertions.assertEquals(
                 0.0d,
                 new JITResultsComparison(left, right).maxRelativeDifference(),
                 1.0e-12,
-                "Empty rows should produce zero max relative difference"
+                "Empty metric rows should produce zero max relative difference"
         );
     }
 
@@ -346,8 +346,8 @@ class JITResultsComparisonTest {
         return Path.of("build", "classes", "java", "test").toAbsolutePath();
     }
 
-    private static double artifactRelDiff(final double left, final double right) {
-        return 2.0d * Math.abs(left - right) / (Math.abs(left) + Math.abs(right) + Artifact.REL_DIFF_EPSILON);
+    private static double metricRelDiff(final double left, final double right) {
+        return 2.0d * Math.abs(left - right) / (Math.abs(left) + Math.abs(right) + Metric.REL_DIFF_EPSILON);
     }
 
     private static double rms(final double... values) {
@@ -368,8 +368,8 @@ class JITResultsComparisonTest {
         return maximum;
     }
 
-    private static final class EmptyArtifactsJitResults extends JITResults {
-        EmptyArtifactsJitResults(final LogResults log) {
+    private static final class EmptyMetricsJitResults extends JITResults {
+        EmptyMetricsJitResults(final LogResults log) {
             super(
                     new JMHResults(
                             new JMHPrimaryScore(0.0d, JITResultsComparisonTest.PRIMARY_SCORE_UNIT),
@@ -380,7 +380,7 @@ class JITResultsComparisonTest {
         }
 
         @Override
-        public List<Artifact<?>> asArtifactRow() {
+        public List<Metric<?>> asMetricRow() {
             return List.of();
         }
     }

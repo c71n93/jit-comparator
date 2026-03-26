@@ -1,10 +1,12 @@
 package comparator.jmh.launch.output.perf;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import comparator.jmh.metrics.JMHInstructions;
-import comparator.jmh.metrics.JMHMemoryLoads;
-import comparator.jmh.metrics.JMHMemoryStores;
-import comparator.jmh.metrics.JMHPerfResults;
+
+import comparator.jmh.results.JMHInstructions;
+import comparator.jmh.results.JMHMemoryLoads;
+import comparator.jmh.results.JMHMemoryStores;
+import comparator.jmh.results.JMHPerfResults;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;

@@ -2,9 +2,9 @@ package comparator;
 
 import comparator.jitlog.LogResults;
 import comparator.jitlog.test.JITLogFixture;
-import comparator.jmh.JMHResults;
-import comparator.jmh.metrics.JMHAllocRateNorm;
-import comparator.jmh.metrics.JMHPrimaryScore;
+import comparator.jmh.results.JMHAllocRateNorm;
+import comparator.jmh.results.JMHPrimaryScore;
+import comparator.jmh.results.JMHResults;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 import java.util.List;
@@ -23,7 +23,9 @@ class JITResultsTest {
         Assertions.assertEquals(
                 List.of(
                         "JMH primary score, us/op",
+                        "JMH primary score relative error, ratio",
                         "Allocations, B/op",
+                        "Allocations relative error, ratio",
                         "Native code size, B"
                 ),
                 results.headerCsv(),

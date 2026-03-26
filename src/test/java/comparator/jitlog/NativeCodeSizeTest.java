@@ -1,6 +1,6 @@
 package comparator.jitlog;
 
-import comparator.Artifact;
+import comparator.Metric;
 import comparator.jitlog.test.JITLogFixture;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
@@ -41,7 +41,7 @@ class NativeCodeSizeTest {
         final NativeCodeSize base = new NativeCodeSize(target, logFile);
         final NativeCodeSize same = new NativeCodeSize(target, logFile);
         final int size = base.value();
-        final Artifact<Integer> other = new FixedIntArtifact(size + Math.max(1, size));
+        final Metric<Integer> other = new FixedIntMetric(size + Math.max(1, size));
         Assertions.assertTrue(base.isSame(same), "Native code size should match for the same target");
         Assertions.assertFalse(base.isSame(other), "Native code size should not match when values differ");
         Assertions.assertFalse(other.isSame(base), "Native code size should not match when values differ");
@@ -82,10 +82,10 @@ class NativeCodeSizeTest {
         return Path.of("build", "classes", "java", "test").toAbsolutePath();
     }
 
-    private static final class FixedIntArtifact implements Artifact<Integer> {
+    private static final class FixedIntMetric implements Metric<Integer> {
         private final Integer value;
 
-        FixedIntArtifact(final int value) {
+        FixedIntMetric(final int value) {
             this.value = value;
         }
 
@@ -96,7 +96,7 @@ class NativeCodeSizeTest {
 
         @Override
         public String headerCsv() {
-            return "Fixed artifact";
+            return "Fixed metric";
         }
     }
 }

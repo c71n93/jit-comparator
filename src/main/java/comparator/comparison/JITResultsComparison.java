@@ -1,7 +1,7 @@
 package comparator.comparison;
 
-import comparator.Artifact;
 import comparator.JITResults;
+import comparator.Metric;
 import java.util.List;
 
 /**
@@ -25,18 +25,18 @@ public final class JITResultsComparison {
     }
 
     /**
-     * Artifact-level equivalence check for both compared result sets.
+     * Metric-level equivalence check for both compared result sets.
      *
-     * @return {@code true} when all corresponding artifacts are equivalent
+     * @return {@code true} when all corresponding metrics are equivalent
      * @throws IllegalArgumentException
-     *             if artifact rows have different sizes
+     *             if metric rows have different sizes
      */
     public boolean areSame() {
-        final List<Artifact<?>> leftArtifacts = this.left.asArtifactRow();
-        final List<Artifact<?>> rightArtifacts = this.right.asArtifactRow();
-        checkSizeCompatibility(leftArtifacts, rightArtifacts);
-        for (int index = 0; index < leftArtifacts.size(); index += 1) {
-            if (!leftArtifacts.get(index).isSame(rightArtifacts.get(index))) {
+        final List<Metric<?>> leftMetrics = this.left.asMetricRow();
+        final List<Metric<?>> rightMetrics = this.right.asMetricRow();
+        checkSizeCompatibility(leftMetrics, rightMetrics);
+        for (int index = 0; index < leftMetrics.size(); index += 1) {
+            if (!leftMetrics.get(index).isSame(rightMetrics.get(index))) {
                 return false;
             }
         }
@@ -44,45 +44,43 @@ public final class JITResultsComparison {
     }
 
     /**
-     * Root mean square aggregate of per-artifact relative differences. Artifact
-     * order follows {@link JITResults#asArtifactRow()}.
+     * Root mean square aggregate of per-metric relative differences. Metric order
+     * follows {@link JITResults#asMetricRow()}.
      *
      * @return aggregated relative difference
      * @throws IllegalArgumentException
-     *             if artifact rows have different sizes
+     *             if metric rows have different sizes
      */
     public double meanRelativeDifference() {
-        final List<Artifact<?>> leftArtifacts = this.left.asArtifactRow();
-        final List<Artifact<?>> rightArtifacts = this.right.asArtifactRow();
-        checkSizeCompatibility(leftArtifacts, rightArtifacts);
-        if (leftArtifacts.isEmpty()) {
+        final List<Metric<?>> leftMetrics = this.left.asMetricRow();
+        final List<Metric<?>> rightMetrics = this.right.asMetricRow();
+        checkSizeCompatibility(leftMetrics, rightMetrics);
+        if (leftMetrics.isEmpty()) {
             return 0.0d;
         }
         double sumSquares = 0.0;
-        for (int index = 0; index < leftArtifacts.size(); index += 1) {
-            final double relDiff = leftArtifacts.get(index).relativeDifference(rightArtifacts.get(index));
+        for (int index = 0; index < leftMetrics.size(); index += 1) {
+            final double relDiff = leftMetrics.get(index).relativeDifference(rightMetrics.get(index));
             sumSquares += relDiff * relDiff;
         }
-        return Math.sqrt(sumSquares / leftArtifacts.size());
+        return Math.sqrt(sumSquares / leftMetrics.size());
     }
 
     /**
-     * Maximum aggregate of per-artifact relative differences. Artifact order
-     * follows {@link JITResults#asArtifactRow()}.
+     * Maximum aggregate of per-metric relative differences. Metric order follows
+     * {@link JITResults#asMetricRow()}.
      *
      * @return maximum relative difference
      * @throws IllegalArgumentException
-     *             if artifact rows have different sizes
+     *             if metric rows have different sizes
      */
-    // TODO: We can combine maxRelativeDifference and meanRelativeDifference in a
-    // single method, because they are making same computations twice.
     public double maxRelativeDifference() {
-        final List<Artifact<?>> leftArtifacts = this.left.asArtifactRow();
-        final List<Artifact<?>> rightArtifacts = this.right.asArtifactRow();
-        checkSizeCompatibility(leftArtifacts, rightArtifacts);
+        final List<Metric<?>> leftMetrics = this.left.asMetricRow();
+        final List<Metric<?>> rightMetrics = this.right.asMetricRow();
+        checkSizeCompatibility(leftMetrics, rightMetrics);
         double max = 0.0d;
-        for (int index = 0; index < leftArtifacts.size(); index += 1) {
-            final double relDiff = leftArtifacts.get(index).relativeDifference(rightArtifacts.get(index));
+        for (int index = 0; index < leftMetrics.size(); index += 1) {
+            final double relDiff = leftMetrics.get(index).relativeDifference(rightMetrics.get(index));
             if (relDiff > max) {
                 max = relDiff;
             }
@@ -90,9 +88,9 @@ public final class JITResultsComparison {
         return max;
     }
 
-    private static void checkSizeCompatibility(final List<Artifact<?>> leftArtifacts,
-            final List<Artifact<?>> rightArtifacts) {
-        if (leftArtifacts.size() != rightArtifacts.size()) {
+    private static void checkSizeCompatibility(final List<Metric<?>> leftMetrics,
+            final List<Metric<?>> rightMetrics) {
+        if (leftMetrics.size() != rightMetrics.size()) {
             throw new IllegalArgumentException("Can't compare different sets of JIT results.");
         }
     }

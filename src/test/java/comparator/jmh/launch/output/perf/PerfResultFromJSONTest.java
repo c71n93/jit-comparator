@@ -2,7 +2,8 @@ package comparator.jmh.launch.output.perf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comparator.Artifact;
-import comparator.jmh.metrics.JMHPerfResults;
+import comparator.jmh.results.JMHPerfResults;
+
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;

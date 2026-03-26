@@ -1,4 +1,4 @@
-package comparator.jmh.metrics;
+package comparator.jmh.results;
 
 /**
  * Normalized allocation rate metric reported by the GC profiler.
