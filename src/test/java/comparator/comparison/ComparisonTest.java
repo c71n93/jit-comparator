@@ -43,20 +43,22 @@ class ComparisonTest {
                 )
         );
         final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\"";
+        final String comparedHeader = header
+                + ",JIT metrics mean dissimilarity score,JIT metrics max dissimilarity score";
         final String rowOne = ComparisonTest.TARGET + "," + ComparisonTest.PRIMARY_SCORE + ","
                 + ComparisonTest.PRIMARY_SCORE_ERROR + "," + ComparisonTest.ALLOC_RATE + ","
                 + ComparisonTest.ALLOC_RATE_ERROR + ","
                 + ComparisonTest.INSTRUCTIONS + "," + ComparisonTest.MEMORY_LOADS + ","
-                + ComparisonTest.MEMORY_STORES + ",64";
-        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,0.30,5,0.40,200,400,600,6";
-        final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
+                + ComparisonTest.MEMORY_STORES + ",64,Original,Original";
+        final String rowTwo = "\"Example, \"\"quoted\"\"\",3.21,0.30,5,0.40,200,400,600,6,0.25,0.25";
+        final String expected = String.join(System.lineSeparator(), comparedHeader, rowOne, rowTwo);
         Assertions.assertEquals(expected, comparison.asCsv(), "Comparison CSV output should match expected content");
     }
 
     @Test
-    void rendersCsvWithJitComparisonColumnsWhenEnabled() {
+    void rendersCsvWithoutJitComparisonColumnsWhenDisabled() {
         final CsvComparison comparison = new CsvComparison(
-                true,
+                false,
                 new StubAnalysis(
                         List.of(
                                 ComparisonTest.TARGET,
@@ -76,16 +78,15 @@ class ComparisonTest {
                         new StubResults(0.0d)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\","
-                + "JIT metrics mean dissimilarity score,JIT metrics max dissimilarity score";
+        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\"";
         final String rowOne = ComparisonTest.TARGET + "," + ComparisonTest.PRIMARY_SCORE + ","
                 + ComparisonTest.PRIMARY_SCORE_ERROR + "," + ComparisonTest.ALLOC_RATE + ","
                 + ComparisonTest.ALLOC_RATE_ERROR + ","
                 + ComparisonTest.INSTRUCTIONS + "," + ComparisonTest.MEMORY_LOADS + ","
-                + ComparisonTest.MEMORY_STORES + ",64,Original,Original";
-        final String rowTwo = "ExampleRef::run,3.21,0.30,5,0.40,200,400,600,6,0.25,0.25";
+                + ComparisonTest.MEMORY_STORES + ",64";
+        final String rowTwo = "ExampleRef::run,3.21,0.30,5,0.40,200,400,600,6";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
-        Assertions.assertEquals(expected, comparison.asCsv(), "Opt-in comparison columns should be appended");
+        Assertions.assertEquals(expected, comparison.asCsv(), "Opt-out comparison columns should be omitted");
     }
 
     @Test
@@ -127,11 +128,11 @@ class ComparisonTest {
                         StubResults.withoutPerf(0.0d)
                 )
         );
-        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Native code size, B\"";
+        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Native code size, B\",JIT metrics mean dissimilarity score,JIT metrics max dissimilarity score";
         final String rowOne = "NoPerf::run,1.23," + ComparisonTest.PRIMARY_SCORE_ERROR + ","
                 + ComparisonTest.ALLOC_RATE + ","
-                + ComparisonTest.ALLOC_RATE_ERROR + ",64";
-        final String rowTwo = "NoPerfRef::run,3.21,0.30,5,0.40,6";
+                + ComparisonTest.ALLOC_RATE_ERROR + ",64,Original,Original";
+        final String rowTwo = "NoPerfRef::run,3.21,0.30,5,0.40,6,0.25,0.25";
         final String expected = String.join(System.lineSeparator(), header, rowOne, rowTwo);
         Assertions.assertEquals(
                 expected,
@@ -160,12 +161,12 @@ class ComparisonTest {
         final CsvComparison comparison = new CsvComparison(original, this.throwingAnalysis(failing));
         final Path output = tempDir.resolve("results.csv");
         Assertions.assertThrows(IllegalStateException.class, () -> comparison.saveAsCsv(output));
-        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\"";
+        final String header = "Target,\"JMH primary score, us/op\",\"JMH primary score relative error, ratio\",\"Allocations, B/op\",\"Allocations relative error, ratio\",\"Instructions, #/op\",\"Memory loads, #/op\",\"Memory stores, #/op\",\"Native code size, B\",JIT metrics mean dissimilarity score,JIT metrics max dissimilarity score";
         final String rowOne = ComparisonTest.TARGET + "," + ComparisonTest.PRIMARY_SCORE + ","
                 + ComparisonTest.PRIMARY_SCORE_ERROR + "," + ComparisonTest.ALLOC_RATE + ","
                 + ComparisonTest.ALLOC_RATE_ERROR + ","
                 + ComparisonTest.INSTRUCTIONS + "," + ComparisonTest.MEMORY_LOADS + ","
-                + ComparisonTest.MEMORY_STORES + ",64";
+                + ComparisonTest.MEMORY_STORES + ",64,Original,Original";
         final String expected = String.join(System.lineSeparator(), header, rowOne);
         final String content = Files.readString(output, StandardCharsets.UTF_8);
         Assertions.assertEquals(expected, content, "Rows ready before failure should stay persisted in file");

@@ -34,7 +34,7 @@ public class CsvComparison {
      *            analyses for refactored variants
      */
     public CsvComparison(final Analysis original, final Analysis... refactorings) {
-        this(false, original, refactorings);
+        this(true, original, refactorings);
     }
 
     /**
@@ -60,7 +60,7 @@ public class CsvComparison {
      *            analyses for refactored variants
      */
     public CsvComparison(final Analysis original, final List<Analysis> refactorings) {
-        this(false, original, refactorings);
+        this(true, original, refactorings);
     }
 
     /**
