@@ -19,51 +19,118 @@ import java.util.UUID;
  * JMH benchmark for the target method. The fork is needed because
  * {@code -XX:+LogCompilation} can only be provided on JVM startup.
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public final class JMHCommand {
+    /** Target method. */
     private final TargetMethod targetMethod;
+
+    /** Java executable. */
     private final Path javaExecutable;
+
+    /** JIT log. */
     private final Path jitlog;
+
+    /** Result file. */
     private final JMHResultFile result;
+
+    /** Launch config. */
     private final JMHConfig config;
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     */
     public JMHCommand(final TargetMethod targetMethod) {
         this(targetMethod, new JMHConfig());
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param config launch config
+     */
     public JMHCommand(final TargetMethod targetMethod, final JMHConfig config) {
         this(targetMethod, JMHCommand.defaultLogFile(targetMethod), config);
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param jitlog JIT log path
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog) {
         this(targetMethod, jitlog, new JMHConfig());
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param jitlog JIT log path
+     * @param config launch config
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final JMHConfig config) {
         this(targetMethod, jitlog, JMHCommand.defaultResultFile(targetMethod), config);
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param jitlog JIT log path
+     * @param resultFile JMH result file path
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final Path resultFile) {
         this(targetMethod, jitlog, resultFile, new JMHConfig());
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param jitlog JIT log path
+     * @param resultFile JMH result file path
+     * @param config launch config
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
-            final JMHConfig config) {
+                      final JMHConfig config) {
         this(
-                targetMethod,
-                Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
-                jitlog,
-                resultFile,
-                config
+            targetMethod,
+            Path.of(new PropertyString("java.home").requireValue(), "bin", "java"),
+            jitlog,
+            resultFile,
+            config
         );
     }
 
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param javaExecutable Java executable path
+     * @param jitlog JIT log path
+     * @param resultFile JMH result file path
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
-            final Path resultFile) {
+                      final Path resultFile) {
         this(targetMethod, javaExecutable, jitlog, resultFile, new JMHConfig());
     }
 
+    // @checkstyle ParameterNumber (14 lines)
+    /**
+     * JMHCommand.
+     *
+     * @param targetMethod target method
+     * @param javaExecutable Java executable path
+     * @param jitlog JIT log path
+     * @param resultFile JMH result file path
+     * @param config launch config
+     */
     public JMHCommand(final TargetMethod targetMethod, final Path javaExecutable, final Path jitlog,
-            final Path resultFile, final JMHConfig config) {
+                      final Path resultFile, final JMHConfig config) {
         this.targetMethod = targetMethod;
         this.javaExecutable = javaExecutable;
         this.jitlog = jitlog;
@@ -71,6 +138,11 @@ public final class JMHCommand {
         this.config = config;
     }
 
+    /**
+     * run.
+     *
+     * @return JMH output
+     */
     public JMHOutput run() {
         try {
             final Process process = new ProcessBuilder(this.asList()).start();
@@ -79,7 +151,7 @@ public final class JMHCommand {
             final int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new IllegalStateException(
-                        "JMH run failed with exit code " + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr
+                    "JMH run failed with exit code " + exitCode + "\nstdout:\n" + stdout + "\nstderr:\n" + stderr
                 );
             }
             return new JMHOutput(this.jitlog, this.result);
@@ -91,14 +163,29 @@ public final class JMHCommand {
         }
     }
 
+    /**
+     * targetMethod.
+     *
+     * @return target method
+     */
     public TargetMethod targetMethod() {
         return this.targetMethod;
     }
 
+    /**
+     * jitlog.
+     *
+     * @return JIT log path
+     */
     public Path jitlog() {
         return this.jitlog;
     }
 
+    /**
+     * result.
+     *
+     * @return JMH result file
+     */
     public JMHResultFile result() {
         return this.result;
     }
@@ -119,18 +206,18 @@ public final class JMHCommand {
 
     private String classpath() {
         return this.targetMethod.classpath().with(
-                new Classpath(new PropertyString("java.class.path").requireValue())
+            new Classpath(new PropertyString("java.class.path").requireValue())
         ).asString();
     }
 
     private static Path defaultLogFile(final TargetMethod targetMethod) {
         return JMHCommand.defaultArtifactDirectory(targetMethod)
-                .resolve(JMHCommand.targetClassName(targetMethod) + "-jit-log-" + UUID.randomUUID() + ".xml");
+            .resolve(JMHCommand.targetClassName(targetMethod) + "-jit-log-" + UUID.randomUUID() + ".xml");
     }
 
     private static Path defaultResultFile(final TargetMethod targetMethod) {
         return JMHCommand.defaultArtifactDirectory(targetMethod)
-                .resolve(JMHCommand.targetClassName(targetMethod) + "-jmh-result-" + UUID.randomUUID() + ".json");
+            .resolve(JMHCommand.targetClassName(targetMethod) + "-jmh-result-" + UUID.randomUUID() + ".json");
     }
 
     private static Path defaultArtifactDirectory(final TargetMethod targetMethod) {
@@ -138,7 +225,7 @@ public final class JMHCommand {
         final Path directory = classpath.resolve(targetMethod.className().replace('.', '/')).getParent();
         if (directory == null) {
             throw new IllegalStateException(
-                    "Unable to determine default artifact directory for " + targetMethod.className()
+                "Unable to determine default artifact directory for " + targetMethod.className()
             );
         }
         return directory;
@@ -146,7 +233,7 @@ public final class JMHCommand {
 
     private static Path firstClasspathEntry(final TargetMethod targetMethod) {
         return targetMethod.classpath().entries().stream().findFirst().orElseThrow(
-                () -> new IllegalStateException("Target classpath is empty")
+            () -> new IllegalStateException("Target classpath is empty")
         );
     }
 

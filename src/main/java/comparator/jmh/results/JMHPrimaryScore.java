@@ -4,6 +4,7 @@ package comparator.jmh.results;
  * Primary JMH metric for the benchmark score.
  */
 public final class JMHPrimaryScore extends JMHMetric {
+    /** Metric name. */
     private static final String METRIC_NAME = "JMH primary score";
 
     /**

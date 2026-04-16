@@ -4,6 +4,7 @@ package comparator.jmh.results;
  * Relative error artifact for the normalized allocation-rate metric.
  */
 public final class JMHAllocRateNormError extends JMHMetricError {
+    /** Error name. */
     private static final String ERROR_NAME = "Allocations relative error";
 
     /**

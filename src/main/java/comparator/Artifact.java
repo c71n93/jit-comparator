@@ -9,6 +9,8 @@ package comparator;
  * while non-comparable values may remain plain artifacts or be modeled as
  * {@link MetricError metric errors} later.
  * </p>
+ *
+ * @param <T> numeric value type
  */
 public interface Artifact<T extends Number> {
     /**

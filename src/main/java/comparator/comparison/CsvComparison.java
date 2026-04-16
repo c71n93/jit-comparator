@@ -18,11 +18,21 @@ import org.slf4j.LoggerFactory;
  * CSV comparison table for the original analysis and its refactorings,
  * optionally including the JIT metrics mean and max dissimilarity scores.
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public class CsvComparison {
+    /** Original. */
     private static final String ORIGINAL = "Original";
+
+    /** Logger. */
     private static final Logger LOG = LoggerFactory.getLogger(CsvComparison.class);
+
+    /** Original. */
     private final Analysis original;
+
+    /** Refactorings. */
     private final List<Analysis> refactorings;
+
+    /** Compare JIT results. */
     private final boolean compareJitResults;
 
     /**
@@ -74,7 +84,7 @@ public class CsvComparison {
      *            analyses for refactored variants
      */
     public CsvComparison(final boolean compareJitResults, final Analysis original,
-            final List<Analysis> refactorings) {
+                         final List<Analysis> refactorings) {
         this.original = original;
         this.refactorings = List.copyOf(refactorings);
         this.compareJitResults = compareJitResults;
@@ -123,25 +133,26 @@ public class CsvComparison {
         CsvComparison.LOG.info("Start writing CSV rows, total: {}", total);
         this.writeRow(writer, this.headerCsv(), 0, total);
         this.writeNextRow(
-                writer,
-                this.originalRow(),
-                index,
-                total
+            writer,
+            this.originalRow(),
+            index,
+            total
         );
         index += 1;
         for (final Analysis refactoring : this.refactorings) {
             this.writeNextRow(
-                    writer,
-                    this.refactoringRow(refactoring),
-                    index,
-                    total
+                writer,
+                this.refactoringRow(refactoring),
+                index,
+                total
             );
             index += 1;
         }
     }
 
     private void writeRow(final BufferedWriter writer, final List<String> row, final int index,
-            final int total) throws IOException {
+                          final int total)
+        throws IOException {
         if (index > 0) {
             CsvComparison.LOG.info("Writing row {}/{}", index, total);
         }
@@ -150,7 +161,8 @@ public class CsvComparison {
     }
 
     private void writeNextRow(final BufferedWriter writer, final List<String> row, final int index,
-            final int total) throws IOException {
+                              final int total)
+        throws IOException {
         writer.newLine();
         this.writeRow(writer, row, index, total);
     }
@@ -161,7 +173,7 @@ public class CsvComparison {
 
     private String escape(final String value) {
         final boolean quote = value.contains(",") || value.contains("\"") || value.contains("\n")
-                || value.contains("\r");
+            || value.contains("\r");
         if (!quote) {
             return value;
         }
@@ -173,9 +185,9 @@ public class CsvComparison {
             return this.original.headerCsv();
         }
         return this.rowWith(
-                this.original.headerCsv(),
-                "JIT metrics mean dissimilarity score",
-                "JIT metrics max dissimilarity score"
+            this.original.headerCsv(),
+            "JIT metrics mean dissimilarity score",
+            "JIT metrics max dissimilarity score"
         );
     }
 
@@ -184,9 +196,9 @@ public class CsvComparison {
             return this.original.asCsvRow();
         }
         return this.rowWith(
-                this.original.asCsvRow(),
-                CsvComparison.ORIGINAL,
-                CsvComparison.ORIGINAL
+            this.original.asCsvRow(),
+            CsvComparison.ORIGINAL,
+            CsvComparison.ORIGINAL
         );
     }
 
@@ -195,13 +207,13 @@ public class CsvComparison {
             return refactoring.asCsvRow();
         }
         final JITResultsComparison comparison = new JITResultsComparison(
-                this.original.results(),
-                refactoring.results()
+            this.original.results(),
+            refactoring.results()
         );
         return this.rowWith(
-                refactoring.asCsvRow(),
-                String.valueOf(comparison.meanRelativeDifference()),
-                String.valueOf(comparison.maxRelativeDifference())
+            refactoring.asCsvRow(),
+            String.valueOf(comparison.meanRelativeDifference()),
+            String.valueOf(comparison.maxRelativeDifference())
         );
     }
 

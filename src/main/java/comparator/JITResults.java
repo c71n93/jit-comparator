@@ -2,7 +2,6 @@ package comparator;
 
 import comparator.jitlog.LogResults;
 import comparator.jmh.results.JMHResults;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -15,14 +14,24 @@ import java.util.List;
  * Combines all other results.
  */
 public class JITResults implements Results {
+    /** JMH results. */
     private final JMHResults jmh;
+
+    /** JIT log. */
     private final LogResults jitlog;
 
+    /**
+     * JITResults.
+     *
+     * @param jmh JMH results
+     * @param jitlog JIT log results
+     */
     public JITResults(final JMHResults jmh, final LogResults jitlog) {
         this.jmh = jmh;
         this.jitlog = jitlog;
     }
 
+    // @checkstyle DesignForExtension (8 lines)
     @Override
     public void print(final OutputStream out) {
         final PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
@@ -33,7 +42,8 @@ public class JITResults implements Results {
     }
 
     // TODO: asArtifactRow method is called many times and every time it creates new
-    // ArrayList. It may be very expensive and should be optimized.git
+    // ArrayList. It may be very expensive and should be optimized.
+    // @checkstyle DesignForExtension (8 lines)
     @Override
     public List<Artifact<?>> asArtifactRow() {
         final List<Artifact<?>> row = new ArrayList<>();

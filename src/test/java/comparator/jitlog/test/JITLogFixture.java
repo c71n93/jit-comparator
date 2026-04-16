@@ -8,16 +8,34 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/** JIT compilation log fixture. */
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
 public final class JITLogFixture {
+    /** Java home. */
     private static final PropertyString JAVA_HOME = new PropertyString("java.home");
+
+    /** Java class path. */
     private static final PropertyString JAVA_CLASS_PATH = new PropertyString("java.class.path");
 
+    /**
+     * generate.
+     *
+     * @param target target method
+     * @param logFile JIT log file
+     */
     public void generate(final TargetMethod target, final Path logFile) throws Exception {
         this.generate(target, logFile, List.of());
     }
 
+    /**
+     * generate.
+     *
+     * @param target target method
+     * @param logFile JIT log file
+     * @param extraFlags extra JVM flags
+     */
     public void generate(final TargetMethod target, final Path logFile, final List<String> extraFlags)
-            throws Exception {
+        throws Exception {
         final List<String> cmd = new ArrayList<>();
         cmd.add(Path.of(JITLogFixture.JAVA_HOME.requireValue(), "bin", "java").toString());
         cmd.add("-XX:+UnlockDiagnosticVMOptions");
@@ -36,7 +54,7 @@ public final class JITLogFixture {
             final String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
             throw new IllegalStateException(
-                    "Helper JVM failed: exit=" + exit + ", stdout=" + stdout + ", stderr=" + stderr
+                "Helper JVM failed: exit=" + exit + ", stdout=" + stdout + ", stderr=" + stderr
             );
         }
         if (!Files.exists(logFile)) {

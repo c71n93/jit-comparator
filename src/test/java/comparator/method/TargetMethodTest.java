@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class TargetMethodTest {
+/** Target method resolution tests. */
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+final class TargetMethodTest {
     @Test
     void loadsTargetMethodFromProperties() throws Exception {
         final String classKey = "comparator.jmh.targetClass";
@@ -30,9 +32,9 @@ class TargetMethodTest {
     void rejectsNonStaticMethods() {
         final Path classpath = Path.of("build", "classes", "java", "test").toAbsolutePath();
         Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> new TargetMethod(classpath, InstanceTarget.class.getName(), "run"),
-                "Target method should be static"
+            IllegalArgumentException.class,
+            () -> new TargetMethod(classpath, InstanceTarget.class.getName(), "run"),
+            "Target method should be static"
         );
     }
 

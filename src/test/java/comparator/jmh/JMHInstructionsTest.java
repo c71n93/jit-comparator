@@ -1,11 +1,11 @@
 package comparator.jmh;
 
+import comparator.jmh.results.JMHInstructions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.results.JMHInstructions;
-
-class JMHInstructionsTest {
+/** JMHInstructionsTest. */
+final class JMHInstructionsTest {
     @Test
     void comparesInstructionsUsingAccuracy() {
         final JMHInstructions base = new JMHInstructions(100.0d, "#/op");

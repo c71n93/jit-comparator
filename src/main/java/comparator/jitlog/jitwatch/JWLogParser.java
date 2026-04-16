@@ -1,5 +1,7 @@
 package comparator.jitlog.jitwatch;
 
+import com.chrisnewland.freelogj.Logger;
+import com.chrisnewland.freelogj.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -12,16 +14,28 @@ import org.adoptopenjdk.jitwatch.parser.ILogParseErrorListener;
 import org.adoptopenjdk.jitwatch.parser.ILogParser;
 import org.adoptopenjdk.jitwatch.parser.ParserFactory;
 import org.adoptopenjdk.jitwatch.parser.ParserType;
-import com.chrisnewland.freelogj.Logger;
-import com.chrisnewland.freelogj.LoggerFactory;
 
+/** JWLogParser. */
 public final class JWLogParser implements ILogParser {
+    /** Origin. */
     private final ILogParser origin;
 
+    /**
+     * JWLogParser.
+     *
+     * @param type parser type
+     * @param listener JIT listener
+     * @param config JITWatch config
+     */
     public JWLogParser(final ParserType type, final IJITListener listener, final JITWatchConfig config) {
         this(init(type, listener, config));
     }
 
+    /**
+     * JWLogParser.
+     *
+     * @param origin origin parser
+     */
     public JWLogParser(final ILogParser origin) {
         this.origin = origin;
     }
@@ -87,7 +101,7 @@ public final class JWLogParser implements ILogParser {
     }
 
     private static ILogParser init(final ParserType type, final IJITListener listener,
-            final JITWatchConfig config) {
+                                   final JITWatchConfig config) {
         LoggerFactory.initialise(Logger.LogLevel.FATAL);
         final ILogParser parser = ParserFactory.getParser(type, listener);
         parser.setConfig(config);

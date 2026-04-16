@@ -10,19 +10,28 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class NativeCodeSizeTest {
+/** Native code size extraction tests. */
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+final class NativeCodeSizeTest {
+    /** Target class. */
     private static final String TARGET_CLASS = "comparator.jitlog.test.LogTarget";
+
+    /** Log file. */
     private static final String LOG_FILE = "jit-log.xml";
+
+    /** Target method. */
     private static final String TARGET_METHOD = "target";
+
+    /** Fixture. */
     private final JITLogFixture fixture = new JITLogFixture();
 
     @Test
     void returnsNativeSizeForTierFour(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
-                this.testClasses(),
-                NativeCodeSizeTest.TARGET_CLASS,
-                NativeCodeSizeTest.TARGET_METHOD
+            this.testClasses(),
+            NativeCodeSizeTest.TARGET_CLASS,
+            NativeCodeSizeTest.TARGET_METHOD
         );
         this.fixture.generate(target, logFile);
         final int size = new NativeCodeSize(target, logFile).value();
@@ -33,9 +42,9 @@ class NativeCodeSizeTest {
     void comparesNativeCodeSizeUsingAccuracy(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
-                this.testClasses(),
-                NativeCodeSizeTest.TARGET_CLASS,
-                NativeCodeSizeTest.TARGET_METHOD
+            this.testClasses(),
+            NativeCodeSizeTest.TARGET_CLASS,
+            NativeCodeSizeTest.TARGET_METHOD
         );
         this.fixture.generate(target, logFile);
         final NativeCodeSize base = new NativeCodeSize(target, logFile);
@@ -51,14 +60,14 @@ class NativeCodeSizeTest {
     void returnsMinusOneWhenMethodAbsentInLog(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
-                this.testClasses(),
-                NativeCodeSizeTest.TARGET_CLASS,
-                NativeCodeSizeTest.TARGET_METHOD
+            this.testClasses(),
+            NativeCodeSizeTest.TARGET_CLASS,
+            NativeCodeSizeTest.TARGET_METHOD
         );
         this.fixture.generate(target, logFile);
         final TargetMethod missing = new TargetMethod(this.testClasses(), NativeCodeSizeTest.TARGET_CLASS, "absent");
         Assertions.assertEquals(
-                -1, new NativeCodeSize(missing, logFile).value(), "Missing method in JIT log should return -1"
+            -1, new NativeCodeSize(missing, logFile).value(), "Missing method in JIT log should return -1"
         );
     }
 
@@ -66,15 +75,15 @@ class NativeCodeSizeTest {
     void returnsMinusOneWithoutTierFour(@TempDir final Path tempDir) throws Exception {
         final Path logFile = tempDir.resolve(NativeCodeSizeTest.LOG_FILE);
         final TargetMethod target = new TargetMethod(
-                this.testClasses(),
-                NativeCodeSizeTest.TARGET_CLASS,
-                NativeCodeSizeTest.TARGET_METHOD
+            this.testClasses(),
+            NativeCodeSizeTest.TARGET_CLASS,
+            NativeCodeSizeTest.TARGET_METHOD
         );
         final List<String> flags = new ArrayList<>();
         flags.add("-XX:TieredStopAtLevel=1");
         this.fixture.generate(target, logFile, flags);
         Assertions.assertEquals(
-                -1, new NativeCodeSize(target, logFile).value(), "No tier 4 compilation should return -1"
+            -1, new NativeCodeSize(target, logFile).value(), "No tier 4 compilation should return -1"
         );
     }
 
@@ -83,9 +92,10 @@ class NativeCodeSizeTest {
     }
 
     private static final class FixedIntMetric implements Metric<Integer> {
+        /** Metric value. */
         private final Integer value;
 
-        FixedIntMetric(final int value) {
+        private FixedIntMetric(final int value) {
             this.value = value;
         }
 

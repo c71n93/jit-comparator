@@ -8,12 +8,25 @@ import java.util.List;
  * Analysis row with predefined CSV values and stubbed JIT results.
  */
 final class StubAnalysis extends Analysis {
+    /** Width with perf. */
     private static final int WIDTH_WITH_PERF = 9;
+
+    /** Width without perf. */
     private static final int WIDTH_WITHOUT_PERF = 6;
+
+    /** Row. */
     private final List<String> row;
+
+    /** Results. */
     private final JITResults results;
 
-    StubAnalysis(final List<String> row, final StubResults results) {
+    /**
+     * StubAnalysis.
+     *
+     * @param row CSV row
+     * @param results stubbed results
+     */
+    public StubAnalysis(final List<String> row, final StubResults results) {
         super(results.targetMethod());
         this.row = List.copyOf(row);
         this.results = results.asJitResults();
@@ -33,25 +46,25 @@ final class StubAnalysis extends Analysis {
     public List<String> headerCsv() {
         if (this.row.size() == StubAnalysis.WIDTH_WITH_PERF) {
             return List.of(
-                    "Target",
-                    "JMH primary score, us/op",
-                    "JMH primary score relative error, ratio",
-                    "Allocations, B/op",
-                    "Allocations relative error, ratio",
-                    "Instructions, #/op",
-                    "Memory loads, #/op",
-                    "Memory stores, #/op",
-                    "Native code size, B"
+                "Target",
+                "JMH primary score, us/op",
+                "JMH primary score relative error, ratio",
+                "Allocations, B/op",
+                "Allocations relative error, ratio",
+                "Instructions, #/op",
+                "Memory loads, #/op",
+                "Memory stores, #/op",
+                "Native code size, B"
             );
         }
         if (this.row.size() == StubAnalysis.WIDTH_WITHOUT_PERF) {
             return List.of(
-                    "Target",
-                    "JMH primary score, us/op",
-                    "JMH primary score relative error, ratio",
-                    "Allocations, B/op",
-                    "Allocations relative error, ratio",
-                    "Native code size, B"
+                "Target",
+                "JMH primary score, us/op",
+                "JMH primary score relative error, ratio",
+                "Allocations, B/op",
+                "Allocations relative error, ratio",
+                "Native code size, B"
             );
         }
         throw new IllegalStateException("Unexpected stub row width: " + this.row.size());

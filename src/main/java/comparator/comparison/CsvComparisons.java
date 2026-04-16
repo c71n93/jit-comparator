@@ -13,6 +13,7 @@ import java.util.List;
  * CSV table for multiple comparisons with concatenated rows.
  */
 public class CsvComparisons {
+    /** Tables. */
     private final List<CsvComparison> tables;
 
     /**

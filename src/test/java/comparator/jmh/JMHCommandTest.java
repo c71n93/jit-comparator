@@ -1,11 +1,11 @@
 package comparator.jmh;
 
+import comparator.jmh.fixtures.JMHTarget;
 import comparator.jmh.launch.JMHCommand;
 import comparator.jmh.launch.JMHConfig;
 import comparator.jmh.launch.output.JMHOutput;
 import comparator.jmh.launch.output.perf.PerfMemoryEvents;
 import comparator.jmh.results.JMHResults;
-import comparator.jmh.fixtures.JMHTarget;
 import comparator.method.TargetMethod;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,16 +16,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+/** JMHCommandTest. */
 final class JMHCommandTest {
+    /** Test classpath. */
     private static final String TEST_CLASSPATH = "build/classes/java/test";
+
+    /** JIT log file name. */
     private static final String JIT_LOG_FILE_NAME = "jit-log.xml";
+
+    /** Target method. */
     private static final String TARGET_METHOD = "succeed";
 
     @Test
     void exposesConfiguredArtifacts(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+            classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final Path jitlog = tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME);
         final Path result = tempDir.resolve("jmh-result.json");
@@ -33,7 +39,7 @@ final class JMHCommandTest {
         Assertions.assertSame(target, command.targetMethod(), "JMH command should expose configured target");
         Assertions.assertEquals(jitlog, command.jitlog(), "JMH command should expose configured JIT log");
         Assertions.assertEquals(
-                result.toString(), command.result().toString(), "JMH command should expose configured result file"
+            result.toString(), command.result().toString(), "JMH command should expose configured result file"
         );
     }
 
@@ -41,7 +47,7 @@ final class JMHCommandTest {
     void keepsDefaultArtifactsNearTargetClassWithoutPrecreatingFiles() {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+            classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final JMHCommand command = new JMHCommand(target, JMHCommandTest.fastConfig(false));
         final Path expected = classpath.resolve(JMHTarget.class.getName().replace('.', '/')).getParent();
@@ -49,12 +55,12 @@ final class JMHCommandTest {
         Assertions.assertEquals(expected, command.jitlog().getParent(), "Default JIT log should be near target class");
         Assertions.assertEquals(expected, result.getParent(), "Default JMH result should be near target class");
         Assertions.assertTrue(
-                command.jitlog().getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jit-log-"),
-                "Default JIT log should include target class name"
+            command.jitlog().getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jit-log-"),
+            "Default JIT log should include target class name"
         );
         Assertions.assertTrue(
-                result.getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jmh-result-"),
-                "Default JMH result should include target class name"
+            result.getFileName().toString().startsWith(JMHTarget.class.getSimpleName() + "-jmh-result-"),
+            "Default JMH result should include target class name"
         );
         Assertions.assertFalse(Files.exists(command.jitlog()), "Default JIT log should not be created before JMH runs");
         Assertions.assertFalse(Files.exists(result), "Default JMH result should not be created before JMH runs");
@@ -64,12 +70,12 @@ final class JMHCommandTest {
     void returnsScoresFromJmhRun(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+            classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final JMHOutput output = new JMHCommand(
-                target,
-                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
-                JMHCommandTest.fastConfig(false)
+            target,
+            tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
+            JMHCommandTest.fastConfig(false)
         ).run();
         Assertions.assertTrue(Files.exists(output.jitlog()), "JMH run should produce JIT log file");
         final JMHResults results = output.results();
@@ -79,13 +85,13 @@ final class JMHCommandTest {
         final double allocRateNorm = Double.parseDouble(row.get(2));
         Assertions.assertTrue(Double.isFinite(score), "JMH run should produce primary score");
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(1)),
-                "JMH run should produce a parseable primary-score relative error"
+            () -> Double.parseDouble(row.get(1)),
+            "JMH run should produce a parseable primary-score relative error"
         );
         Assertions.assertTrue(Double.isFinite(allocRateNorm), "JMH run should produce alloc rate norm");
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(3)),
-                "JMH run should produce a parseable allocation-rate relative error"
+            () -> Double.parseDouble(row.get(3)),
+            "JMH run should produce a parseable allocation-rate relative error"
         );
     }
 
@@ -94,23 +100,23 @@ final class JMHCommandTest {
         Assumptions.assumeTrue(PerfMemoryEvents.memEventsAvailable(), "perf memory events are required for this test");
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
+            classpath, JMHTarget.class.getName(), JMHCommandTest.TARGET_METHOD
         );
         final JMHOutput output = new JMHCommand(
-                target,
-                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
-                JMHCommandTest.fastConfig(true)
+            target,
+            tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
+            JMHCommandTest.fastConfig(true)
         ).run();
         final JMHResults results = output.results();
         final List<String> row = results.asCsvRow();
         Assertions.assertEquals(7, row.size(), "JMH row should contain metrics, relative errors and perf data");
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(1)),
-                "Primary-score error should be parseable as a double"
+            () -> Double.parseDouble(row.get(1)),
+            "Primary-score error should be parseable as a double"
         );
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(3)),
-                "Allocation-rate error should be parseable as a double"
+            () -> Double.parseDouble(row.get(3)),
+            "Allocation-rate error should be parseable as a double"
         );
         Assertions.assertFalse(row.get(4).isEmpty(), "Instructions should be present when perf profiler is enabled");
         Assertions.assertFalse(row.get(5).isEmpty(), "Memory loads should be present when perf profiler is enabled");
@@ -121,18 +127,18 @@ final class JMHCommandTest {
     void throwsOnJmhFailure(@TempDir final Path tempDir) {
         final Path classpath = Path.of(JMHCommandTest.TEST_CLASSPATH).toAbsolutePath();
         final TargetMethod target = new TargetMethod(
-                classpath, JMHTarget.class.getName(), "fail"
+            classpath, JMHTarget.class.getName(), "fail"
         );
         Assertions
-                .assertThrows(
-                        IllegalStateException.class,
-                        () -> new JMHCommand(
-                                target,
-                                tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
-                                JMHCommandTest.fastConfig(false)
-                        ).run(),
-                        "JMH run should fail on target exception"
-                );
+            .assertThrows(
+                IllegalStateException.class,
+                () -> new JMHCommand(
+                    target,
+                    tempDir.resolve(JMHCommandTest.JIT_LOG_FILE_NAME),
+                    JMHCommandTest.fastConfig(false)
+                ).run(),
+                "JMH run should fail on target exception"
+            );
     }
 
     private static JMHConfig fastConfig(final boolean perfEnabled) {

@@ -12,16 +12,36 @@ import java.util.Optional;
 /**
  * Aggregated optional perf-profiler metrics.
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Present, JMHPerfResults.Absent {
+    /**
+     * absent.
+     *
+     * @return absent perf results
+     */
     static JMHPerfResults absent() {
         return Absent.INSTANCE;
     }
 
+    /**
+     * from.
+     *
+     * @param instructions instruction metric
+     * @param memoryLoads memory load metric
+     * @param memoryStores memory store metric
+     * @return present perf results
+     */
     static JMHPerfResults from(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
-            final JMHMemoryStores memoryStores) {
+                               final JMHMemoryStores memoryStores) {
         return new Present(instructions, memoryLoads, memoryStores);
     }
 
+    /**
+     * from.
+     *
+     * @param instructions instruction metric
+     * @return present perf results
+     */
     static JMHPerfResults from(final JMHInstructions instructions) {
         return new Present(instructions);
     }
@@ -30,27 +50,47 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
     List<Artifact<?>> asArtifactRow();
 
     @Override
-    void print(final OutputStream out);
+    void print(OutputStream out);
 
     /**
      * Present perf-profiler metrics.
      */
     final class Present implements JMHPerfResults {
+        /** Instructions. */
         private final JMHInstructions instructions;
+
+        /** Memory loads. */
         private final Optional<JMHMemoryLoads> memoryLoads;
+
+        /** Memory stores. */
         private final Optional<JMHMemoryStores> memoryStores;
 
-        Present(final JMHInstructions instructions) {
-            this.instructions = instructions;
-            this.memoryLoads = Optional.empty();
-            this.memoryStores = Optional.empty();
+        /**
+         * Present.
+         *
+         * @param instructions instruction metric
+         */
+        private Present(final JMHInstructions instructions) {
+            this(instructions, Optional.empty(), Optional.empty());
         }
 
-        Present(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
-                final JMHMemoryStores memoryStores) {
+        /**
+         * Present.
+         *
+         * @param instructions instruction metric
+         * @param memoryLoads memory load metric
+         * @param memoryStores memory store metric
+         */
+        private Present(final JMHInstructions instructions, final JMHMemoryLoads memoryLoads,
+                        final JMHMemoryStores memoryStores) {
+            this(instructions, Optional.of(memoryLoads), Optional.of(memoryStores));
+        }
+
+        private Present(final JMHInstructions instructions, final Optional<JMHMemoryLoads> memoryLoads,
+                        final Optional<JMHMemoryStores> memoryStores) {
             this.instructions = instructions;
-            this.memoryLoads = Optional.of(memoryLoads);
-            this.memoryStores = Optional.of(memoryStores);
+            this.memoryLoads = memoryLoads;
+            this.memoryStores = memoryStores;
         }
 
         @Override
@@ -75,6 +115,7 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
      * Missing perf-profiler metrics.
      */
     final class Absent implements JMHPerfResults {
+        /** Instance. */
         private static final Absent INSTANCE = new Absent();
 
         private Absent() {
@@ -87,6 +128,7 @@ public sealed interface JMHPerfResults extends Results permits JMHPerfResults.Pr
 
         @Override
         public void print(final OutputStream out) {
+            // Intentionally empty.
         }
     }
 }

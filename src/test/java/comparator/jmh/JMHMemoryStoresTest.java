@@ -1,11 +1,11 @@
 package comparator.jmh;
 
+import comparator.jmh.results.JMHMemoryStores;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.results.JMHMemoryStores;
-
-class JMHMemoryStoresTest {
+/** JMHMemoryStoresTest. */
+final class JMHMemoryStoresTest {
     @Test
     void comparesMemoryStoresUsingAccuracy() {
         final JMHMemoryStores base = new JMHMemoryStores(100.0d, "#/op");

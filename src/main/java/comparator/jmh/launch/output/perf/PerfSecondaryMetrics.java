@@ -10,17 +10,40 @@ import java.util.function.Predicate;
  * View of perf-profiler entries inside JMH secondary metrics.
  */
 public final class PerfSecondaryMetrics {
+    /** Metric suffix separator. */
     private static final char METRIC_SUFFIX_SEPARATOR = ':';
+
+    /** Metric path separator. */
     private static final char METRIC_PATH_SEPARATOR = '/';
+
+    /** Score field. */
     private static final String SCORE_FIELD = "score";
+
+    /** Score unit field. */
     private static final String SCORE_UNIT_FIELD = "scoreUnit";
+
+    /** Default unit. */
     private static final String DEFAULT_UNIT = "#/op";
+
+    /** Metrics. */
     private final JsonNode metrics;
 
+    /**
+     * PerfSecondaryMetrics.
+     *
+     * @param metrics secondary metrics JSON node
+     */
     public PerfSecondaryMetrics(final JsonNode metrics) {
         this.metrics = metrics;
     }
 
+    // @checkstyle ReturnCount (14 lines)
+    /**
+     * metric.
+     *
+     * @param eventName perf event name
+     * @return metric for the event, when present
+     */
     public Optional<PerfMetric> metric(final String eventName) {
         final Optional<PerfMetric> exact = this.metricFromNode(this.metrics.path(eventName));
         if (exact.isPresent()) {
@@ -36,6 +59,12 @@ public final class PerfSecondaryMetrics {
         return Optional.empty();
     }
 
+    /**
+     * metric.
+     *
+     * @param eventNames perf event names
+     * @return first metric for the events, when present
+     */
     public Optional<PerfMetric> metric(final Iterable<String> eventNames) {
         for (final String eventName : eventNames) {
             final Optional<PerfMetric> metric = this.metric(eventName);
@@ -46,6 +75,12 @@ public final class PerfSecondaryMetrics {
         return Optional.empty();
     }
 
+    /**
+     * summedMetric.
+     *
+     * @param matcher event name matcher
+     * @return summed metric for matching events, when present
+     */
     public Optional<PerfMetric> summedMetric(final Predicate<String> matcher) {
         double score = 0.0d;
         Optional<String> unit = Optional.empty();
@@ -83,7 +118,7 @@ public final class PerfSecondaryMetrics {
     private String trimTrailingPathSeparators(final String metricName) {
         int endExclusive = metricName.length();
         while (endExclusive > 0
-                && metricName.charAt(endExclusive - 1) == PerfSecondaryMetrics.METRIC_PATH_SEPARATOR) {
+            && metricName.charAt(endExclusive - 1) == PerfSecondaryMetrics.METRIC_PATH_SEPARATOR) {
             endExclusive--;
         }
         return metricName.substring(0, endExclusive);
@@ -94,10 +129,10 @@ public final class PerfSecondaryMetrics {
             return Optional.empty();
         }
         return Optional.of(
-                new PerfMetric(
-                        metric.get(PerfSecondaryMetrics.SCORE_FIELD).asDouble(),
-                        metric.path(PerfSecondaryMetrics.SCORE_UNIT_FIELD).asText(PerfSecondaryMetrics.DEFAULT_UNIT)
-                )
+            new PerfMetric(
+                metric.get(PerfSecondaryMetrics.SCORE_FIELD).asDouble(),
+                metric.path(PerfSecondaryMetrics.SCORE_UNIT_FIELD).asText(PerfSecondaryMetrics.DEFAULT_UNIT)
+            )
         );
     }
 }

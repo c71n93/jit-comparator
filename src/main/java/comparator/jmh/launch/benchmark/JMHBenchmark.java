@@ -1,6 +1,7 @@
 package comparator.jmh.launch.benchmark;
 
 import comparator.method.TargetMethod;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -12,13 +13,19 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
  * The benchmark simply calls the reflection helper. JMH takes care of warmup
  * iterations, measurement and throttling for us.
  */
-@BenchmarkMode(Mode.AverageTime) // TODO: To decide which mode is best suited for our purposes.
+@BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class JMHBenchmark {
-    private static final Method targetMethod = TargetMethod.fromProperties().method();
+    /** Target method. */
+    private static final Method TARGET_METHOD = TargetMethod.fromProperties().method();
 
+    /**
+     * Documented member.
+     *
+     * @return target method result
+     */
     @Benchmark
-    public Object callTarget() throws Exception {
-        return JMHBenchmark.targetMethod.invoke(null);
+    public final Object callTarget() throws IllegalAccessException, InvocationTargetException {
+        return JMHBenchmark.TARGET_METHOD.invoke(null);
     }
 }

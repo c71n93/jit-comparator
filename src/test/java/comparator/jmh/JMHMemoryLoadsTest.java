@@ -1,11 +1,11 @@
 package comparator.jmh;
 
+import comparator.jmh.results.JMHMemoryLoads;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.results.JMHMemoryLoads;
-
-class JMHMemoryLoadsTest {
+/** JMHMemoryLoadsTest. */
+final class JMHMemoryLoadsTest {
     @Test
     void comparesMemoryLoadsUsingAccuracy() {
         final JMHMemoryLoads base = new JMHMemoryLoads(100.0d, "#/op");

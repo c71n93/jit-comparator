@@ -11,8 +11,12 @@ import java.util.List;
 /**
  * Primary-score result pair with the metric value and its relative error.
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class JMHPrimaryScoreResults implements Results {
+    /** Primary score. */
     private final JMHPrimaryScore score;
+
+    /** Primary score error. */
     private final JMHPrimaryScoreError error;
 
     /**

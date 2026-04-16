@@ -14,7 +14,8 @@ import java.util.List;
  * Results obtained from JIT log for a single target method. All results
  * extracted for the last compilation in log with the highest tier.
  */
-public class LogResults implements Results {
+public final class LogResults implements Results {
+    /** Codesize. */
     private final NativeCodeSize codesize;
 
     /**

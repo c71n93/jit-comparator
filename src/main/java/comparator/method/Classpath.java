@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
  * Classpath entries.
  */
 public final class Classpath {
+    /** Entries. */
     private final List<Path> entries;
 
     /**
@@ -86,9 +87,9 @@ public final class Classpath {
 
     private static List<Path> parse(final String classpath) {
         return Arrays.stream(classpath.split(Pattern.quote(File.pathSeparator)))
-                .filter(part -> !part.isEmpty())
-                .map(Path::of)
-                .toList();
+            .filter(part -> !part.isEmpty())
+            .map(Path::of)
+            .toList();
     }
 
     private static URL toUrl(final Path entry) {

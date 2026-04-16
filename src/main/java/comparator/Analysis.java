@@ -16,9 +16,16 @@ import org.slf4j.LoggerFactory;
  * Analysis of the specified {@link TargetMethod}.
  */
 public class Analysis implements AsCsvRow {
+    /** Logger. */
     private static final Logger LOG = LoggerFactory.getLogger(Analysis.class);
+
+    /** JMH command. */
     private final JMHCommand command;
+
+    /** Analysis label. */
     private final String label;
+
+    /** Cached results. */
     private Optional<JITResults> cachedResults;
 
     /**
@@ -114,7 +121,7 @@ public class Analysis implements AsCsvRow {
      *            JMH execution parameters.
      */
     public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
-            final JMHConfig config) {
+                    final JMHConfig config) {
         this(targetMethod, jitlog, resultFile, config, targetMethod.classMethodName());
     }
 
@@ -132,8 +139,9 @@ public class Analysis implements AsCsvRow {
      * @param label
      *            row label
      */
+    // @checkstyle ParameterNumber (5 lines)
     public Analysis(final TargetMethod targetMethod, final Path jitlog, final Path resultFile,
-            final JMHConfig config, final String label) {
+                    final JMHConfig config, final String label) {
         this(new JMHCommand(targetMethod, jitlog, resultFile, config), label);
     }
 
@@ -164,18 +172,18 @@ public class Analysis implements AsCsvRow {
      *
      * @return combined JIT and log results for the target method
      */
-    @SuppressWarnings("PMD.GuardLogStatement")
     public JITResults results() {
         if (this.cachedResults.isEmpty()) {
             Analysis.LOG.info("Starting analysis on target: {}", this.label);
             final JMHOutput output = this.command.run();
             this.cachedResults = Optional.of(
-                    new JITResults(output.results(), new LogResults(this.command.targetMethod(), output.jitlog()))
+                new JITResults(output.results(), new LogResults(this.command.targetMethod(), output.jitlog()))
             );
         }
         return this.cachedResults.orElseThrow();
     }
 
+    // @checkstyle DesignForExtension (9 lines)
     @Override
     public List<String> asCsvRow() {
         final List<String> row = new ArrayList<>();
@@ -186,6 +194,7 @@ public class Analysis implements AsCsvRow {
         return row;
     }
 
+    // @checkstyle DesignForExtension (9 lines)
     @Override
     public List<String> headerCsv() {
         final List<String> header = new ArrayList<>();

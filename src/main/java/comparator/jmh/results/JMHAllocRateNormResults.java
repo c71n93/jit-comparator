@@ -11,8 +11,12 @@ import java.util.List;
 /**
  * Allocation-rate result pair with the metric value and its relative error.
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class JMHAllocRateNormResults implements Results {
+    /** Alloc rate norm. */
     private final JMHAllocRateNorm allocRateNorm;
+
+    /** Allocation-rate error. */
     private final JMHAllocRateNormError error;
 
     /**

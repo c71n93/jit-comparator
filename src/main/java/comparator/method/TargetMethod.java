@@ -13,11 +13,18 @@ import java.util.List;
 /**
  * Descriptor of a target method along with the classpath needed to load it.
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class TargetMethod implements JvmSystemProperties {
+    /** Target class. */
     private static final PropertyString TARGET_CLASS = new PropertyString("comparator.jmh.targetClass");
+
+    /** Target method. */
     private static final PropertyString TARGET_METHOD = new PropertyString("comparator.jmh.targetMethod");
 
+    /** Classpath. */
     private final Classpath classpath;
+
+    /** Reflected method. */
     private final Method method;
 
     /**
@@ -113,8 +120,8 @@ public final class TargetMethod implements JvmSystemProperties {
     @Override
     public List<String> asJvmPropertyArgs() {
         return List.of(
-                TargetMethod.TARGET_CLASS.asJvmArg(this.className()),
-                TargetMethod.TARGET_METHOD.asJvmArg(this.methodName())
+            TargetMethod.TARGET_CLASS.asJvmArg(this.className()),
+            TargetMethod.TARGET_METHOD.asJvmArg(this.methodName())
         );
     }
 
@@ -126,9 +133,9 @@ public final class TargetMethod implements JvmSystemProperties {
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     public static TargetMethod fromProperties() {
         return new TargetMethod(
-                new Classpath(new PropertyString("java.class.path").requireValue()),
-                TargetMethod.TARGET_CLASS.requireValue(),
-                TargetMethod.TARGET_METHOD.requireValue()
+            new Classpath(new PropertyString("java.class.path").requireValue()),
+            TargetMethod.TARGET_CLASS.requireValue(),
+            TargetMethod.TARGET_METHOD.requireValue()
         );
     }
 
@@ -146,7 +153,7 @@ public final class TargetMethod implements JvmSystemProperties {
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     private static Method loadMethod(final Classpath classpath, final String className, final String methodName) {
         try (URLClassLoader loader = new URLClassLoader(
-                classpath.urls().toArray(new URL[0]), Thread.currentThread().getContextClassLoader()
+            classpath.urls().toArray(new URL[0]), Thread.currentThread().getContextClassLoader()
         )) {
             final Class<?> clazz = Class.forName(className, false, loader);
             final Method method = clazz.getDeclaredMethod(methodName);

@@ -1,11 +1,12 @@
 package comparator.jmh;
 
+import comparator.jmh.results.JMHPrimaryScore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.results.JMHPrimaryScore;
-
-class JMHPrimaryScoreTest {
+/** JMHPrimaryScoreTest. */
+final class JMHPrimaryScoreTest {
+    /** Score unit. */
     private static final String UNIT = "us/op";
 
     @Test
@@ -23,16 +24,16 @@ class JMHPrimaryScoreTest {
         final JMHPrimaryScore right = new JMHPrimaryScore(120.0d, JMHPrimaryScoreTest.UNIT);
         final double expected = 2.0d * 20.0d / (100.0d + 120.0d + 1.0e-9);
         Assertions.assertEquals(
-                0.0d, left.relativeDifference(left), 1.0e-12,
-                "A metric should have zero relative difference with itself"
+            0.0d, left.relativeDifference(left), 1.0e-12,
+            "A metric should have zero relative difference with itself"
         );
         Assertions.assertEquals(
-                expected, left.relativeDifference(right), 1.0e-12,
-                "Relative difference should match sMAPE-like normalization"
+            expected, left.relativeDifference(right), 1.0e-12,
+            "Relative difference should match sMAPE-like normalization"
         );
         Assertions.assertEquals(
-                left.relativeDifference(right), right.relativeDifference(left), 1.0e-12,
-                "Relative difference should be symmetric"
+            left.relativeDifference(right), right.relativeDifference(left), 1.0e-12,
+            "Relative difference should be symmetric"
         );
     }
 }

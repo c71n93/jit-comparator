@@ -8,7 +8,10 @@ import java.util.List;
  * Pairwise comparison of two {@link JITResults} objects.
  */
 public final class JITResultsComparison {
+    /** Left-side results. */
     private final JITResults left;
+
+    /** Right-side results. */
     private final JITResults right;
 
     /**
@@ -89,7 +92,7 @@ public final class JITResultsComparison {
     }
 
     private static void checkSizeCompatibility(final List<Metric<?>> leftMetrics,
-            final List<Metric<?>> rightMetrics) {
+                                               final List<Metric<?>> rightMetrics) {
         if (leftMetrics.size() != rightMetrics.size()) {
             throw new IllegalArgumentException("Can't compare different sets of JIT results.");
         }

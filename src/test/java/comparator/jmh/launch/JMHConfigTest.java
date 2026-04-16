@@ -5,20 +5,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.runner.options.TimeValue;
 
-class JMHConfigTest {
+/** JMHConfigTest. */
+final class JMHConfigTest {
     @Test
     void rendersJvmArgs() {
         final JMHConfig config = new JMHConfig(2, TimeValue.milliseconds(150), 3, TimeValue.seconds(2), true);
         Assertions.assertEquals(
-                List.of(
-                        "-Djmh.warmupIterations=2",
-                        "-Djmh.warmupTime=150ms",
-                        "-Djmh.measurementIterations=3",
-                        "-Djmh.measurementTime=2s",
-                        "-Djmh.perf.enabled=true"
-                ),
-                config.asJvmPropertyArgs(),
-                "JMH config should render JVM properties"
+            List.of(
+                "-Djmh.warmupIterations=2",
+                "-Djmh.warmupTime=150ms",
+                "-Djmh.measurementIterations=3",
+                "-Djmh.measurementTime=2s",
+                "-Djmh.perf.enabled=true"
+            ),
+            config.asJvmPropertyArgs(),
+            "JMH config should render JVM properties"
         );
     }
 
@@ -45,7 +46,7 @@ class JMHConfigTest {
             Assertions.assertEquals(TimeValue.milliseconds(70), config.warmupTime(), "Warmup time should be loaded");
             Assertions.assertEquals(5, config.measurementIterations(), "Measurement iterations should be loaded");
             Assertions
-                    .assertEquals(TimeValue.seconds(3), config.measurementTime(), "Measurement time should be loaded");
+                .assertEquals(TimeValue.seconds(3), config.measurementTime(), "Measurement time should be loaded");
             Assertions.assertTrue(config.perfEnabled(), "Perf flag should be loaded");
         } finally {
             this.restoreProperty(warmupIterationsKey, previousWarmupIterations);

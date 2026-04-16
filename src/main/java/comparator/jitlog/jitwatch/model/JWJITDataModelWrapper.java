@@ -14,9 +14,17 @@ import org.adoptopenjdk.jitwatch.model.MetaClass;
 import org.adoptopenjdk.jitwatch.model.PackageManager;
 import org.adoptopenjdk.jitwatch.model.Tag;
 
+// @checkstyle AbbreviationAsWordInName (3 lines)
+/** JWJITDataModelWrapper. */
 public final class JWJITDataModelWrapper implements IReadOnlyJITDataModel {
+    /** Origin. */
     private final IReadOnlyJITDataModel origin;
 
+    /**
+     * JWJITDataModelWrapper.
+     *
+     * @param origin origin JIT data model
+     */
     public JWJITDataModelWrapper(final IReadOnlyJITDataModel origin) {
         this.origin = origin;
     }
@@ -71,16 +79,28 @@ public final class JWJITDataModelWrapper implements IReadOnlyJITDataModel {
         return this.origin.findMetaMember(msp);
     }
 
+    /**
+     * findMetaMember.
+     *
+     * @param method Java reflection method
+     * @return matching meta member
+     */
     public IMetaMember findMetaMember(final Method method) {
         final MemberSignatureParts msp = MemberSignatureParts.fromParts(
-                method.getDeclaringClass().getName(),
-                method.getName(),
-                method.getReturnType().getName(),
-                JWJITDataModelWrapper.parameterTypeNames(method)
+            method.getDeclaringClass().getName(),
+            method.getName(),
+            method.getReturnType().getName(),
+            JWJITDataModelWrapper.parameterTypeNames(method)
         );
         return this.origin.findMetaMember(msp);
     }
 
+    /**
+     * findMetaMemberOrThrow.
+     *
+     * @param method Java reflection method
+     * @return matching meta member
+     */
     public IMetaMember findMetaMemberOrThrow(final Method method) {
         final IMetaMember match = this.findMetaMember(method);
         if (match != null) {

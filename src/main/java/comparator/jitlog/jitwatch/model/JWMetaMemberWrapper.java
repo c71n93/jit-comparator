@@ -13,10 +13,19 @@ import org.adoptopenjdk.jitwatch.model.bytecode.MemberBytecode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** JWMetaMemberWrapper. */
 public final class JWMetaMemberWrapper implements IMetaMember {
-    private final IMetaMember origin;
+    /** Logger. */
     private static final Logger LOG = LoggerFactory.getLogger(JWMetaMemberWrapper.class);
 
+    /** Origin. */
+    private final IMetaMember origin;
+
+    /**
+     * JWMetaMemberWrapper.
+     *
+     * @param origin origin meta member
+     */
     public JWMetaMemberWrapper(final IMetaMember origin) {
         this.origin = origin;
     }
@@ -161,7 +170,14 @@ public final class JWMetaMemberWrapper implements IMetaMember {
         return this.origin.getLastCompilation();
     }
 
+    // @checkstyle ReturnCount (25 lines)
     // TODO: implement enum for compilation tiers.
+    /**
+     * getLastCompilationOfTier.
+     *
+     * @param tier compilation tier
+     * @return last compilation of the tier, when present
+     */
     public Optional<Compilation> getLastCompilationOfTier(final int tier) {
         final List<Compilation> compilations = this.getCompilations();
         for (int i = compilations.size() - 1; i >= 0; i--) {

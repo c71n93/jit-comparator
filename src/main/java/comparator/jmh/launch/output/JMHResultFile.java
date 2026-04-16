@@ -2,7 +2,6 @@ package comparator.jmh.launch.output;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import comparator.jmh.results.JMHResults;
 import comparator.property.JvmSystemProperties;
 import comparator.property.PropertyString;
@@ -15,11 +14,23 @@ import java.util.List;
 /**
  * Represents a JMH result file produced by the JMH JVM.
  */
-public class JMHResultFile implements JvmSystemProperties {
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class JMHResultFile implements JvmSystemProperties {
+    /** JMH result property. */
     private static final PropertyString JMH_RESULT_PROP = new PropertyString("jmh.result.file");
+
+    /** Result file. */
     private final Path result;
+
+    /** Perf enabled. */
     private final boolean perfEnabled;
 
+    /**
+     * JMHResultFile.
+     *
+     * @param result JMH result file path
+     * @param perfEnabled perf profiler enabled flag
+     */
     public JMHResultFile(final Path result, final boolean perfEnabled) {
         this.result = result;
         this.perfEnabled = perfEnabled;

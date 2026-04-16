@@ -40,5 +40,5 @@ public interface Results extends AsRow {
      * @param out
      *            output stream
      */
-    void print(final OutputStream out);
+    void print(OutputStream out);
 }

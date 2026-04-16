@@ -12,10 +12,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+/** AnalysisTest. */
 final class AnalysisTest {
+    /** Test classes. */
     private static final String TEST_CLASSES = "build/classes/java/test";
+
+    /** Target method. */
     private static final String TARGET_METHOD = "succeed";
+
+    /** JIT log file name. */
     private static final String JITLOG_FILE_NAME = "provided-jit-log.xml";
+
+    /** Result file name. */
     private static final String RESULT_FILE_NAME = "provided-jmh-result.json";
 
     @Test
@@ -42,10 +50,10 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final JMHCommand command = new JMHCommand(
-                target,
-                jitlog,
-                result,
-                AnalysisTest.fastConfig()
+            target,
+            jitlog,
+            result,
+            AnalysisTest.fastConfig()
         );
         new Analysis(command).results();
         Assertions.assertTrue(Files.exists(jitlog), "Analysis should use command-provided JIT log path");
@@ -58,19 +66,19 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final List<String> row = new Analysis(
-                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
+            new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
         ).asCsvRow();
         Assertions.assertEquals(8, row.size(), "CSV row should contain target, metrics, errors and output files");
         Assertions.assertEquals(target.classMethodName(), row.get(0), "Target method should be first");
         Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(1))), "Primary score should be numeric");
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(2)),
-                "Primary relative error should be parseable as a double"
+            () -> Double.parseDouble(row.get(2)),
+            "Primary relative error should be parseable as a double"
         );
         Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(3))), "Alloc rate should be numeric");
         Assertions.assertDoesNotThrow(
-                () -> Double.parseDouble(row.get(4)),
-                "Alloc relative error should be parseable as a double"
+            () -> Double.parseDouble(row.get(4)),
+            "Alloc relative error should be parseable as a double"
         );
         Assertions.assertTrue(Double.isFinite(Double.parseDouble(row.get(5))), "Code size should be numeric");
         Assertions.assertEquals(jitlog.toString(), row.get(6), "JIT log file should be last metrics-adjacent column");
@@ -84,8 +92,8 @@ final class AnalysisTest {
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final String label = "Original loop";
         final List<String> row = new Analysis(
-                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig()),
-                label
+            new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig()),
+            label
         ).asCsvRow();
         Assertions.assertEquals(label, row.get(0), "Provided label should be first");
     }
@@ -96,21 +104,21 @@ final class AnalysisTest {
         final Path jitlog = tempDir.resolve(AnalysisTest.JITLOG_FILE_NAME);
         final Path result = tempDir.resolve(AnalysisTest.RESULT_FILE_NAME);
         final List<String> header = new Analysis(
-                new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
+            new JMHCommand(target, jitlog, result, AnalysisTest.fastConfig())
         ).headerCsv();
         Assertions.assertEquals(
-                List.of(
-                        "Target",
-                        "JMH primary score, us/op",
-                        "JMH primary score relative error, ratio",
-                        "Allocations, B/op",
-                        "Allocations relative error, ratio",
-                        "Native code size, B",
-                        "JIT log file",
-                        "JMH result file"
-                ),
-                header,
-                "CSV header should include target, artifacts and output files"
+            List.of(
+                "Target",
+                "JMH primary score, us/op",
+                "JMH primary score relative error, ratio",
+                "Allocations, B/op",
+                "Allocations relative error, ratio",
+                "Native code size, B",
+                "JIT log file",
+                "JMH result file"
+            ),
+            header,
+            "CSV header should include target, artifacts and output files"
         );
     }
 
@@ -120,9 +128,9 @@ final class AnalysisTest {
 
     private TargetMethod targetMethod() {
         return new TargetMethod(
-                Path.of(AnalysisTest.TEST_CLASSES).toAbsolutePath(),
-                JMHTarget.class.getName(),
-                AnalysisTest.TARGET_METHOD
+            Path.of(AnalysisTest.TEST_CLASSES).toAbsolutePath(),
+            JMHTarget.class.getName(),
+            AnalysisTest.TARGET_METHOD
         );
     }
 }

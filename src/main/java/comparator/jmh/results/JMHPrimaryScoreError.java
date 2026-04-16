@@ -4,6 +4,7 @@ package comparator.jmh.results;
  * Relative error artifact for the primary JMH score.
  */
 public final class JMHPrimaryScoreError extends JMHMetricError {
+    /** Error name. */
     private static final String ERROR_NAME = "JMH primary score relative error";
 
     /**

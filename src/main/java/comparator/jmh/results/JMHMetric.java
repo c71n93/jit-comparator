@@ -7,8 +7,13 @@ import comparator.Metric;
  * access.
  */
 public abstract class JMHMetric implements Metric<Double> {
+    /** Property name. */
     private final String name;
+
+    /** Metric score. */
     private final double score;
+
+    /** Measurement unit. */
     private final String unit;
 
     /**
@@ -28,17 +33,17 @@ public abstract class JMHMetric implements Metric<Double> {
     }
 
     @Override
-    public Double value() {
+    public final Double value() {
         return this.score;
     }
 
     @Override
-    public String headerCsv() {
+    public final String headerCsv() {
         return this.name + ", " + this.unit;
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return this.name + ": " + this.score + " " + this.unit;
     }
 }

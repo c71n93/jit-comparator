@@ -11,8 +11,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class LogResultsTest {
+/** JIT log result contract tests. */
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+final class LogResultsTest {
+    /** Target class. */
     private static final String TARGET_CLASS = "comparator.jitlog.test.LogTarget";
+
+    /** Log. */
     private final JITLogFixture log = new JITLogFixture();
 
     @Test
@@ -23,7 +28,7 @@ class LogResultsTest {
         final LogResults results = new LogResults(target, logFile);
         final int size = new NativeCodeSize(target, logFile).value();
         Assertions
-                .assertEquals(List.of(String.valueOf(size)), results.asCsvRow(), "Log results should expose code size");
+            .assertEquals(List.of(String.valueOf(size)), results.asCsvRow(), "Log results should expose code size");
     }
 
     @Test
@@ -50,7 +55,7 @@ class LogResultsTest {
         results.print(out);
         final String separator = System.lineSeparator();
         final String expected = "Log results:" + separator
-                + target.classMethodName() + ": " + size + " bytes" + separator;
+            + target.classMethodName() + ": " + size + " bytes" + separator;
         final String output = out.toString(StandardCharsets.UTF_8);
         Assertions.assertEquals(expected, output, "Log results should format output");
     }

@@ -10,7 +10,10 @@ import java.util.function.Function;
  *            value type produced by the property parser
  */
 public class Property<T> {
+    /** Property name. */
     private final String name;
+
+    /** String. */
     private final Function<String, T> parser;
 
     /**
@@ -44,7 +47,7 @@ public class Property<T> {
      */
     public T requireValue() {
         final String raw = Optional.ofNullable(System.getProperty(this.name))
-                .orElseThrow(() -> new IllegalStateException("Missing property: " + this.name));
+            .orElseThrow(() -> new IllegalStateException("Missing property: " + this.name));
         return this.parser.apply(raw);
     }
 }

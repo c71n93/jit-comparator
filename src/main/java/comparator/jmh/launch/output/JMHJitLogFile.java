@@ -9,11 +9,19 @@ import java.util.Objects;
 /**
  * JIT log file property for JMH launcher.
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class JMHJitLogFile implements JvmSystemProperties {
+    /** JIT log file property. */
     private static final PropertyString JIT_LOG_FILE_PROPERTY = new PropertyString("comparator.jmh.jitlog.file");
 
+    /** File. */
     private final Path file;
 
+    /**
+     * JMHJitLogFile.
+     *
+     * @param file JIT log file path
+     */
     public JMHJitLogFile(final Path file) {
         this.file = Objects.requireNonNull(file);
     }

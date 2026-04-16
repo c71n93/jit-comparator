@@ -10,23 +10,53 @@ import org.openjdk.jmh.runner.options.TimeValue;
 /**
  * JMH launch parameters encoded as JVM system properties.
  */
+@SuppressWarnings({ "PMD.ProhibitPublicStaticMethods", "PMD.DataClass" })
 public final class JMHConfig implements JvmSystemProperties {
     // TODO: to find parameters that will be suitable for our task. Noise in the
     // values of jit artifacts should be low.
+    /** Default warmup iterations. */
     private static final int DEFAULT_WARMUP_ITERATIONS = 10;
+
+    /** Default warmup time. */
     private static final TimeValue DEFAULT_WARMUP_TIME = TimeValue.seconds(2);
+
+    /** Default measurement iterations. */
     private static final int DEFAULT_MEASUREMENT_ITERATIONS = 10;
+
+    /** Default measurement time. */
     private static final TimeValue DEFAULT_MEASUREMENT_TIME = TimeValue.seconds(1);
+
+    /** Default perf enabled. */
     private static final boolean DEFAULT_PERF_ENABLED = true;
+
+    /** Warmup iterations property. */
     private static final PropertyInt WARMUP_ITERATIONS_PROPERTY = new PropertyInt("jmh.warmupIterations");
+
+    /** Warmup time property. */
     private static final PropertyString WARMUP_TIME_PROPERTY = new PropertyString("jmh.warmupTime");
+
+    /** Measurement iterations property. */
     private static final PropertyInt MEASUREMENT_ITERATIONS_PROPERTY = new PropertyInt("jmh.measurementIterations");
+
+    /** Measurement time property. */
     private static final PropertyString MEASUREMENT_TIME_PROPERTY = new PropertyString("jmh.measurementTime");
+
+    /** Perf enabled property. */
     private static final PropertyBoolean PERF_ENABLED_PROPERTY = new PropertyBoolean("jmh.perf.enabled");
+
+    /** Warmup iterations. */
     private final int warmupIterations;
+
+    /** Warmup time. */
     private final TimeValue warmupTime;
+
+    /** Measurement iterations. */
     private final int measurementIterations;
+
+    /** Measurement time. */
     private final TimeValue measurementTime;
+
+    /** Perf enabled. */
     private final boolean perfEnabled;
 
     /**
@@ -34,11 +64,11 @@ public final class JMHConfig implements JvmSystemProperties {
      */
     public JMHConfig() {
         this(
-                JMHConfig.DEFAULT_WARMUP_ITERATIONS,
-                JMHConfig.DEFAULT_WARMUP_TIME,
-                JMHConfig.DEFAULT_MEASUREMENT_ITERATIONS,
-                JMHConfig.DEFAULT_MEASUREMENT_TIME,
-                JMHConfig.DEFAULT_PERF_ENABLED
+            JMHConfig.DEFAULT_WARMUP_ITERATIONS,
+            JMHConfig.DEFAULT_WARMUP_TIME,
+            JMHConfig.DEFAULT_MEASUREMENT_ITERATIONS,
+            JMHConfig.DEFAULT_MEASUREMENT_TIME,
+            JMHConfig.DEFAULT_PERF_ENABLED
         );
     }
 
@@ -56,8 +86,9 @@ public final class JMHConfig implements JvmSystemProperties {
      * @param perfEnabled
      *            perf profiler enabled flag
      */
+    // @checkstyle ParameterNumber (8 lines)
     public JMHConfig(final int warmupIterations, final TimeValue warmupTime, final int measurementIterations,
-            final TimeValue measurementTime, final boolean perfEnabled) {
+                     final TimeValue measurementTime, final boolean perfEnabled) {
         this.warmupIterations = warmupIterations;
         this.warmupTime = warmupTime;
         this.measurementIterations = measurementIterations;
@@ -102,24 +133,29 @@ public final class JMHConfig implements JvmSystemProperties {
 
     // TODO: find a way to add fromProperties static method to the contract of
     // JvmSystemProperties interface.
+    /**
+     * fromProperties.
+     *
+     * @return JMH config from system properties
+     */
     public static JMHConfig fromProperties() {
         return new JMHConfig(
-                JMHConfig.WARMUP_ITERATIONS_PROPERTY.requireValue(),
-                TimeValue.fromString(JMHConfig.WARMUP_TIME_PROPERTY.requireValue()),
-                JMHConfig.MEASUREMENT_ITERATIONS_PROPERTY.requireValue(),
-                TimeValue.fromString(JMHConfig.MEASUREMENT_TIME_PROPERTY.requireValue()),
-                JMHConfig.PERF_ENABLED_PROPERTY.requireValue()
+            JMHConfig.WARMUP_ITERATIONS_PROPERTY.requireValue(),
+            TimeValue.fromString(JMHConfig.WARMUP_TIME_PROPERTY.requireValue()),
+            JMHConfig.MEASUREMENT_ITERATIONS_PROPERTY.requireValue(),
+            TimeValue.fromString(JMHConfig.MEASUREMENT_TIME_PROPERTY.requireValue()),
+            JMHConfig.PERF_ENABLED_PROPERTY.requireValue()
         );
     }
 
     @Override
     public List<String> asJvmPropertyArgs() {
         return List.of(
-                JMHConfig.WARMUP_ITERATIONS_PROPERTY.asJvmArg(this.warmupIterations),
-                JMHConfig.WARMUP_TIME_PROPERTY.asJvmArg(this.asJmhTime(this.warmupTime)),
-                JMHConfig.MEASUREMENT_ITERATIONS_PROPERTY.asJvmArg(this.measurementIterations),
-                JMHConfig.MEASUREMENT_TIME_PROPERTY.asJvmArg(this.asJmhTime(this.measurementTime)),
-                JMHConfig.PERF_ENABLED_PROPERTY.asJvmArg(this.perfEnabled)
+            JMHConfig.WARMUP_ITERATIONS_PROPERTY.asJvmArg(this.warmupIterations),
+            JMHConfig.WARMUP_TIME_PROPERTY.asJvmArg(this.asJmhTime(this.warmupTime)),
+            JMHConfig.MEASUREMENT_ITERATIONS_PROPERTY.asJvmArg(this.measurementIterations),
+            JMHConfig.MEASUREMENT_TIME_PROPERTY.asJvmArg(this.asJmhTime(this.measurementTime)),
+            JMHConfig.PERF_ENABLED_PROPERTY.asJvmArg(this.perfEnabled)
         );
     }
 

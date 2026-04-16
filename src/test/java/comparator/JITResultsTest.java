@@ -12,8 +12,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class JITResultsTest {
+/** JIT result aggregation contract tests. */
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+final class JITResultsTest {
+    /** Target class. */
     private static final String TARGET_CLASS = "comparator.jitlog.test.LogTarget";
+
+    /** Fixture. */
     private final JITLogFixture fixture = new JITLogFixture();
 
     @Test
@@ -21,15 +26,15 @@ class JITResultsTest {
         final LogResults log = this.logResults(tempDir);
         final JITResults results = new JITResults(this.jmh(100.0d, 10.0d), log);
         Assertions.assertEquals(
-                List.of(
-                        "JMH primary score, us/op",
-                        "JMH primary score relative error, ratio",
-                        "Allocations, B/op",
-                        "Allocations relative error, ratio",
-                        "Native code size, B"
-                ),
-                results.headerCsv(),
-                "CSV header should match artifact order and units"
+            List.of(
+                "JMH primary score, us/op",
+                "JMH primary score relative error, ratio",
+                "Allocations, B/op",
+                "Allocations relative error, ratio",
+                "Native code size, B"
+            ),
+            results.headerCsv(),
+            "CSV header should match artifact order and units"
         );
     }
 

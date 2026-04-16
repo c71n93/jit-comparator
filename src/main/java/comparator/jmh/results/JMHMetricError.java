@@ -6,7 +6,10 @@ import comparator.MetricError;
  * Shared base for JMH metric-relative-error artifacts.
  */
 abstract class JMHMetricError implements MetricError {
+    /** Property name. */
     private final String name;
+
+    /** Relative error value. */
     private final double value;
 
     /**

@@ -1,11 +1,11 @@
 package comparator.jmh;
 
+import comparator.jmh.results.JMHAllocRateNorm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import comparator.jmh.results.JMHAllocRateNorm;
-
-class JMHAllocRateNormTest {
+/** JMHAllocRateNormTest. */
+final class JMHAllocRateNormTest {
     @Test
     void comparesAllocRateUsingAccuracy() {
         final JMHAllocRateNorm base = new JMHAllocRateNorm(100.0d, "B/op");

@@ -2,8 +2,8 @@ package comparator.jitlog;
 
 import comparator.Metric;
 import comparator.jitlog.jitwatch.JWConfig;
-import comparator.jitlog.jitwatch.model.JWJITDataModelWrapper;
 import comparator.jitlog.jitwatch.JWParsedLog;
+import comparator.jitlog.jitwatch.model.JWJITDataModelWrapper;
 import comparator.jitlog.jitwatch.model.JWMetaMemberWrapper;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
@@ -15,10 +15,17 @@ import org.adoptopenjdk.jitwatch.parser.ParserType;
  * Native code size metric for a target method extracted from a JIT log.
  */
 public final class NativeCodeSize implements Metric<Integer> {
-    private final TargetMethod targetMethod;
-    private final Path jitlog;
-    private Optional<Integer> cached;
+    /** Tier level 4. */
     private static final int TIER_LEVEL_4 = 4;
+
+    /** Target method. */
+    private final TargetMethod targetMethod;
+
+    /** JIT log. */
+    private final Path jitlog;
+
+    /** Cached. */
+    private Optional<Integer> cached;
 
     /**
      * Ctor.
@@ -44,16 +51,16 @@ public final class NativeCodeSize implements Metric<Integer> {
 
     private int sizeFromJitLog() {
         final JWJITDataModelWrapper model = new JWJITDataModelWrapper(
-                new JWParsedLog(
-                        ParserType.HOTSPOT, new JWConfig(this.targetMethod.classpath()), this.jitlog.toFile()
-                ).model()
+            new JWParsedLog(
+                ParserType.HOTSPOT, new JWConfig(this.targetMethod.classpath()), this.jitlog.toFile()
+            ).model()
         );
         final JWMetaMemberWrapper member = new JWMetaMemberWrapper(
-                model.findMetaMemberOrThrow(this.targetMethod.method())
+            model.findMetaMemberOrThrow(this.targetMethod.method())
         );
         return member.getLastCompilationOfTier(NativeCodeSize.TIER_LEVEL_4)
-                .map(Compilation::getNativeSize)
-                .orElse(-1);
+            .map(Compilation::getNativeSize)
+            .orElse(-1);
     }
 
     @Override
