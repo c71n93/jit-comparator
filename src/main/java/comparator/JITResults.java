@@ -41,9 +41,10 @@ public class JITResults implements Results {
         writer.println("---------");
     }
 
-    // TODO: asArtifactRow method is called many times and every time it creates new
-    // ArrayList. It may be very expensive and should be optimized.
     // @checkstyle DesignForExtension (8 lines)
+    // @todo #14:30min The asArtifactRow method is called many times and every
+    // time it creates new ArrayList. It may be very expensive and should be
+    // optimized.
     @Override
     public List<Artifact<?>> asArtifactRow() {
         final List<Artifact<?>> row = new ArrayList<>();

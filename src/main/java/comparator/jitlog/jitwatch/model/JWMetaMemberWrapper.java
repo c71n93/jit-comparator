@@ -171,7 +171,7 @@ public final class JWMetaMemberWrapper implements IMetaMember {
     }
 
     // @checkstyle ReturnCount (25 lines)
-    // TODO: implement enum for compilation tiers.
+    // @todo #14:30min Implement enum for compilation tiers.
     /**
      * getLastCompilationOfTier.
      *
@@ -183,7 +183,7 @@ public final class JWMetaMemberWrapper implements IMetaMember {
         for (int i = compilations.size() - 1; i >= 0; i--) {
             final Compilation compilation = compilations.get(i);
             if (compilation.getLevel() == tier) {
-                // TODO: Currently we are not support OSR compilations.
+                // @todo #14:30min Add support for OSR compilations.
                 if (compilation.isOSR()) {
                     JWMetaMemberWrapper.LOG.warn("OSR compilation was encountered.");
                     return Optional.empty();

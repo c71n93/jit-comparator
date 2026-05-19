@@ -106,16 +106,6 @@ public final class JWJITDataModelWrapper implements IReadOnlyJITDataModel {
         if (match != null) {
             return match;
         }
-        // TODO: not sure that we need this fallback
-        // final MetaClass metaClass =
-        // this.getPackageManager().getMetaClass(method.getDeclaringClass().getName());
-        // if (metaClass != null) {
-        // return metaClass.getMetaMembers().stream()
-        // .filter(member ->
-        // member.getMemberName().equals(method.getName())).findFirst()
-        // .orElseThrow(() -> new IllegalStateException("Target method not found in JIT
-        // log model"));
-        // }
         throw new IllegalStateException("Target is not present in JIT log model");
     }
 
@@ -130,7 +120,6 @@ public final class JWJITDataModelWrapper implements IReadOnlyJITDataModel {
     }
 
     private static List<String> parameterTypeNames(final Method method) {
-        // TODO: Try using stream API here.
         final List<String> names = new ArrayList<>();
         for (final Class<?> param : method.getParameterTypes()) {
             names.add(param.getName());

@@ -28,7 +28,7 @@ final class ErrorListener implements UniversalJITListener {
 
     @Override
     public void handleErrorEntry(final String entry) {
-        // TODO: Implement not silent listener, that will log errors somewhere.
+        // @todo #14:30min Implement not silent listener, that will log errors somewhere.
     }
 
     @Override

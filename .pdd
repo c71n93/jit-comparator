@@ -1,0 +1,14 @@
+--source=.
+--exclude=.git/**
+--exclude=.gradle/**
+--exclude=.gradle-user/**
+--exclude=.local/**
+--exclude=.idea/**
+--exclude=.vscode/**
+--exclude=build/**
+--exclude=**/.gradle/**
+--exclude=**/.gradle-user/**
+--exclude=**/build/**
+--exclude=**/.gitkeep
+--exclude=gradle/wrapper/*.jar
+--exclude=.DS_Store

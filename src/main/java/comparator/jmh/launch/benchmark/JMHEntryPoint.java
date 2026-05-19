@@ -38,7 +38,7 @@ public final class JMHEntryPoint {
             .warmupTime(config.warmupTime())
             .measurementIterations(config.measurementIterations())
             .measurementTime(config.measurementTime())
-            // TODO: Add possibility to configure number of forks via JMHConfig
+            // @todo #14:30min Add possibility to configure number of forks via JMHConfig.
             .forks(1)
             .jvmArgsAppend(
                 "-XX:CompileCommand=print," + TargetMethod.fromProperties().classMethodName(),

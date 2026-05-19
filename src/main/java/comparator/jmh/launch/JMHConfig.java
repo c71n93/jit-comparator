@@ -12,8 +12,6 @@ import org.openjdk.jmh.runner.options.TimeValue;
  */
 @SuppressWarnings({ "PMD.ProhibitPublicStaticMethods", "PMD.DataClass" })
 public final class JMHConfig implements JvmSystemProperties {
-    // TODO: to find parameters that will be suitable for our task. Noise in the
-    // values of jit artifacts should be low.
     /** Default warmup iterations. */
     private static final int DEFAULT_WARMUP_ITERATIONS = 10;
 
@@ -131,8 +129,8 @@ public final class JMHConfig implements JvmSystemProperties {
         return this.perfEnabled;
     }
 
-    // TODO: find a way to add fromProperties static method to the contract of
-    // JvmSystemProperties interface.
+    // @todo #14:30min Find a way to add fromProperties static method to the
+    // contract of JvmSystemProperties interface.
     /**
      * fromProperties.
      *
