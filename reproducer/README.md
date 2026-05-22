@@ -92,3 +92,20 @@ reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_
 
 The chart includes six per-run metrics: JMH score, allocations, instructions,
 memory loads, memory stores, and native code size.
+
+**Generate raw per-metric PDFs for one case:**
+
+```bash
+python3 reproducer/plotting/metric_difference.py \
+  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+```
+
+By default this reads the case `all_runs.csv` and creates one PDF per metric
+under:
+
+```text
+reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/metric_difference/
+```
+
+The charts include six raw metrics: JMH score, allocations, instructions,
+memory loads, memory stores, and native code size.
