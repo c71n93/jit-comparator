@@ -61,7 +61,7 @@ Important files:
 
 ## Plotting
 
-Generate a mean-difference PDF for one case:
+**Generate a mean-difference PDF for one case:**
 
 ```bash
 python3 reproducer/plotting/mean_difference.py \
@@ -76,3 +76,19 @@ reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_
 
 The chart includes five aggregated metrics: JMH score, allocations,
 instructions, memory loads, and memory stores.
+
+**Generate a per-run relative-difference PDF for one case:**
+
+```bash
+python3 reproducer/plotting/run_difference.py \
+  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+```
+
+By default this reads the case `all_runs.csv` and creates:
+
+```text
+reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/run_difference.pdf
+```
+
+The chart includes six per-run metrics: JMH score, allocations, instructions,
+memory loads, memory stores, and native code size.
