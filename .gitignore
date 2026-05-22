@@ -45,3 +45,10 @@ AGENTS.md
 
 ### Examples ###
 examples/*/*.class
+
+### Reproducer ###
+reproducer/runs/
+
+### Python ###
+__pycache__/
+*.pyc

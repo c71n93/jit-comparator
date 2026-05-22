@@ -32,6 +32,14 @@ CSV rows also include `JIT log file` and `JMH result file` path columns.
 - The target method should preferably return a value. `void` methods are more likely to be removed by JIT optimization as dead code.
 - The target method should preferably execute at least `1000` instructions. Around `50-100` instructions may come from non-optimized JMH wrapper overhead (`Method.invoke()`). By default this optimization should work and overhead will be around `10-20` instructions.
 
+## Reproducer
+
+The `reproducer/` directory contains a runner for curated baseline/variant cases.
+It compiles each case, runs Comparator repeatedly, preserves raw JIT/JMH artifacts,
+and writes per-case aggregate CSV files.
+
+See [reproducer/README.md](reproducer/README.md) for usage.
+
 ## API usage
 
 ### Run an analysis
