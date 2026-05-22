@@ -59,5 +59,20 @@ Important files:
 - `cases/<case_id>/all_runs.csv` - concatenated rows across runs;
 - `cases/<case_id>/summary.csv` - count, mean, stdev, min, and max per role.
 
-The MVP intentionally does not generate graphs or normalized percent-difference
-reports.
+## Plotting
+
+Generate a mean-difference PDF for one case:
+
+```bash
+python3 reproducer/plotting/mean_difference.py \
+  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+```
+
+By default this reads the case `summary.csv` and creates:
+
+```text
+reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/mean_difference.pdf
+```
+
+The chart includes five aggregated metrics: JMH score, allocations,
+instructions, memory loads, and memory stores.
