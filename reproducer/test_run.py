@@ -20,6 +20,21 @@ class DiscoveryTest(unittest.TestCase):
             self.write_case(root / "case01_example")
             cases = run.discover_cases(root)
             self.assertEqual(["case01_example"], [case.case_id for case in cases])
+            self.assertEqual(["variant"], [variant.role for variant in cases[0].variants])
+
+    def test_discovers_multi_variant_case(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            case_root = root / "case00_example"
+            source = case_root / "baseline" / "Example.java"
+            source.parent.mkdir(parents=True)
+            source.write_text("class Example { public static int run() { return 1; } }", encoding="utf-8")
+            for role in ["plain_array", "stream_boxed"]:
+                variant = case_root / "variants" / role / "Example.java"
+                variant.parent.mkdir(parents=True)
+                variant.write_text("class Example { public static int run() { return 1; } }", encoding="utf-8")
+            cases = run.discover_cases(root)
+            self.assertEqual(["plain_array", "stream_boxed"], [variant.role for variant in cases[0].variants])
 
     def test_rejects_multiple_baseline_sources(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -45,14 +60,22 @@ class AggregationTest(unittest.TestCase):
     def test_aggregates_synthetic_comparisons(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            case = run.Case("case01_example", root / "baseline.java", root / "variant.java", "Example")
+            case = run.Case(
+                "case01_example",
+                root / "baseline.java",
+                (
+                    run.CaseVariant("variant", root / "variant.java"),
+                    run.CaseVariant("stream_boxed", root / "stream_boxed.java"),
+                ),
+                "Example",
+            )
             run_dir = root / "cases" / case.case_id / "runs" / "run-001"
             run_dir.mkdir(parents=True)
             self.write_comparisons(run_dir / "comparisons.csv")
             run.aggregate_case(root, "session01", case)
             all_rows = self.read_csv(root / "cases" / case.case_id / "all_runs.csv")
             summary_rows = self.read_csv(root / "cases" / case.case_id / "summary.csv")
-            self.assertEqual(["baseline", "variant"], [row["role"] for row in all_rows])
+            self.assertEqual(["baseline", "variant", "stream_boxed"], [row["role"] for row in all_rows])
             self.assertTrue(any(row["metric"] == "score" for row in summary_rows))
 
     def test_writes_process_logs(self) -> None:
@@ -69,6 +92,7 @@ class AggregationTest(unittest.TestCase):
             writer.writeheader()
             writer.writerow({"Target": "case01_example/baseline", "score": "1.0"})
             writer.writerow({"Target": "case01_example/variant", "score": "2.0"})
+            writer.writerow({"Target": "case01_example/stream_boxed", "score": "3.0"})
 
     def read_csv(self, path: Path) -> list[dict[str, str]]:
         with path.open(newline="", encoding="utf-8") as stream:

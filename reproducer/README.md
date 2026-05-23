@@ -1,7 +1,9 @@
 # Reproducer
 
 The reproducer runs curated JIT instability cases from `reproducer/cases`.
-Each case contains a `baseline` Java source and an equivalent `variant` Java source.
+Each case contains a `baseline` Java source and one or more equivalent variant
+Java sources. Existing single-variant cases may use `variant/`; multi-variant
+cases use `variants/<role>/`.
 
 It can:
 
@@ -35,6 +37,12 @@ Run selected cases by prefix:
 python3 reproducer/run.py --runs 3 --include-cases case01,case03
 ```
 
+Run the primitive loop demonstration case:
+
+```bash
+python3 reproducer/run.py --runs 3 --include-cases case00
+```
+
 Useful options:
 
 - `--runs N` - required number of whole-case repeats;
@@ -42,6 +50,30 @@ Useful options:
 - `--session-id NAME` - fixed output session name;
 - `--cases-root PATH` - custom cases directory;
 - `--runs-root PATH` - custom output directory.
+
+## Case layout
+
+Single-variant cases can use the compatibility layout:
+
+```text
+case01_example/
+  baseline/Example.java
+  variant/Example.java
+```
+
+Multi-variant cases use named variant roles:
+
+```text
+case00_primitive_loop_examples/
+  baseline/PrimitiveLoopExample.java
+  variants/plain_array/PrimitiveLoopExample.java
+  variants/indexed_loop/PrimitiveLoopExample.java
+  variants/replace_all/PrimitiveLoopExample.java
+  variants/stream_boxed/PrimitiveLoopExample.java
+```
+
+Each role must contain exactly one package-less Java source with the same file
+name as the baseline and a static no-argument `run` method.
 
 ## Output
 

@@ -5,20 +5,21 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Strict CSV manifest of reproducer comparison pairs.
+ * Strict CSV manifest of reproducer comparison cases.
  */
 @SuppressWarnings({ "PMD.ProhibitPublicStaticMethods", "PMD.CyclomaticComplexity" })
 public final class ComparisonManifest {
-    /** Pairs grouped by case identifier. */
-    private final Map<String, ManifestPair> pairs;
+    /** Cases grouped by case identifier. */
+    private final Map<String, ManifestCase> cases;
 
-    private ComparisonManifest(final Map<String, ManifestPair> pairs) {
-        this.pairs = Map.copyOf(pairs);
+    private ComparisonManifest(final Map<String, ManifestCase> cases) {
+        this.cases = Collections.unmodifiableMap(new LinkedHashMap<>(cases));
     }
 
     /**
@@ -55,23 +56,23 @@ public final class ComparisonManifest {
         if (!ManifestEntry.HEADER.equals(rows.get(0))) {
             throw new IllegalArgumentException("Manifest header must be exactly: " + ManifestEntry.HEADER);
         }
-        final Map<String, MutablePair> grouped = new LinkedHashMap<>();
+        final Map<String, MutableCase> grouped = new LinkedHashMap<>();
         rows.stream().skip(1).map(ManifestEntry::new).forEach(entry -> {
-            final MutablePair pair = grouped.computeIfAbsent(entry.caseId(), key -> new MutablePair());
+            final MutableCase pair = grouped.computeIfAbsent(entry.caseId(), key -> new MutableCase());
             pair.add(entry);
         });
         return new ComparisonManifest(ComparisonManifest.freeze(grouped));
     }
 
     /**
-     * @return case pairs
+     * @return manifest cases
      */
-    public Map<String, ManifestPair> pairs() {
-        return this.pairs;
+    public Map<String, ManifestCase> cases() {
+        return this.cases;
     }
 
-    private static Map<String, ManifestPair> freeze(final Map<String, MutablePair> grouped) {
-        final Map<String, ManifestPair> result = new LinkedHashMap<>();
+    private static Map<String, ManifestCase> freeze(final Map<String, MutableCase> grouped) {
+        final Map<String, ManifestCase> result = new LinkedHashMap<>();
         grouped.forEach((caseId, pair) -> result.put(caseId, pair.freeze(caseId)));
         return result;
     }
@@ -106,41 +107,41 @@ public final class ComparisonManifest {
     }
 
     /**
-     * Mutable pair under construction.
+     * Mutable case under construction.
      */
-    private static final class MutablePair {
+    private static final class MutableCase {
         /** Baseline entry. */
         private ManifestEntry baseline;
 
-        /** Variant entry. */
-        private ManifestEntry variant;
+        /** Variant entries. */
+        private final List<ManifestEntry> variants = new ArrayList<>(0);
+
+        /** Seen roles. */
+        private final List<String> roles = new ArrayList<>(0);
 
         private void add(final ManifestEntry entry) {
+            if (this.roles.contains(entry.role())) {
+                throw new IllegalArgumentException(
+                    "Duplicate manifest role for case: " + entry.caseId() + "/"
+                        + entry.role()
+                );
+            }
+            this.roles.add(entry.role());
             if ("baseline".equals(entry.role())) {
-                this.baseline = this.requireEmpty(this.baseline, entry);
+                this.baseline = entry;
             } else {
-                this.variant = this.requireEmpty(this.variant, entry);
+                this.variants.add(entry);
             }
         }
 
-        private ManifestPair freeze(final String caseId) {
-            if (this.baseline == null || this.variant == null) {
+        private ManifestCase freeze(final String caseId) {
+            if (this.baseline == null || this.variants.isEmpty()) {
                 throw new IllegalArgumentException(
-                    "Manifest case must contain one baseline and one variant: "
+                    "Manifest case must contain one baseline and at least one variant: "
                         + caseId
                 );
             }
-            return new ManifestPair(this.baseline, this.variant);
-        }
-
-        private ManifestEntry requireEmpty(final ManifestEntry current, final ManifestEntry next) {
-            if (current != null) {
-                throw new IllegalArgumentException(
-                    "Duplicate manifest role for case: " + next.caseId() + "/"
-                        + next.role()
-                );
-            }
-            return next;
+            return new ManifestCase(this.baseline, this.variants);
         }
     }
 }

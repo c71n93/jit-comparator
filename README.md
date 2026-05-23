@@ -49,15 +49,19 @@ import comparator.Analysis;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 
-final Path classpath = Path.of("examples", "loop-computations");
-new Analysis(new TargetMethod(classpath, "PlainForExample", "run"))
+final Path classpath = Path.of(
+        "reproducer", "cases", "case00_primitive_loop_examples", "baseline"
+);
+new Analysis(new TargetMethod(classpath, "PrimitiveLoopExample", "run"))
         .results()
         .print(System.out);
 ```
 
 The classpath argument must point to a directory or JAR that contains compiled classes.
 
-The `examples/` folders do not include `.class` files, so compile them before running the examples.
+The `reproducer/cases/` folders do not include `.class` files, so compile the selected
+case role before running API examples. For `case00_primitive_loop_examples`, each role
+has its own classpath because all variants use the same `PrimitiveLoopExample` class name.
 
 ### Run an analysis with label
 
@@ -66,9 +70,11 @@ import comparator.Analysis;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 
-final Path classpath = Path.of("examples", "loop-computations");
+final Path classpath = Path.of(
+        "reproducer", "cases", "case00_primitive_loop_examples", "baseline"
+);
 new Analysis(
-        new TargetMethod(classpath, "PlainForExample", "run"),
+        new TargetMethod(classpath, "PrimitiveLoopExample", "run"),
         "baseline-for-loop"
 ).results().print(System.out);
 ```
@@ -85,17 +91,18 @@ import comparator.method.Classpath;
 import comparator.method.TargetMethod;
 import java.nio.file.Path;
 
-final Classpath classpath = new Classpath(Path.of("examples", "loop-computations"));
+final Path caseRoot = Path.of("reproducer", "cases", "case00_primitive_loop_examples");
+final Classpath baseline = new Classpath(caseRoot.resolve("baseline"));
+final Classpath plainArray = new Classpath(caseRoot.resolve("variants").resolve("plain_array"));
+final Classpath indexedLoop = new Classpath(caseRoot.resolve("variants").resolve("indexed_loop"));
+final Classpath streamBoxed = new Classpath(caseRoot.resolve("variants").resolve("stream_boxed"));
 
 new CsvComparisons(
         new CsvComparison(
-                new Analysis(new TargetMethod(classpath, "PlainForExample", "run")),
-                new Analysis(new TargetMethod(classpath, "StreamBoxedExample", "run")),
-                new Analysis(new TargetMethod(classpath, "PlainForIndexedExample", "run"))
-        ),
-        new CsvComparison(
-                new Analysis(new TargetMethod(classpath, "PlainForExample", "run")),
-                new Analysis(new TargetMethod(classpath, "PlainForReplaceAllExample", "run"))
+                new Analysis(new TargetMethod(baseline, "PrimitiveLoopExample", "run"), "baseline"),
+                new Analysis(new TargetMethod(plainArray, "PrimitiveLoopExample", "run"), "plain_array"),
+                new Analysis(new TargetMethod(indexedLoop, "PrimitiveLoopExample", "run"), "indexed_loop"),
+                new Analysis(new TargetMethod(streamBoxed, "PrimitiveLoopExample", "run"), "stream_boxed")
         )
 ).saveAsCsv(Path.of("comparisons.csv"));
 ```
@@ -104,28 +111,20 @@ new CsvComparisons(
 
 Example of `comparisons.csv` content in table form. File path columns are shortened for readability:
 
-Comparison 1
-
 | Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
-| PlainForExample::run | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
-| PlainForPlainArrayExample::run | 4.55 | 0.11 | 8040.03 | 0.00 | 25719.34 | 3281.44 | 1151.00 | 1552.00 | `.../PlainForPlainArrayExample-jit-log-...xml` | `.../PlainForPlainArrayExample-jmh-result-...json` | 1.40 | 1.79 |
-| PlainForIndexedExample::run | 25.64 | 0.12 | 38016.18 | 0.00 | 149624.24 | 41981.45 | 19787.82 | 1960.00 | `.../PlainForIndexedExample-jit-log-...xml` | `.../PlainForIndexedExample-jmh-result-...json` | 0.09 | 0.15 |
-
-Comparison 2
-
-| Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
-| PlainForExample::run | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
-| PlainForReplaceAllExample::run | 36.08 | 0.11 | 69952.25 | 0.00 | 240191.93 | 65149.11 | 32818.88 | 2336.00 | `.../PlainForReplaceAllExample-jit-log-...xml` | `.../PlainForReplaceAllExample-jmh-result-...json` | 0.44 | 0.59 |
+| baseline | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | Original | Original |
+| plain_array | 4.55 | 0.11 | 8040.03 | 0.00 | 25719.34 | 3281.44 | 1151.00 | 1552.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | 1.40 | 1.79 |
+| indexed_loop | 25.64 | 0.12 | 38016.18 | 0.00 | 149624.24 | 41981.45 | 19787.82 | 1960.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | 0.09 | 0.15 |
+| stream_boxed | 46.05 | 0.10 | 70232.32 | 0.00 | 243005.89 | 74453.67 | 32071.86 | 3528.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | 0.54 | 0.70 |
 
 ### Labeled comparison example
 
 ```java
 new CsvComparisons(
         new CsvComparison(
-                new Analysis(new TargetMethod(classpath, "PlainForExample", "run"), "Baseline"),
-                new Analysis(new TargetMethod(classpath, "StreamBoxedExample", "run"), "Stream")
+                new Analysis(new TargetMethod(baseline, "PrimitiveLoopExample", "run"), "Baseline"),
+                new Analysis(new TargetMethod(streamBoxed, "PrimitiveLoopExample", "run"), "Stream")
         )
 ).saveAsCsv(Path.of("labels-demo.csv"));
 ```
@@ -134,8 +133,8 @@ Example of `labels-demo.csv` content in table form:
 
 | Target | JMH primary score, us/op | JMH primary score relative error, ratio | Allocations, B/op | Allocations relative error, ratio | Instructions, #/op | Memory loads, #/op | Memory stores, #/op | Native code size, B | JIT log file | JMH result file | JIT metrics mean dissimilarity score | JIT metrics max dissimilarity score |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
-| Baseline | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PlainForExample-jit-log-...xml` | `.../PlainForExample-jmh-result-...json` | Original | Original |
-| Stream | 46.05 | 0.10 | 70232.32 | 0.00 | 243005.89 | 74453.67 | 32071.86 | 3528.00 | `.../StreamBoxedExample-jit-log-...xml` | `.../StreamBoxedExample-jmh-result-...json` | 0.54 | 0.70 |
+| Baseline | 22.09 | 0.10 | 38016.15 | 0.00 | 149402.64 | 43000.08 | 20805.29 | 2256.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | Original | Original |
+| Stream | 46.05 | 0.10 | 70232.32 | 0.00 | 243005.89 | 74453.67 | 32071.86 | 3528.00 | `.../PrimitiveLoopExample-jit-log-...xml` | `.../PrimitiveLoopExample-jmh-result-...json` | 0.54 | 0.70 |
 
 ## Comparison metrics
 

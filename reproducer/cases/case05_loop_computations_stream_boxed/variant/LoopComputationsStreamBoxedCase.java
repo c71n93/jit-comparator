@@ -1,7 +1,6 @@
 /*
  * Mechanism: plain counted loop vs boxed stream pipeline.
- * External provenance: compiler-comparator/examples/loop-computations/
- * PlainForExample.java -> StreamBoxedExample.java.
+ * External provenance: case00_primitive_loop_examples baseline -> stream_boxed.
  * Hypothesis: replacing a direct accumulation loop with a boxed stream
  * pipeline adds enough library and lambda machinery to change the optimized
  * code shape in a compact, easy-to-explain control example.

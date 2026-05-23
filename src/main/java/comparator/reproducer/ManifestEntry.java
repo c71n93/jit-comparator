@@ -126,8 +126,8 @@ public final class ManifestEntry {
     }
 
     private void validate() {
-        if (!"baseline".equals(this.role) && !"variant".equals(this.role)) {
-            throw new IllegalArgumentException("Manifest role must be baseline or variant: " + this.role);
+        if (!this.role.matches("[a-z][a-z0-9_]*")) {
+            throw new IllegalArgumentException("Manifest role must be a lowercase identifier: " + this.role);
         }
         if (!Files.isDirectory(this.classpath)) {
             throw new IllegalArgumentException("Manifest classpath must be an existing directory: " + this.classpath);

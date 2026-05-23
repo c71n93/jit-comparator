@@ -44,8 +44,8 @@ public final class ComparePairs {
             Files.createDirectories(options.output().toAbsolutePath().getParent());
             try (BufferedWriter writer = Files.newBufferedWriter(options.output(), StandardCharsets.UTF_8)) {
                 boolean headerWritten = false;
-                for (final ManifestPair pair : ComparisonManifest.fromFile(options.manifest()).pairs().values()) {
-                    headerWritten = this.writeComparison(pair, writer, headerWritten);
+                for (final ManifestCase comparison : ComparisonManifest.fromFile(options.manifest()).cases().values()) {
+                    headerWritten = this.writeComparison(comparison, writer, headerWritten);
                 }
             }
         } catch (final IOException exception) {
@@ -53,12 +53,12 @@ public final class ComparePairs {
         }
     }
 
-    private boolean writeComparison(final ManifestPair pair, final BufferedWriter writer,
+    private boolean writeComparison(final ManifestCase comparison, final BufferedWriter writer,
                                     final boolean headerWritten)
         throws IOException {
         final String csv = new CsvComparison(
-            this.analysis(pair.baseline()),
-            this.analysis(pair.variant())
+            this.analysis(comparison.baseline()),
+            comparison.variants().stream().map(this::analysis).toList()
         ).asCsv();
         final List<String> lines = new BufferedReaderLines(csv).asList();
         int start = 0;

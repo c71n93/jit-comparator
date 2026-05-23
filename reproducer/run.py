@@ -31,14 +31,25 @@ MANIFEST_HEADER = [
 
 
 @dataclass(frozen=True)
-class Case: 
+class CaseVariant:
+    """Variant source for one reproducer case role."""
+
+    role: str
+    source: Path
+
+
+@dataclass(frozen=True)
+class Case:
     """Curated reproducer case."""
 
     case_id: str
     baseline_source: Path
-    variant_source: Path
+    variants: tuple[CaseVariant, ...]
     class_name: str
     method_name: str = "run"
+
+    def roles(self) -> list[str]:
+        return ["baseline"] + [variant.role for variant in self.variants]
 
 
 class ReproducerError(RuntimeError):
@@ -151,12 +162,50 @@ def discover_cases(cases_root: Path) -> list[Case]:
 
 def case_from_directory(path: Path) -> Case:
     baseline = single_java_file(path / "baseline", path.name, "baseline")
-    variant = single_java_file(path / "variant", path.name, "variant")
-    if baseline.name != variant.name:
-        raise ReproducerError(f"Baseline and variant class names differ in {path.name}")
+    variants = variant_sources(path, baseline.name)
     source_contract(baseline)
-    source_contract(variant)
-    return Case(path.name, baseline, variant, baseline.stem)
+    for variant in variants:
+        source_contract(variant.source)
+    return Case(path.name, baseline, tuple(variants), baseline.stem)
+
+
+def variant_sources(case_root: Path, baseline_name: str) -> list[CaseVariant]:
+    variants: list[CaseVariant] = []
+    legacy = case_root / "variant"
+    if legacy.exists():
+        variants.append(CaseVariant("variant", matching_java_file(legacy, case_root.name, "variant", baseline_name)))
+    modern = case_root / "variants"
+    if modern.exists():
+        if not modern.is_dir():
+            raise ReproducerError(f"Case {case_root.name} variants path is not a directory: {modern}")
+        for role_dir in sorted(path for path in modern.iterdir() if path.is_dir()):
+            role = role_dir.name
+            require_role(role, case_root.name)
+            variants.append(
+                CaseVariant(role, matching_java_file(role_dir, case_root.name, role, baseline_name))
+            )
+    if not variants:
+        raise ReproducerError(f"Case {case_root.name} must contain variant/ or variants/<role>/ directories")
+    roles = [variant.role for variant in variants]
+    if len(roles) != len(set(roles)):
+        raise ReproducerError(f"Case {case_root.name} contains duplicate variant roles: {','.join(roles)}")
+    return variants
+
+
+def matching_java_file(directory: Path, case_id: str, role: str, baseline_name: str) -> Path:
+    source = single_java_file(directory, case_id, role)
+    if source.name != baseline_name:
+        raise ReproducerError(
+            f"Case {case_id} role {role} class file must match baseline file name: {baseline_name}"
+        )
+    return source
+
+
+def require_role(role: str, case_id: str) -> None:
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", role):
+        raise ReproducerError(f"Case {case_id} variant role must be a lowercase identifier: {role}")
+    if role == "baseline":
+        raise ReproducerError(f"Case {case_id} variant role is reserved: {role}")
 
 
 def single_java_file(directory: Path, case_id: str, role: str) -> Path:
@@ -278,7 +327,10 @@ class Session:
                 {
                     "case_id": case.case_id,
                     "baseline_source": str(case.baseline_source),
-                    "variant_source": str(case.variant_source),
+                    "variants": [
+                        {"role": variant.role, "source": str(variant.source)}
+                        for variant in case.variants
+                    ],
                     "class_name": case.class_name,
                     "method_name": case.method_name,
                     "runs": self.runs,
@@ -302,9 +354,14 @@ class Session:
         paths = RunPaths(run_root)
         try:
             log(f"Starting {case.case_id} {run_name}")
-            paths.create()
-            compile_source(case.baseline_source, paths.baseline_classes, case.class_name, "compile-baseline", paths)
-            compile_source(case.variant_source, paths.variant_classes, case.class_name, "compile-variant", paths)
+            paths.create(case.roles())
+            compile_source(
+                case.baseline_source, paths.classes("baseline"), case.class_name, "compile-baseline", paths
+            )
+            for variant in case.variants:
+                compile_source(
+                    variant.source, paths.classes(variant.role), case.class_name, f"compile-{variant.role}", paths
+                )
             write_manifest(case, paths)
             log(f"Starting comparison for {case.case_id} {run_name}")
             compare(case, paths, runtime_classpath, self.repo_root)
@@ -366,19 +423,18 @@ class RunPaths:
         self.logs = root / "logs"
         self.pairs = root / "pairs.csv"
         self.comparisons = root / "comparisons.csv"
-        self.baseline_classes = root / "classes" / "baseline"
-        self.variant_classes = root / "classes" / "variant"
-        self.baseline_artifacts = root / "artifacts" / "baseline"
-        self.variant_artifacts = root / "artifacts" / "variant"
 
-    def create(self) -> None:
-        for directory in [
-            self.baseline_classes,
-            self.variant_classes,
-            self.baseline_artifacts,
-            self.variant_artifacts,
-            self.logs,
-        ]:
+    def classes(self, role: str) -> Path:
+        return self.root / "classes" / role
+
+    def artifacts(self, role: str) -> Path:
+        return self.root / "artifacts" / role
+
+    def create(self, roles: list[str]) -> None:
+        for role in roles:
+            self.classes(role).mkdir(parents=True, exist_ok=True)
+            self.artifacts(role).mkdir(parents=True, exist_ok=True)
+        for directory in [self.logs]:
             directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -395,10 +451,9 @@ def compile_source(source: Path, classes: Path, class_name: str, stage: str, pat
 
 
 def write_manifest(case: Case, paths: RunPaths) -> None:
-    rows = [
-        manifest_row(case, "baseline", paths.baseline_classes, paths.baseline_artifacts),
-        manifest_row(case, "variant", paths.variant_classes, paths.variant_artifacts),
-    ]
+    rows = [manifest_row(case, "baseline", paths.classes("baseline"), paths.artifacts("baseline"))]
+    for variant in case.variants:
+        rows.append(manifest_row(case, variant.role, paths.classes(variant.role), paths.artifacts(variant.role)))
     write_csv(paths.pairs, MANIFEST_HEADER, rows)
 
 
@@ -466,10 +521,8 @@ def aggregate_case(session_root: Path, sid: str, case: Case) -> None:
 
 
 def role_from_target(target: str) -> str:
-    if target.endswith("/baseline"):
-        return "baseline"
-    if target.endswith("/variant"):
-        return "variant"
+    if "/" in target:
+        return target.rsplit("/", maxsplit=1)[1]
     return ""
 
 
