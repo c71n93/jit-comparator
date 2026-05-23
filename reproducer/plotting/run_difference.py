@@ -243,7 +243,7 @@ class RunDifferencePlot:
         axis.grid(axis="x", color="#edf2f7", linewidth=0.8)
         axis.set_axisbelow(True)
         axis.set_xlabel("Run index", fontsize=13)
-        axis.set_ylabel("Разница, %", fontsize=13)
+        axis.set_ylabel("Difference, %", fontsize=13)
         axis.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:.0f}%"))
         axis.xaxis.set_major_locator(MaxNLocator(integer=True))
         axis.tick_params(axis="both", labelsize=11, colors="#4f6273")
@@ -264,9 +264,9 @@ class RunDifferencePlot:
 
         title = (
             f"{self.case_dir.name}\n"
-            "Разница в метриках между оригиналом "
-            "и изменённым вариантом "
-            "для каждого эксперимента"
+            "Metric difference between original "
+            "and modified variant "
+            "for each experiment"
         )
         axis.set_title(title, fontsize=16, pad=18)
         figure.subplots_adjust(left=0.08, right=0.78, top=0.84, bottom=0.13)

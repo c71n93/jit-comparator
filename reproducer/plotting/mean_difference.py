@@ -209,7 +209,7 @@ class MeanDifferencePlot:
         axis.axhline(0.0, color="#4f6273", linewidth=1.5)
         axis.grid(axis="y", color="#e5eaef", linewidth=1.0)
         axis.set_axisbelow(True)
-        axis.set_ylabel("Разница, %", fontsize=13)
+        axis.set_ylabel("Difference, %", fontsize=13)
         axis.set_xticks(x_positions)
         axis.set_xticklabels(labels, fontsize=11, fontweight="bold")
         axis.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:.0f}%"))
@@ -239,7 +239,7 @@ class MeanDifferencePlot:
         count = self.summaries[0].count
         title = (
             f"{self.case_dir.name}\n"
-            f"Разница в метриках между оригиналом и изменённым вариантом (N = {count})"
+            f"Metric difference between original and modified variant (N = {count})"
         )
         axis.set_title(title, fontsize=16, pad=20)
         figure.subplots_adjust(left=0.08, right=0.99, top=0.82, bottom=0.24)

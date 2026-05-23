@@ -423,7 +423,7 @@ class MetricDifferencePlot:
 
         title = (
             f"{self.case_dir.name}\n"
-            f"Значение метрики \"{self.metric.spec.label}\" для каждого эксперимента"
+            f"Metric \"{self.metric.spec.label}\" value for each experiment"
         )
         axis.set_title(title, fontsize=16, pad=18)
         figure.subplots_adjust(left=0.08, right=0.72, top=0.84, bottom=0.13)
