@@ -65,14 +65,18 @@ Important files:
 
 ```bash
 python3 reproducer/plotting/mean_difference.py \
-  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+  reproducer/runs/example-session/cases/example-case
 ```
 
 By default this reads the case `summary.csv` and creates:
 
 ```text
-reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/mean_difference.pdf
+reproducer/runs/example-session/cases/example-case/mean_difference.pdf
 ```
+
+Example plot:
+
+![Mean difference plot](plotting/examples/mean_difference.png)
 
 The chart includes five aggregated metrics: JMH score, allocations,
 instructions, memory loads, and memory stores.
@@ -81,14 +85,18 @@ instructions, memory loads, and memory stores.
 
 ```bash
 python3 reproducer/plotting/run_difference.py \
-  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+  reproducer/runs/example-session/cases/example-case
 ```
 
 By default this reads the case `all_runs.csv` and creates:
 
 ```text
-reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/run_difference.pdf
+reproducer/runs/example-session/cases/example-case/run_difference.pdf
 ```
+
+Example plot:
+
+![Run difference plot](plotting/examples/run_difference.png)
 
 The chart includes six per-run metrics: JMH score, allocations, instructions,
 memory loads, memory stores, and native code size.
@@ -97,15 +105,19 @@ memory loads, memory stores, and native code size.
 
 ```bash
 python3 reproducer/plotting/metric_difference.py \
-  reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop
+  reproducer/runs/example-session/cases/example-case
 ```
 
 By default this reads the case `all_runs.csv` and creates one PDF per metric
 under:
 
 ```text
-reproducer/runs/test-run/20260522_165213/cases/case01_use_string_builder_concat_loop/metric_difference/
+reproducer/runs/example-session/cases/example-case/metric_difference/
 ```
+
+Example plot:
+
+![Native code size by run plot](plotting/examples/native_code_size_by_run.png)
 
 The charts include six raw metrics: JMH score, allocations, instructions,
 memory loads, memory stores, and native code size.
