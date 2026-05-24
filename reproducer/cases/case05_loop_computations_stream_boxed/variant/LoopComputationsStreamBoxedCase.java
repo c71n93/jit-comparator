@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlainForExample {
+public class LoopComputationsStreamBoxedCase {
     private static final int N = 2_000;
 
     private static int compute(int x) {
         int y = x * 31;
-        y ^= (y >>> 16);
+        y ^= y >>> 16;
         return y + 7;
     }
 
@@ -15,10 +15,10 @@ public class PlainForExample {
         for (int i = 0; i < N; i++) {
             list.add(i);
         }
-        long sum = 0;
-        for (int v : list) {
-            sum += compute(v);
-        }
-        return sum;
+
+        return list.stream()
+            .map(LoopComputationsStreamBoxedCase::compute)
+            .mapToLong(Integer::longValue)
+            .sum();
     }
 }

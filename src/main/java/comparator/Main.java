@@ -11,6 +11,15 @@ public final class Main {
     /** Run method. */
     private static final String RUN_METHOD = "run";
 
+    /** Case root. */
+    private static final Path CASE_ROOT = Path.of("reproducer", "cases", "case00_primitive_loop_examples");
+
+    /** Class name. */
+    private static final String CLASS_NAME = "PrimitiveLoopExample";
+
+    /** Variants directory. */
+    private static final String VARIANTS = "variants";
+
     private Main() {
         // Intentionally empty.
     }
@@ -21,29 +30,25 @@ public final class Main {
      * @param args command line arguments
      */
     public static void main(final String[] args) {
-        final Classpath loopComputationsClasspath = new Classpath(Path.of("examples", "loop-computations"));
         new CsvComparisons(
             new CsvComparison(
-                new Analysis(
-                    new TargetMethod(loopComputationsClasspath, "PlainForExample", Main.RUN_METHOD)
-                ),
-                new Analysis(
-                    new TargetMethod(
-                        loopComputationsClasspath, "PlainForPlainArrayExample", Main.RUN_METHOD
-                    )
-                ),
-                new Analysis(
-                    new TargetMethod(loopComputationsClasspath, "PlainForIndexedExample", Main.RUN_METHOD)
-                ),
-                new Analysis(
-                    new TargetMethod(
-                        loopComputationsClasspath, "PlainForReplaceAllExample", Main.RUN_METHOD
-                    )
-                ),
-                new Analysis(
-                    new TargetMethod(loopComputationsClasspath, "StreamBoxedExample", Main.RUN_METHOD)
-                )
+                Main.analysis(Main.CASE_ROOT.resolve("baseline"), "baseline"),
+                Main.analysis(Main.variant("plain_array"), "plain_array"),
+                Main.analysis(Main.variant("indexed_loop"), "indexed_loop"),
+                Main.analysis(Main.variant("replace_all"), "replace_all"),
+                Main.analysis(Main.variant("stream_boxed"), "stream_boxed")
             )
         ).saveAsCsv(Path.of("comparisons.csv"));
+    }
+
+    private static Path variant(final String role) {
+        return Main.CASE_ROOT.resolve(Main.VARIANTS).resolve(role);
+    }
+
+    private static Analysis analysis(final Path classpath, final String label) {
+        return new Analysis(
+            new TargetMethod(new Classpath(classpath), Main.CLASS_NAME, Main.RUN_METHOD),
+            label
+        );
     }
 }

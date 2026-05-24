@@ -48,3 +48,10 @@ jacocoTestReport {
 application {
     mainClass = 'comparator.Main'
 }
+
+tasks.register('printRuntimeClasspath') {
+    dependsOn classes
+    doLast {
+        println sourceSets.main.runtimeClasspath.asPath
+    }
+}

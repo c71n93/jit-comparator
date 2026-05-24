@@ -1,9 +1,9 @@
-public class PlainForPlainArrayExample {
+public class PrimitiveLoopExample {
     private static final int N = 2_000;
 
     private static int compute(final int x) {
         int y = x * 31;
-        y ^= (y >>> 16);
+        y ^= y >>> 16;
         return y + 7;
     }
 
@@ -13,8 +13,8 @@ public class PlainForPlainArrayExample {
             values[i] = i;
         }
         long sum = 0;
-        for (final int v : values) {
-            sum += compute(v);
+        for (final int value : values) {
+            sum += compute(value);
         }
         return sum;
     }

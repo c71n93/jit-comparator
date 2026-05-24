@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlainForReplaceAllExample {
+public class PrimitiveLoopExample {
     private static final int N = 2_000;
 
     private static int compute(final int x) {
         int y = x * 31;
-        y ^= (y >>> 16);
+        y ^= y >>> 16;
         return y + 7;
     }
 
@@ -15,10 +15,10 @@ public class PlainForReplaceAllExample {
         for (int i = 0; i < N; i++) {
             list.add(i);
         }
-        list.replaceAll(PlainForReplaceAllExample::compute);
+        list.replaceAll(PrimitiveLoopExample::compute);
         long sum = 0;
-        for (int v : list) {
-            sum += v;
+        for (final int value : list) {
+            sum += value;
         }
         return sum;
     }
