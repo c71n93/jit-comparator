@@ -1,3 +1,12 @@
+/*
+ * Mechanism: primitive loop control examples.
+ * Hypothesis: equivalent ways to build, traverse, and transform a small
+ * integer collection can produce different optimized code shapes even when
+ * they return the same result.
+ * Expected symptom: plain-array and indexed-loop variants should stay close to
+ * the baseline, while replaceAll and boxed-stream variants are expected to show
+ * larger instruction/load/store and native-code-size movement.
+ */
 import java.util.ArrayList;
 import java.util.List;
 

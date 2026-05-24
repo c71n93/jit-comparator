@@ -4,7 +4,8 @@
  * Hypothesis: replacing repeated string concatenation with an explicit
  * StringBuilder changes the optimized code shape enough that HotSpot does
  * not converge to the same machine code.
- * Expected symptom: strong allocation drop and supporting counter drift.
+ * Expected symptom: allocation and supporting-counter drift in the
+ * StringBuilder variant.
  * Loop note: the outer run() loop is intentionally large enough to keep the
  * coarse comparator run comfortably above ~10 us/op.
  */

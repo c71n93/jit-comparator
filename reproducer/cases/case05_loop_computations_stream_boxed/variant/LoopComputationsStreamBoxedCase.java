@@ -1,14 +1,3 @@
-/*
- * Mechanism: plain counted loop vs boxed stream pipeline.
- * External provenance: case00_primitive_loop_examples baseline -> stream_boxed.
- * Hypothesis: replacing a direct accumulation loop with a boxed stream
- * pipeline adds enough library and lambda machinery to change the optimized
- * code shape in a compact, easy-to-explain control example.
- * Expected symptom: higher JMH and supporting instruction/load/store drift in
- * the stream version.
- * Minimality note: this is already the control example itself; only the class
- * name was unified so the comparator can treat the pair as one refactoring.
- */
 import java.util.ArrayList;
 import java.util.List;
 

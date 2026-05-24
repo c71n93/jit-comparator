@@ -1,9 +1,10 @@
 /*
  * Mechanism: make-fields-and-variables-final.
  * Aggregate provenance: FuzzInput04_FieldMethod/1-make-fields-and-variables-final.
- * Hypothesis: making the reflective Method field final lets the JIT treat the
- * reference as stable and simplifies the reflective call path.
- * Expected symptom: strong counter reduction and smaller generated code.
+ * Hypothesis: making the reflective Method field final gives HotSpot a more
+ * stable field shape around the reflective call path.
+ * Expected symptom: counter and generated-code-size movement in the final-field
+ * variant.
  * Loop note: the outer run() loop is intentionally large enough to keep the
  * coarse comparator run comfortably above ~10 us/op.
  */
