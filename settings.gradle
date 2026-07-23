@@ -1,15 +1,6 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenCentral()
-        maven { url = 'https://jitpack.io' }
-    }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'org.unifycode') {
-                useModule("com.github.c71n93.unifycode-java:unifycode-gradle-plugin:${requested.version}")
-            }
-        }
     }
 }
 

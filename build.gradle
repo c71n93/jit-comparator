@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.unifycode' version 'e899268610'
+    id 'io.github.c71n93.unifycode' version '0.1.0'
     id 'jacoco'
 }
 
